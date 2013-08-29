@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor" >
+
+    <RelativeLayout
+        android:id="@+id/HeaderWrapper"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/player_height"
+        android:layout_alignParentTop="true" >
+
+        <io.vov.vitamio.widget.CenterLayout
+            android:id="@+id/play_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <io.vov.vitamio.widget.VideoView
+                android:id="@+id/surface_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </io.vov.vitamio.widget.CenterLayout>
+
+        <io.vov.vitamio.widget.MediaController
+            android:id="@+id/media_play_controler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="@dimen/play_controls_margin_bottom"
+            android:paddingLeft="@dimen/play_controls_padding"
+            android:paddingRight="@dimen/play_controls_padding" >
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" >
+
+                <ImageButton
+                    android:id="@+id/mediacontroller_play_pause"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:background="#00000000" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/play_controls_height"
+                    android:layout_alignParentBottom="true"
+                    android:paddingLeft="@dimen/play_controls_padding"
+                    android:paddingRight="@dimen/play_controls_padding" >
+
+                    <TextView
+                        android:id="@+id/mediacontroller_time_current"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:textColor="@color/play_time" />
+
+                    <TextView
+                        android:id="@+id/mediacontroller_time_total"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:textColor="@color/play_time" />
+
+                    <SeekBar
+                        android:id="@+id/mediacontroller_seekbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_centerVertical="true"
+                        android:focusable="true"
+                        android:max="1000" />
+                </RelativeLayout>
+            </RelativeLayout>
+        </io.vov.vitamio.widget.MediaController>
+
+        <RelativeLayout
+            android:id="@+id/VideoAction"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true" >
+
+            <ImageView
+                android:id="@+id/detailPic"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:adjustViewBounds="false"
+                android:scaleType="fitXY"
+                android:src="@drawable/big_bg" />
+
+            <ImageButton
+                android:id="@+id/play_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="#00000000"
+                android:src="@drawable/play_button"
+                android:visibility="invisible" />
+
+            <com.basv.gifmoviewview.widget.GifMovieView
+                android:id="@+id/loading_gif"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                app:gif="@drawable/big_loading" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/HeaderWrapper"
+        android:layout_marginTop="@dimen/play_margin_padding_top_bottom"
+        android:paddingLeft="@dimen/play_margin_padding_left_right"
+        android:paddingRight="@dimen/play_margin_padding_left_right" >
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/play_title_size"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/title"
+            android:layout_marginBottom="16dp"
+            android:textSize="@dimen/play_author_size" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/seprate_line"
+            android:layout_below="@+id/author"
+            android:background="@android:color/darker_gray" />
+
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/author"
+            android:paddingTop="@dimen/play_margin_padding_top_bottom"
+            android:scrollbars="vertical" >
+
+            <TextView
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="26dp"
+                android:scrollbars="vertical"
+                android:textColor="@color/textColor"
+                android:textSize="@dimen/play_content_size" />
+        </ScrollView>
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor" >
+
+    <ImageView
+        android:id="@+id/smail"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/photo_height"
+        android:scaleType="fitXY"
+        android:src="@drawable/smail" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/smail"
+        android:paddingLeft="@dimen/setting_padding"
+        android:paddingRight="@dimen/setting_padding"
+        android:scrollbars="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <RelativeLayout
+                android:id="@+id/only_for_wifi"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/setting_item_height" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="@dimen/setting_text_padding_left"
+                    android:text="@string/only_for_wifi" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/seprate_line"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/setting_item_line" />
+
+                <org.jraf.android.backport.switchwidget.Switch
+                    android:id="@+id/switch_wifi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/use_hd"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/setting_item_height" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="@dimen/setting_text_padding_left"
+                    android:text="@string/use_hd" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/seprate_line"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/setting_item_line" />
+
+                <org.jraf.android.backport.switchwidget.Switch
+                    android:id="@+id/switch_hd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/clear_cache"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/setting_item_height"
+                android:background="@drawable/list_item"
+                android:clickable="true" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="@dimen/setting_text_padding_left"
+                    android:text="@string/clear_cache" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/seprate_line"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/setting_item_line" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/recommend"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/setting_item_height"
+                android:background="@drawable/list_item"
+                android:clickable="true" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="@dimen/setting_text_padding_left"
+                    android:text="@string/recommend" />
+
+                <ImageView
+                    android:layout_width="@dimen/setting_arrow"
+                    android:layout_height="@dimen/setting_arrow"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/right_chevron" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/seprate_line"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/setting_item_line" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/suggestion"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/setting_item_height"
+                android:background="@drawable/list_item"
+                android:clickable="true" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="@dimen/setting_text_padding_left"
+                    android:text="@string/suggestion" />
+
+                <ImageView
+                    android:layout_width="@dimen/setting_arrow"
+                    android:layout_height="@dimen/setting_arrow"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/right_chevron" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/seprate_line"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/setting_item_line" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/focus_us"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/setting_item_height"
+                android:background="@drawable/list_item"
+                android:clickable="true" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="@dimen/setting_text_padding_left"
+                    android:text="@string/focus_us" />
+
+                <ImageView
+                    android:layout_width="@dimen/setting_arrow"
+                    android:layout_height="@dimen/setting_arrow"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/right_chevron" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/seprate_line"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/setting_item_line" />
+            </RelativeLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

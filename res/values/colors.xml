@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="textColor">#909090</color>
+    <color name="backgroundColor">#E8E8E0</color>
+    <color name="backgroundColorPress">#DBDBD3</color>
+    <color name="videoListItemContentColor">#909090</color>
+    <color name="indicatorBlue">#4c9aec</color>
+    <color name="loadBackground">#4c9aec</color>
+    <color name="play_time">#ffffff</color>
+    <color name="setting_item_line">#9FA19F</color>
+
+</resources>

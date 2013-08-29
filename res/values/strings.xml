@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">AnimeTaste</string>
+    <string name="action_settings">设置</string>
+    <string name="only_for_wifi">Only for Wifi</string>
+    <string name="use_hd">高清视频</string>
+	<string name="suggestion">意见反馈</string>
+	<string name="recommend">推荐给小伙伴</string>
+	<string name="clear_cache">清空缓存</string>
+	<string name="focus_us">关注我们</string>
+	
+	<string name="hint_suggesion">给我们提意见</string>
+	<string name="send">发送</string>
+	<string name="empty">_(:з」∠)_</string>
+	<string name="thanks">感谢您的反馈</string>
+</resources>
