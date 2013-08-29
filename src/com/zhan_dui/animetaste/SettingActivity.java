@@ -1,28 +1,31 @@
 package com.zhan_dui.animetaste;
 
+import java.util.HashMap;
+
 import org.jraf.android.backport.switchwidget.Switch;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.Toast;
+import cn.sharesdk.framework.Platform;
+import cn.sharesdk.framework.PlatformActionListener;
+import cn.sharesdk.framework.ShareSDK;
+import cn.sharesdk.sina.weibo.SinaWeibo;
 
-import com.baidu.social.core.BaiduSocialException;
-import com.baidu.social.core.BaiduSocialListener;
-import com.baidu.social.core.Utility;
-import com.baidu.sociallogin.BaiduSocialLogin;
 import com.umeng.analytics.MobclickAgent;
-import com.zhan_dui.config.SocialLoginConfig;
 
 public class SettingActivity extends ActionBarActivity implements
-		OnClickListener, OnCheckedChangeListener, BaiduSocialListener {
+		OnClickListener, OnCheckedChangeListener, PlatformActionListener {
 	private View mOnlyForWifi;
 	private View mClearCache;
 	private View mRecommand;
@@ -35,8 +38,10 @@ public class SettingActivity extends ActionBarActivity implements
 	private SharedPreferences mSharedPreferences;
 
 	private Context mContext;
+	private SinaWeibo mWeibo;
 
-	private BaiduSocialLogin mSocialLogin;
+	private static final int AUTH = 1;
+	private static final int FOLLOW = 2;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,9 +72,7 @@ public class SettingActivity extends ActionBarActivity implements
 		mSwitchOnlyWifi.setChecked(mSharedPreferences.getBoolean("only_wifi",
 				true));
 		mSwitchUseHD.setChecked(mSharedPreferences.getBoolean("use_hd", false));
-		mSocialLogin = BaiduSocialLogin.getInstance(mContext,
-				SocialLoginConfig.BaiduAppKey);
-
+		ShareSDK.initSDK(mContext);
 	}
 
 	@Override
@@ -90,8 +93,9 @@ public class SettingActivity extends ActionBarActivity implements
 
 			break;
 		case R.id.focus_us:
-//			mSocialLogin.supportWeiBoSso(SocialLoginConfig.WeiboAppKey);
-			mSocialLogin.authorize(this, Utility.SHARE_TYPE_SINA_WEIBO, this);
+			mWeibo = new SinaWeibo(mContext);
+			mWeibo.setPlatformActionListener(this);
+			mWeibo.authorize();
 			break;
 		default:
 			break;
@@ -125,19 +129,39 @@ public class SettingActivity extends ActionBarActivity implements
 		MobclickAgent.onPause(mContext);
 	}
 
+	@SuppressLint("HandlerLeak")
+	private Handler mSocialLoginHandler = new Handler() {
+		public void handleMessage(android.os.Message msg) {
+			switch (msg.what) {
+			case FOLLOW:
+				Toast.makeText(mContext, "关注成功", Toast.LENGTH_SHORT).show();
+				break;
+
+			default:
+				break;
+			}
+		};
+	};
+
 	@Override
-	public void onApiComplete(String response) {
-		Log.i("Weibo Auth", Utility.decodeUnicode(response));
+	public void onCancel(Platform platform, int action) {
+
 	}
 
 	@Override
-	public void onAuthComplete(Bundle bundle) {
-		
+	public void onComplete(Platform platform, int action,
+			HashMap<String, Object> res) {
+		if (action == Platform.ACTION_AUTHORIZING) {
+			platform.followFriend("AnimeTaste全球动画精选");
+		}
+		if (action == Platform.ACTION_FOLLOWING_USER) {
+			mSocialLoginHandler.sendEmptyMessage(FOLLOW);
+		}
 	}
 
 	@Override
-	public void onError(BaiduSocialException exception) {
-		Log.e("Weibo Error", exception.toString());
+	public void onError(Platform platform, int action, Throwable throwable) {
+
 	}
 
 }

@@ -22,6 +22,26 @@
         android:logo="@drawable/ab_icon"
         android:theme="@style/AppTheme" >
 
+        <!-- ShareSDK开始 -->
+        <activity
+            android:name="cn.sharesdk.framework.ShareSDKUIShell"
+            android:configChanges="keyboardHidden|orientation"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" >
+
+            <!--
+        Adapter继承自
+        cn.sharesdk.framework. authorize.AuthorizeAdapter，
+        可以监听到页面的生命周期，也能获取页面的各种UI控件。 
+        开发者可以通过继承AuthorizeAdapter，重写其方法，
+        并获取各种UI来自定义这个页面的行为。
+            -->
+            <meta-data
+                android:name="Adapter"
+                android:value="cn.sharesdk.demo.MyAdapter" />
+        </activity>
+        <!-- ShareSDK结束 -->
         <!-- 百度社交组件开始 -->
         <activity
             android:name="com.baidu.social.core.PlatformSsoCallBackActivity"
