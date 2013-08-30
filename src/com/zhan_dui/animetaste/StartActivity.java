@@ -191,6 +191,11 @@ public class StartActivity extends ActionBarActivity implements
 			startActivity(intent);
 			return true;
 		}
+		if(item.getItemId() == R.id.action_fav){
+			Intent intent = new Intent(mContext,FavActivity.class);
+			startActivity(intent);
+			return true;
+		}
 		return super.onOptionsItemSelected(item);
 	}
 

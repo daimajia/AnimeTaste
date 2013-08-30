@@ -61,6 +61,7 @@ public class VideoDataFormat implements Serializable {
 		DetailPic = getValue(object, "DetailPic");
 		UpdatedTime = getValue(object, "UpdatedTime");
 		InsertTime = getValue(object, "InsertTime");
+		
 		IsFav = false;
 	}
 	

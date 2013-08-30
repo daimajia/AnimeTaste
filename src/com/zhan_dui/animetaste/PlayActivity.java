@@ -15,6 +15,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -31,9 +32,9 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.basv.gifmoviewview.widget.GifMovieView;
 import com.squareup.picasso.Picasso;
@@ -184,10 +185,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mShareActionProvider = (ShareActionProvider) MenuItemCompat
 				.getActionProvider(item);
 		mShareActionProvider.setShareIntent(getDefaultIntent());
-		MenuItem fav = menu.findItem(R.id.action_fav);
-		if (mVideoInfo.isFavorite()) {
-			fav.setIcon(R.drawable.ab_fav_active);
-		}
+		mFavMenuItem = menu.findItem(R.id.action_fav);
+		new CheckIsFavorite().execute();
 		return true;
 	}
 
@@ -338,5 +337,23 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mDetailImageView.setImageBitmap(bitmap);
 		mLoadingGif.setVisibility(View.INVISIBLE);
 		mPlayButton.setVisibility(View.VISIBLE);
+	}
+
+	private class CheckIsFavorite extends AsyncTask<Void, Void, Boolean> {
+
+		@Override
+		protected Boolean doInBackground(Void... params) {
+			return mVideoDB.isFav(mVideoInfo.Id);
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			super.onPostExecute(result);
+			mVideoInfo.setFav(result);
+			if (result) {
+				mFavMenuItem.setIcon(R.drawable.ab_fav_active);
+			}
+		}
+
 	}
 }

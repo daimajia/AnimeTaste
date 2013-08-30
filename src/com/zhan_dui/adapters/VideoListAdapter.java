@@ -1,7 +1,6 @@
 package com.zhan_dui.adapters;
 
 import java.util.ArrayList;
-import java.util.zip.DataFormatException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,6 +38,15 @@ public class VideoListAdapter extends BaseAdapter implements Target, Callback {
 		mLayoutInflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mVideoList = videoList;
+	}
+
+	public void setFav(int vid, boolean fav) {
+		for (int i = 0; i < mVideoList.size(); i++) {
+			if (mVideoList.get(i).Id == vid) {
+				mVideoList.get(i).setFav(fav);
+				break;
+			}
+		}
 	}
 
 	public static VideoListAdapter build(Context context, JSONArray data)

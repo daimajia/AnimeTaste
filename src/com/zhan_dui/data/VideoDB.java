@@ -178,4 +178,19 @@ public class VideoDB extends SQLiteOpenHelper {
 		return getReadableDatabase().query(TABLE_VIDEO_NAME, null, null, null,
 				null, null, null, String.valueOf(count));
 	}
+
+	public Cursor getFav(int start, int limit) {
+		return getFavVideos(start, start + limit);
+	}
+
+	public Cursor getAllFav() {
+		return getFavVideos(0, Integer.MAX_VALUE);
+	}
+
+	private Cursor getFavVideos(int start, int end) {
+		int count = end - start;
+		return getReadableDatabase().query(TABLE_VIDEO_NAME, null, "isfav=?",
+				new String[] { String.valueOf(true) }, null, null, null,
+				start + "," + count);
+	}
 }

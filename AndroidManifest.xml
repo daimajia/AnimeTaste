@@ -43,6 +43,7 @@
         </activity>
         <!-- ShareSDK结束 -->
 
+
         <!-- 友盟开始 -->
         <meta-data
             android:name="UMENG_APPKEY"
@@ -65,6 +66,10 @@
             android:theme="@android:style/Theme.NoTitleBar"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <!-- Vitamio结束 -->
+        <activity
+            android:name="com.zhan_dui.animetaste.FavActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" >
+        </activity>
         <activity
             android:name="com.zhan_dui.animetaste.PlayActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" >
