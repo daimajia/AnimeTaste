@@ -6,7 +6,8 @@
     <ImageView
         android:id="@+id/show_image"
         android:layout_width="fill_parent"
-        android:layout_height="200dp"
-        android:scaleType="fitXY" />
+        android:layout_height="@dimen/show_gallery_placeholder"
+        android:scaleType="fitXY"
+        android:src="@drawable/big_bg" />
 
 </LinearLayout>

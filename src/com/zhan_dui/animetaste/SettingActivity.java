@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CompoundButton;
@@ -26,12 +27,9 @@ import com.umeng.analytics.MobclickAgent;
 
 public class SettingActivity extends ActionBarActivity implements
 		OnClickListener, OnCheckedChangeListener, PlatformActionListener {
-	private View mOnlyForWifi;
-	private View mClearCache;
 	private View mRecommand;
 	private View mSuggestion;
 	private View mFocusUs;
-	private View mUseHD;
 
 	private Switch mSwitchOnlyWifi;
 	private Switch mSwitchUseHD;
@@ -40,8 +38,9 @@ public class SettingActivity extends ActionBarActivity implements
 	private Context mContext;
 	private SinaWeibo mWeibo;
 
-	private static final int AUTH = 1;
+	private static final int FAIL_AUTH = 1;
 	private static final int FOLLOW = 2;
+	private static final int FOLLOW_REPEAT = 3;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +49,6 @@ public class SettingActivity extends ActionBarActivity implements
 		setContentView(R.layout.activity_setting);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		mClearCache = findViewById(R.id.clear_cache);
-		mUseHD = findViewById(R.id.use_hd);
 		mRecommand = findViewById(R.id.recommend);
 		mSuggestion = findViewById(R.id.suggestion);
 		mFocusUs = findViewById(R.id.focus_us);
@@ -62,7 +59,6 @@ public class SettingActivity extends ActionBarActivity implements
 		mSharedPreferences = PreferenceManager
 				.getDefaultSharedPreferences(this);
 
-		mClearCache.setOnClickListener(this);
 		mRecommand.setOnClickListener(this);
 		mSuggestion.setOnClickListener(this);
 		mFocusUs.setOnClickListener(this);
@@ -80,8 +76,6 @@ public class SettingActivity extends ActionBarActivity implements
 		switch (v.getId()) {
 		case R.id.only_for_wifi:
 			break;
-		case R.id.clear_cache:
-			break;
 		case R.id.use_hd:
 
 			break;
@@ -90,7 +84,14 @@ public class SettingActivity extends ActionBarActivity implements
 			startActivity(intent);
 			break;
 		case R.id.recommend:
-
+			Intent shareIntent = new Intent(Intent.ACTION_SEND);
+			shareIntent.setType("text/plain");
+			shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
+					getText(R.string.share_title));
+			shareIntent.putExtra(android.content.Intent.EXTRA_TEXT,
+					getText(R.string.share_body));
+			startActivity(Intent.createChooser(shareIntent,
+					getText(R.string.share_via)));
 			break;
 		case R.id.focus_us:
 			mWeibo = new SinaWeibo(mContext);
@@ -129,14 +130,28 @@ public class SettingActivity extends ActionBarActivity implements
 		MobclickAgent.onPause(mContext);
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == android.R.id.home) {
+			finish();
+			return true;
+		}
+		return super.onContextItemSelected(item);
+	}
+
 	@SuppressLint("HandlerLeak")
 	private Handler mSocialLoginHandler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
 			switch (msg.what) {
 			case FOLLOW:
-				Toast.makeText(mContext, "关注成功", Toast.LENGTH_SHORT).show();
+			case FOLLOW_REPEAT:
+				Toast.makeText(mContext, R.string.follow_success,
+						Toast.LENGTH_SHORT).show();
 				break;
-
+			case FAIL_AUTH:
+				Toast.makeText(mContext, R.string.auth_failed,
+						Toast.LENGTH_SHORT).show();
+				break;
 			default:
 				break;
 			}
@@ -161,7 +176,12 @@ public class SettingActivity extends ActionBarActivity implements
 
 	@Override
 	public void onError(Platform platform, int action, Throwable throwable) {
-
+		if (action == Platform.ACTION_FOLLOWING_USER) {
+			mSocialLoginHandler.sendEmptyMessage(FOLLOW_REPEAT);
+		}
+		if (action == Platform.ACTION_AUTHORIZING) {
+			mSocialLoginHandler.sendEmptyMessage(FAIL_AUTH);
+		}
 	}
 
 }

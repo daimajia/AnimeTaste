@@ -42,15 +42,6 @@
                 android:value="cn.sharesdk.demo.MyAdapter" />
         </activity>
         <!-- ShareSDK结束 -->
-        <!-- 百度社交组件开始 -->
-        <activity
-            android:name="com.baidu.social.core.PlatformSsoCallBackActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" >
-        </activity>
-        <!-- 百度社交组件结束 -->
-
 
         <!-- 友盟开始 -->
         <meta-data

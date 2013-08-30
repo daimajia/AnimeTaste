@@ -5,11 +5,14 @@ import java.io.Serializable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class DataFormat implements Serializable {
+import android.database.Cursor;
+
+public class VideoDataFormat implements Serializable {
 
 	private static final long serialVersionUID = -4028400856156956769L;
-	private final String OriginVideoUrl;
 
+	public final String OriginVideoUrl;
+	public final Integer Id;
 	public final String Name;
 	public final String HDVideoUrl;
 	public final String CommonVideoUrl;
@@ -21,12 +24,16 @@ public class DataFormat implements Serializable {
 	public final String InsertTime;
 	public final String UpdatedTime;
 
+	private Boolean IsFav;
+
 	public static final String NONE_VALUE = "-1";
 
-	public DataFormat(String name, String videoUrl, String author, String year,
-			String brief, String homePic, String detailPic, String insertTime,
-			String updatedTime) {
+	private VideoDataFormat(Integer id, String name, String videoUrl,
+			String author, String year, String brief, String homePic,
+			String detailPic, String insertTime, String updatedTime,
+			Boolean isFav) {
 		super();
+		Id = id;
 		Name = name;
 		OriginVideoUrl = videoUrl;
 		CommonVideoUrl = getCommonVideoUrl(videoUrl);
@@ -38,9 +45,11 @@ public class DataFormat implements Serializable {
 		DetailPic = detailPic;
 		InsertTime = insertTime;
 		UpdatedTime = updatedTime;
+		IsFav = isFav;
 	}
 
-	public DataFormat(JSONObject object) {
+	private VideoDataFormat(JSONObject object) {
+		Id = Integer.valueOf(getValue(object, "Id"));
 		Name = getValue(object, "Name");
 		OriginVideoUrl = getValue(object, "VideoUrl");
 		HDVideoUrl = getHDVideoUrl(OriginVideoUrl);
@@ -52,6 +61,39 @@ public class DataFormat implements Serializable {
 		DetailPic = getValue(object, "DetailPic");
 		UpdatedTime = getValue(object, "UpdatedTime");
 		InsertTime = getValue(object, "InsertTime");
+		IsFav = false;
+	}
+	
+	public Boolean isFavorite(){
+		return IsFav;
+	}
+	
+	public void setFav(Boolean fav){
+		IsFav = fav;
+	}
+
+	public static VideoDataFormat build(JSONObject object) {
+		return new VideoDataFormat(object);
+	}
+
+	public static VideoDataFormat build(Cursor cursor) {
+		int id = cursor.getInt(cursor.getColumnIndex("id"));
+		String name = cursor.getString(cursor.getColumnIndex("name"));
+		String videoUrl = cursor.getString(cursor.getColumnIndex("videourl"));
+		String author = cursor.getString(cursor.getColumnIndex("author"));
+		String year = cursor.getString(cursor.getColumnIndex("year"));
+		String brief = cursor.getString(cursor.getColumnIndex("brief"));
+		String homePic = cursor.getString(cursor.getColumnIndex("homepic"));
+		String detailPic = cursor.getString(cursor.getColumnIndex("detailpic"));
+		String insertTime = cursor.getString(cursor
+				.getColumnIndex("inserttime"));
+		String updatedTime = cursor.getString(cursor
+				.getColumnIndex("updatetime"));
+
+		Boolean isFav = Boolean.valueOf(cursor.getString(cursor
+				.getColumnIndex("isfav")));
+		return new VideoDataFormat(id, name, videoUrl, author, year, brief,
+				homePic, detailPic, insertTime, updatedTime, isFav);
 	}
 
 	private static String getCommonVideoUrl(String url) {

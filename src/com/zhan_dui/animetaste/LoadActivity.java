@@ -46,8 +46,10 @@ public class LoadActivity extends ActionBarActivity {
 			@Override
 			public void onFailure(Throwable error, String content) {
 				super.onFailure(error, content);
-				Toast.makeText(getApplicationContext(), "error",
+				Toast.makeText(getApplicationContext(), R.string.error_load,
 						Toast.LENGTH_SHORT).show();
+				startActivity(new Intent(mContext, StartActivity.class));
+				finish();
 			}
 		});
 
@@ -64,4 +66,5 @@ public class LoadActivity extends ActionBarActivity {
 		super.onPause();
 		MobclickAgent.onPause(mContext);
 	}
+
 }

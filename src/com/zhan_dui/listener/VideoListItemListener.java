@@ -6,14 +6,14 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import com.zhan_dui.animetaste.PlayActivity;
-import com.zhan_dui.modal.DataFormat;
+import com.zhan_dui.modal.VideoDataFormat;
 
 public class VideoListItemListener implements OnClickListener {
 
-	private DataFormat mData;
+	private VideoDataFormat mData;
 	private Context mContext;
 
-	public VideoListItemListener(Context context, DataFormat data) {
+	public VideoListItemListener(Context context, VideoDataFormat data) {
 		mData = data;
 		mContext = context;
 	}

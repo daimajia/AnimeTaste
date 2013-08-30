@@ -27,4 +27,6 @@
 	<dimen name="setting_item_padding">8dp</dimen>
 	<dimen name="play_margin_padding_top_bottom">16dp</dimen>
 	<dimen name="play_margin_padding_left_right">18dp</dimen>
+	
+	<dimen name="show_gallery_placeholder">200dp</dimen>
 </resources>

@@ -31,6 +31,7 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
@@ -39,8 +40,8 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.Target;
 import com.umeng.analytics.MobclickAgent;
-import com.zhan_dui.modal.DataFormat;
-import com.zhan_dui.utils.DensityUtils;
+import com.zhan_dui.data.VideoDB;
+import com.zhan_dui.modal.VideoDataFormat;
 import com.zhan_dui.utils.OrientationHelper;
 
 public class PlayActivity extends ActionBarActivity implements OnClickListener,
@@ -52,7 +53,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	private ShareActionProvider mShareActionProvider;
 	private CenterLayout mVideoWrapper;
 	private VideoView mVideoView;
-	private MediaPlayer mMediaPlayer;
 	private ImageView mDetailImageView;
 	private ImageButton mPlayButton;
 	private GifMovieView mLoadingGif;
@@ -64,12 +64,14 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	private Context mContext;
 	private SharedPreferences mSharedPreferences;
+	private VideoDB mVideoDB;
 
 	private View mVideoAction;
 
-	private DataFormat mVideoInfo;
+	private VideoDataFormat mVideoInfo;
 
 	private OrientationEventListener mOrientationEventListener;
+	private MenuItem mFavMenuItem;
 
 	@Override
 	public void onCreate(Bundle savedInstance) {
@@ -77,7 +79,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		if (!LibsChecker.checkVitamioLibs(this))
 			return;
 		mContext = this;
-		mVideoInfo = (DataFormat) (getIntent().getExtras()
+		mVideoDB = new VideoDB(mContext, VideoDB.NAME, null, VideoDB.VERSION);
+		mVideoInfo = (VideoDataFormat) (getIntent().getExtras()
 				.getSerializable("VideoInfo"));
 		setContentView(R.layout.activity_play);
 
@@ -156,6 +159,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		if (mOrientationEventListener.canDetectOrientation()) {
 			mOrientationEventListener.enable();
 		}
+		mVideoInfo.setFav(mVideoDB.isFav(mVideoInfo.Id));
 	}
 
 	@Override
@@ -180,6 +184,10 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mShareActionProvider = (ShareActionProvider) MenuItemCompat
 				.getActionProvider(item);
 		mShareActionProvider.setShareIntent(getDefaultIntent());
+		MenuItem fav = menu.findItem(R.id.action_fav);
+		if (mVideoInfo.isFavorite()) {
+			fav.setIcon(R.drawable.ab_fav_active);
+		}
 		return true;
 	}
 
@@ -282,6 +290,25 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		case android.R.id.home:
 			prepareStop();
 			finish();
+			return true;
+		case R.id.action_fav:
+			if (mVideoInfo.isFavorite()) {
+				if (mVideoDB.removeFav(mVideoInfo) > 0) {
+					Toast.makeText(mContext, "删除成功", Toast.LENGTH_SHORT).show();
+					item.setIcon(R.drawable.ab_fav_normal);
+					mVideoInfo.setFav(false);
+				} else {
+					Toast.makeText(mContext, "删除失败", Toast.LENGTH_SHORT).show();
+				}
+			} else {
+				if (mVideoDB.insertFav(mVideoInfo) > 0) {
+					Toast.makeText(mContext, "收藏成功", Toast.LENGTH_SHORT).show();
+					item.setIcon(R.drawable.ab_fav_active);
+					mVideoInfo.setFav(true);
+				} else {
+					Toast.makeText(mContext, "收藏失败", Toast.LENGTH_SHORT).show();
+				}
+			}
 			return true;
 		default:
 			break;

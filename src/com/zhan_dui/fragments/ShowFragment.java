@@ -11,23 +11,23 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 import com.zhan_dui.animetaste.R;
 import com.zhan_dui.listener.VideoListItemListener;
-import com.zhan_dui.modal.DataFormat;
+import com.zhan_dui.modal.VideoDataFormat;
 
 @SuppressLint("ValidFragment")
 public class ShowFragment extends Fragment {
 
-	private final DataFormat mVideoInfo;
+	private final VideoDataFormat mVideoInfo;
 	private ImageView mShowImageView;
 
 	private ShowFragment() {
 		mVideoInfo = null;
 	}
 
-	private ShowFragment(DataFormat VideoInfo) {
+	private ShowFragment(VideoDataFormat VideoInfo) {
 		mVideoInfo = VideoInfo;
 	}
 
-	public static ShowFragment newInstance(DataFormat VideoInfo) {
+	public static ShowFragment newInstance(VideoDataFormat VideoInfo) {
 		return new ShowFragment(VideoInfo);
 	}
 
@@ -37,9 +37,10 @@ public class ShowFragment extends Fragment {
 		View layout = inflater
 				.inflate(R.layout.fragment_show, container, false);
 		mShowImageView = (ImageView) layout.findViewById(R.id.show_image);
+		mShowImageView.setImageResource(R.drawable.big_bg);
 		Picasso.with(getActivity().getApplicationContext())
 				.load(mVideoInfo.DetailPic).placeholder(R.drawable.big_bg)
-				.into(mShowImageView);
+				.error(R.drawable.big_bg).into(mShowImageView);
 		mShowImageView.setTag(mVideoInfo);
 		mShowImageView.setOnClickListener(new VideoListItemListener(
 				getActivity(), mVideoInfo));

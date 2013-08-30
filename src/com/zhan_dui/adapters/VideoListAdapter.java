@@ -1,11 +1,13 @@
 package com.zhan_dui.adapters;
 
 import java.util.ArrayList;
+import java.util.zip.DataFormatException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
@@ -21,29 +23,44 @@ import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.Target;
 import com.zhan_dui.animetaste.R;
 import com.zhan_dui.listener.VideoListItemListener;
-import com.zhan_dui.modal.DataFormat;
+import com.zhan_dui.modal.VideoDataFormat;
 
 public class VideoListAdapter extends BaseAdapter implements Target, Callback {
 	private Context mContext;
 	private LayoutInflater mLayoutInflater;
 	private final Typeface mRobotoTitle;
-	private ArrayList<DataFormat> mVideoList = new ArrayList<DataFormat>();
+	private ArrayList<VideoDataFormat> mVideoList;
 
-	public VideoListAdapter(Context context, JSONArray data)
-			throws JSONException {
-		for (int i = 0; i < data.length(); i++) {
-			mVideoList.add(new DataFormat(data.getJSONObject(i)));
-		}
+	private VideoListAdapter(Context context,
+			ArrayList<VideoDataFormat> videoList) {
 		mRobotoTitle = Typeface.createFromAsset(context.getAssets(),
 				"fonts/Roboto-Bold.ttf");
 		mContext = context;
 		mLayoutInflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		mVideoList = videoList;
+	}
+
+	public static VideoListAdapter build(Context context, JSONArray data)
+			throws JSONException {
+		ArrayList<VideoDataFormat> videos = new ArrayList<VideoDataFormat>();
+		for (int i = 0; i < data.length(); i++) {
+			videos.add(VideoDataFormat.build(data.getJSONObject(i)));
+		}
+		return new VideoListAdapter(context, videos);
+	}
+
+	public static VideoListAdapter build(Context context, Cursor cursor) {
+		ArrayList<VideoDataFormat> videos = new ArrayList<VideoDataFormat>();
+		while (cursor.moveToNext()) {
+			videos.add(VideoDataFormat.build(cursor));
+		}
+		return new VideoListAdapter(context, videos);
 	}
 
 	public void addVideosFromJsonArray(JSONArray videos) throws JSONException {
 		for (int i = 0; i < videos.length(); i++) {
-			mVideoList.add(new DataFormat(videos.getJSONObject(i)));
+			mVideoList.add(VideoDataFormat.build(videos.getJSONObject(i)));
 		}
 	}
 
@@ -84,7 +101,7 @@ public class VideoListAdapter extends BaseAdapter implements Target, Callback {
 			contentTextView = holder.contentText;
 			thumbImageView = holder.thumbImageView;
 		}
-		DataFormat video = (DataFormat) getItem(position);
+		VideoDataFormat video = (VideoDataFormat) getItem(position);
 
 		Picasso.with(mContext).load(video.HomePic)
 				.placeholder(R.drawable.placeholder_thumb)

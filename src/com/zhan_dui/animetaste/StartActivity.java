@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
@@ -23,11 +24,11 @@ import android.widget.ListView;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.umeng.analytics.MobclickAgent;
-import com.umeng.fb.FeedbackAgent;
 import com.viewpagerindicator.PageIndicator;
 import com.viewpagerindicator.UnderlinePageIndicator;
 import com.zhan_dui.adapters.ShowGalleryPagerAdapter;
 import com.zhan_dui.adapters.VideoListAdapter;
+import com.zhan_dui.data.VideoDB;
 import com.zhan_dui.modal.DataFetcher;
 
 public class StartActivity extends ActionBarActivity implements
@@ -46,11 +47,16 @@ public class StartActivity extends ActionBarActivity implements
 
 	private LayoutInflater mLayoutInflater;
 	private View mLoadView;
+	private VideoDB mVideoDB;
+
+	private int mDefaultPrepareCount = 15;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = this;
+		mVideoDB = new VideoDB(mContext, VideoDB.TABLE_VIDEO_NAME, null,
+				VideoDB.VERSION);
 		setContentView(R.layout.activity_start);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		mVideoList = (ListView) findViewById(R.id.videoList);
@@ -59,45 +65,60 @@ public class StartActivity extends ActionBarActivity implements
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mLoadView = mLayoutInflater.inflate(R.layout.load_item, null);
 		mVideoList.setOnScrollListener(this);
-		init(getIntent().getStringExtra("LoadData"));
-		FeedbackAgent agent = new FeedbackAgent(mContext);
-		agent.sync();
+
+		View headerView = mLayoutInflater.inflate(R.layout.gallery_item, null,
+				false);
+		mVideoList.addHeaderView(headerView);
+		mShowPager = (ViewPager) headerView.findViewById(R.id.pager);
+		mShowPager.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				PointF downP = new PointF();
+				PointF curP = new PointF();
+				int act = event.getAction();
+				if (act == MotionEvent.ACTION_DOWN
+						|| act == MotionEvent.ACTION_MOVE
+						|| act == MotionEvent.ACTION_UP) {
+					((ViewGroup) v).requestDisallowInterceptTouchEvent(true);
+					if (downP.x == curP.x && downP.y == curP.y) {
+						return false;
+					}
+				}
+				return false;
+			}
+		});
+		mShowIndicator = (UnderlinePageIndicator) headerView
+				.findViewById(R.id.indicator);
+
+		if (getIntent().hasExtra("LoadData")) {
+			init(getIntent().getStringExtra("LoadData"));
+		} else {
+			init();
+		}
+	}
+
+	public void init() {
+		Cursor cursor = mVideoDB.getVideos(mDefaultPrepareCount);
+		mShowAdapter = new ShowGalleryPagerAdapter(getSupportFragmentManager(),
+				cursor, 4);
+		mShowPager.setAdapter(mShowAdapter);
+		mVideoAdapter = VideoListAdapter.build(mContext, cursor);
+		mVideoList.setAdapter(mVideoAdapter);
+		mShowIndicator.setViewPager(mShowPager);
 	}
 
 	public void init(String data) {
 		try {
 			JSONArray videoList = new JSONArray(data);
-			View headerView = mLayoutInflater.inflate(R.layout.gallery_item,
-					null, false);
-			mVideoList.addHeaderView(headerView);
-			mShowPager = (ViewPager) headerView.findViewById(R.id.pager);
-			mShowPager.setOnTouchListener(new OnTouchListener() {
-				@Override
-				public boolean onTouch(View v, MotionEvent event) {
-					PointF downP = new PointF();
-					PointF curP = new PointF();
-					int act = event.getAction();
-					if (act == MotionEvent.ACTION_DOWN
-							|| act == MotionEvent.ACTION_MOVE
-							|| act == MotionEvent.ACTION_UP) {
-						((ViewGroup) v)
-								.requestDisallowInterceptTouchEvent(true);
-						if (downP.x == curP.x && downP.y == curP.y) {
-							return false;
-						}
-					}
-					return false;
-				}
-			});
-
-			mShowIndicator = (UnderlinePageIndicator) headerView
-					.findViewById(R.id.indicator);
+			if (videoList != null) {
+				new AddToDBThread(videoList, true).start();
+			}
 			mShowAdapter = new ShowGalleryPagerAdapter(
 					getSupportFragmentManager(), videoList, 4);
 			mShowPager.setAdapter(mShowAdapter);
-			mShowIndicator.setViewPager(mShowPager);
-			mVideoAdapter = new VideoListAdapter(mContext, videoList);
+			mVideoAdapter = VideoListAdapter.build(mContext, videoList);
 			mVideoList.setAdapter(mVideoAdapter);
+			mShowIndicator.setViewPager(mShowPager);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -132,6 +153,10 @@ public class StartActivity extends ActionBarActivity implements
 			super.onSuccess(statusCode, response);
 			if (statusCode == 200 && response.has("list")) {
 				try {
+					if (mCurrentPage < 3) {
+						new AddToDBThread(response.getJSONArray("list"), false)
+								.start();
+					}
 					mVideoAdapter.addVideosFromJsonArray(response
 							.getJSONArray("list"));
 					mVideoAdapter.notifyDataSetChanged();
@@ -179,6 +204,25 @@ public class StartActivity extends ActionBarActivity implements
 	protected void onPause() {
 		super.onPause();
 		MobclickAgent.onPause(mContext);
+	}
+
+	public class AddToDBThread extends Thread {
+		private JSONArray mVideos;
+		private Boolean mReoveAllWithoutFav;
+
+		public AddToDBThread(JSONArray videos, boolean removeAllWithoutFav) {
+			mVideos = videos;
+			mReoveAllWithoutFav = removeAllWithoutFav;
+		}
+
+		@Override
+		public void run() {
+			super.run();
+			if (mReoveAllWithoutFav) {
+				mVideoDB.removeAllVideosWithoutFav();
+			}
+			mVideoDB.insertVideos(mVideos);
+		}
 	}
 
 }
