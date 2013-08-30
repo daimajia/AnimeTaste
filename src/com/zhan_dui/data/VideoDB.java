@@ -161,6 +161,14 @@ public class VideoDB extends SQLiteOpenHelper {
 		}
 	}
 
+	public int removeAllFavs() {
+		ContentValues values = new ContentValues();
+		values.put("isfav", String.valueOf(false));
+		getWritableDatabase().update(TABLE_VIDEO_NAME, values, "isfav=?",
+				new String[] { String.valueOf(true) });
+		return getWritableDatabase().delete(TABLE_FAV_NAME, null, null);
+	}
+
 	public int removeFav(VideoDataFormat video) {
 		return removeFav(video.Id);
 	}

@@ -19,5 +19,16 @@
     <string name="share_title">分享给你</string>
     <string name="share_body">AnimeTaste</string>
     <string name="error_load">获取动画失败，请检查网络是否正常</string>
+    
+    <string name="delete_title">提示</string>
+    <string name="delete_body">确定要删除吗？</string>
+    <string name="delete_ok">确定</string>
+    <string name="delete_cancel">取消</string>
+    <string name="delete_success">删除成功</string>
+    <string name="delete_fail">删除失败</string>
+    
+    <string name="delete_all">全部删除</string>
+    <string name="delete_all_tip">全部删除?</string>
+    <string name="delete_null">这里空空如也，快去收藏些自己喜爱的动画吧</string>
 
 </resources>

@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -118,6 +119,13 @@ public class VideoListAdapter extends BaseAdapter implements Target, Callback {
 		contentTextView.setText(video.Brief);
 		convertView.setOnClickListener(new VideoListItemListener(mContext,
 				video));
+		convertView.setOnLongClickListener(new OnLongClickListener() {
+			// 保证长按事件传递
+			@Override
+			public boolean onLongClick(View v) {
+				return false;
+			}
+		});
 		return convertView;
 	}
 

@@ -15,14 +15,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/smail"
-        android:paddingLeft="@dimen/setting_padding"
-        android:paddingRight="@dimen/setting_padding"
         android:scrollbars="vertical" >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/setting_padding"
+            android:paddingRight="@dimen/setting_padding" >
 
             <RelativeLayout
                 android:id="@+id/only_for_wifi"
