@@ -34,6 +34,7 @@ public class LoadActivity extends ActionBarActivity {
 			AlertDialog.Builder builder = new AlertDialog.Builder(mContext)
 					.setTitle(R.string.only_wifi_title).setMessage(
 							R.string.only_wifi_body);
+			builder.setCancelable(false);
 			builder.setPositiveButton(R.string.only_wifi_ok,
 					new OnClickListener() {
 

@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -54,6 +55,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	private ShareActionProvider mShareActionProvider;
 	private CenterLayout mVideoWrapper;
 	private VideoView mVideoView;
+	private Button mZoomButton;
 	private ImageView mDetailImageView;
 	private ImageButton mPlayButton;
 	private GifMovieView mLoadingGif;
@@ -89,6 +91,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+		mZoomButton = (Button) findViewById(R.id.screen_btn);
+		mZoomButton.setOnClickListener(this);
 		mVideoControls = (MediaController) findViewById(R.id.media_play_controler);
 		mVideoView = (VideoView) findViewById(R.id.surface_view);
 		mVideoView.setMediaController(mVideoControls);
@@ -130,7 +134,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 		mOrientationEventListener = new OrientationEventListener(mContext) {
 
-			@SuppressLint("NewApi")
 			@Override
 			public void onOrientationChanged(int orientation) {
 				if (mVideoView.isPlaying()) {
@@ -138,21 +141,10 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 							mCurrentScape);
 					if (tending != OrientationHelper.NOTHING) {
 						if (tending == OrientationHelper.LANDSCAPE) {
-							mVideoControls.hide();
-							if (Build.VERSION.SDK_INT >= 9) {
-								setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-							} else {
-								setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-							}
-							setPlayerWindowSize(FULL_WIDTH, FULL_HEIGHT, false);
+							setFullScreenPlay();
 						} else if (tending == OrientationHelper.PORTRAIT) {
-							setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-							setPlayerWindowSize(
-									FULL_WIDTH,
-									getResources().getDimensionPixelSize(
-											R.dimen.player_height), true);
+							setSmallScreenPlay();
 						}
-						mCurrentScape = tending;
 					}
 				}
 			}
@@ -163,6 +155,26 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		}
 		mVideoInfo.setFav(mVideoDB.isFav(mVideoInfo.Id));
 
+	}
+
+	@SuppressLint("InlinedApi")
+	private void setFullScreenPlay() {
+		mVideoControls.hide();
+		if (Build.VERSION.SDK_INT >= 9) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+		} else {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		}
+		setPlayerWindowSize(FULL_WIDTH, FULL_HEIGHT, false);
+		mCurrentScape = OrientationHelper.LANDSCAPE;
+	}
+
+	private void setSmallScreenPlay() {
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		setPlayerWindowSize(FULL_WIDTH,
+				getResources().getDimensionPixelSize(R.dimen.player_height),
+				true);
+		mCurrentScape = OrientationHelper.PORTRAIT;
 	}
 
 	@Override
@@ -243,6 +255,19 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			mVideoView.start();
 			setPlayerWindowSize(FULL_WIDTH, getResources()
 					.getDimensionPixelSize(R.dimen.player_height), true);
+		}
+		if (v.getId() == R.id.screen_btn) {
+			if (mOrientationEventListener != null) {
+				mOrientationEventListener.disable();
+			}
+
+			if (mCurrentScape == OrientationHelper.LANDSCAPE) {
+				v.setBackgroundResource(R.drawable.screensize_zoomout_button);
+				setSmallScreenPlay();
+			} else if (mCurrentScape == OrientationHelper.PORTRAIT) {
+				v.setBackgroundResource(R.drawable.screensize_zoomin_button);
+				setFullScreenPlay();
+			}
 		}
 	}
 
