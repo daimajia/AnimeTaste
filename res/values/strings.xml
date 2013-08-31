@@ -16,8 +16,11 @@
     <string name="auth_failed">认证失败</string>
     <string name="follow_success">关注成功</string>
     <string name="share_via">分享给小伙伴</string>
-    <string name="share_title">分享给你</string>
-    <string name="share_body">AnimeTaste</string>
+    <string name="share_title">AnimeTaste分享给你</string>
+    <string name="share_video_title">《%1$s》分享给你</string>
+    <string name="share_video_body">《%1$s》这部动画真的很棒，分享给你。%2$s @AnimeTaste全球动画精选</string>
+    <string name="share_app_body">AnimeTaste（品赏艾尼莫）是国内首个关注独立动画的网站。
+移动版聚焦更新的全球独立动画的传播，让您随时随地能观看动画，分享快乐给更多好友。品味动画，重拾幻想。官方：http://i.animetaste.net/ 微博：@AnimeTaste全球动画精选</string>
     <string name="error_load">获取动画失败，请检查网络是否正常</string>
     <string name="delete_title">提示</string>
     <string name="delete_body">确定要删除吗？</string>

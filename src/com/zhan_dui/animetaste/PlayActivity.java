@@ -73,6 +73,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	private OrientationEventListener mOrientationEventListener;
 	private MenuItem mFavMenuItem;
+	private Long mPreviousPlayPosition = 0l;
 
 	@Override
 	public void onCreate(Bundle savedInstance) {
@@ -161,6 +162,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			mOrientationEventListener.enable();
 		}
 		mVideoInfo.setFav(mVideoDB.isFav(mVideoInfo.Id));
+
 	}
 
 	@Override
@@ -171,10 +173,14 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	private Intent getDefaultIntent() {
 		Intent intent = new Intent(Intent.ACTION_SEND);
-		intent.putExtra(Intent.EXTRA_TEXT, "分享啦！");
-
+		String shareTitle = getString(R.string.share_video_title);
+		shareTitle = String.format(shareTitle, mVideoInfo.Name);
+		String shareContent = getString(R.string.share_video_body);
+		shareContent = String.format(shareContent, mVideoInfo.Name,
+				mVideoInfo.Youku);
+		intent.putExtra(Intent.EXTRA_SUBJECT, shareTitle);
+		intent.putExtra(Intent.EXTRA_TEXT, shareContent);
 		intent.setType("*/*");
-
 		return intent;
 	}
 
@@ -255,8 +261,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	@Override
 	public void onPrepared(MediaPlayer mp) {
-		mp.setPlaybackSpeed(1.0f);
-
+		mp.setPlaybackSpeed(0.999999f);
 	}
 
 	@Override
@@ -271,16 +276,13 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	protected void onDestroy() {
 		super.onDestroy();
 		// mOrientationEventListener.disable();
-
 	}
 
 	/**
 	 * 这是播放器的一个Bug,要是直接退出就会出现杂音，一定要在播放状态退出 才不会有杂音
 	 */
 	private void prepareStop() {
-		mVideoView.setCanBePlayed(true);
-		mVideoView.setVolume(0f, 0f);
-		mVideoView.start();
+		mVideoView.setVolume(0.0f, 0.0f);
 	}
 
 	@Override
@@ -318,12 +320,19 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	@Override
 	protected void onResume() {
 		super.onResume();
+		mVideoView.setVolume(1.0f, 1.0f);
+		mVideoView.seekTo(mPreviousPlayPosition);
 		MobclickAgent.onResume(mContext);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
+		if (mVideoView.isPlaying() == false) {
+			mVideoView.setVolume(0.0f, 0.0f);
+		} else {
+			mPreviousPlayPosition = mVideoView.getCurrentPosition();
+		}
 		MobclickAgent.onPause(mContext);
 	}
 

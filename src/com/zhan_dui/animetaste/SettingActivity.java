@@ -89,7 +89,7 @@ public class SettingActivity extends ActionBarActivity implements
 			shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
 					getText(R.string.share_title));
 			shareIntent.putExtra(android.content.Intent.EXTRA_TEXT,
-					getText(R.string.share_body));
+					getText(R.string.share_app_body));
 			startActivity(Intent.createChooser(shareIntent,
 					getText(R.string.share_via)));
 			break;

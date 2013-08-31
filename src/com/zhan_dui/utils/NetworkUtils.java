@@ -12,13 +12,15 @@ public class NetworkUtils {
 	 * @return
 	 */
 	public static boolean isWifi(Context mContext) {
-		ConnectivityManager connectivityManager = (ConnectivityManager) mContext
+		ConnectivityManager connManager = (ConnectivityManager) mContext
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
-		if (activeNetInfo != null
-				&& activeNetInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+		NetworkInfo mWifi = connManager
+				.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+		if (mWifi.isConnected()) {
 			return true;
+		} else {
+			return false;
 		}
-		return false;
 	}
 }

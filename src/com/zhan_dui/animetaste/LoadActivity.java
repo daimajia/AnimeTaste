@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.modal.DataFetcher;
+import com.zhan_dui.utils.NetworkUtils;
 
 public class LoadActivity extends ActionBarActivity {
 	private Context mContext;
@@ -28,7 +29,8 @@ public class LoadActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_load);
 
 		if (PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(
-				"only_wifi", true)) {
+				"only_wifi", true)
+				&& NetworkUtils.isWifi(mContext) == false) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(mContext)
 					.setTitle(R.string.only_wifi_title).setMessage(
 							R.string.only_wifi_body);
@@ -50,6 +52,8 @@ public class LoadActivity extends ActionBarActivity {
 						}
 					});
 			builder.create().show();
+		} else {
+			init();
 		}
 
 	};

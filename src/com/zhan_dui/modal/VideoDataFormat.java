@@ -23,6 +23,8 @@ public class VideoDataFormat implements Serializable {
 	public final String DetailPic;
 	public final String InsertTime;
 	public final String UpdatedTime;
+	private final String YoukuFormat = "http://v.youku.com/v_show/id_%s.html";
+	public final String Youku;
 
 	private Boolean IsFav;
 
@@ -46,6 +48,10 @@ public class VideoDataFormat implements Serializable {
 		InsertTime = insertTime;
 		UpdatedTime = updatedTime;
 		IsFav = isFav;
+		int start = OriginVideoUrl.indexOf("vid/") + 4;
+		int end = OriginVideoUrl.indexOf("/type");
+		Youku = String
+				.format(YoukuFormat, OriginVideoUrl.substring(start, end));
 	}
 
 	private VideoDataFormat(JSONObject object) {
@@ -61,15 +67,19 @@ public class VideoDataFormat implements Serializable {
 		DetailPic = getValue(object, "DetailPic");
 		UpdatedTime = getValue(object, "UpdatedTime");
 		InsertTime = getValue(object, "InsertTime");
-		
 		IsFav = false;
+		int start = OriginVideoUrl.indexOf("vid/") + 4;
+		int end = OriginVideoUrl.indexOf("/type");
+		Youku = String
+				.format(YoukuFormat, OriginVideoUrl.substring(start, end));
+
 	}
-	
-	public Boolean isFavorite(){
+
+	public Boolean isFavorite() {
 		return IsFav;
 	}
-	
-	public void setFav(Boolean fav){
+
+	public void setFav(Boolean fav) {
 		IsFav = fav;
 	}
 
