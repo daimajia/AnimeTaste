@@ -3,9 +3,13 @@ package com.zhan_dui.animetaste;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.widget.Toast;
 
@@ -22,6 +26,35 @@ public class LoadActivity extends ActionBarActivity {
 		getSupportActionBar().hide();
 		mContext = this;
 		setContentView(R.layout.activity_load);
+
+		if (PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(
+				"only_wifi", true)) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(mContext)
+					.setTitle(R.string.only_wifi_title).setMessage(
+							R.string.only_wifi_body);
+			builder.setPositiveButton(R.string.only_wifi_ok,
+					new OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+							init();
+						}
+					});
+			builder.setNegativeButton(R.string.obly_wifi_cancel,
+					new OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							finish();
+						}
+					});
+			builder.create().show();
+		}
+
+	};
+
+	private void init() {
 		DataFetcher.instance().getList(0, new JsonHttpResponseHandler() {
 			@Override
 			public void onSuccess(int statusCode, JSONObject response) {
@@ -52,8 +85,7 @@ public class LoadActivity extends ActionBarActivity {
 				finish();
 			}
 		});
-
-	};
+	}
 
 	@Override
 	protected void onResume() {
