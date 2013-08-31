@@ -305,7 +305,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		// mOrientationEventListener.disable();
+		if (mOrientationEventListener != null)
+			mOrientationEventListener.disable();
 	}
 
 	/**
@@ -325,19 +326,23 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		case R.id.action_fav:
 			if (mVideoInfo.isFavorite()) {
 				if (mVideoDB.removeFav(mVideoInfo) > 0) {
-					Toast.makeText(mContext, "删除成功", Toast.LENGTH_SHORT).show();
+					Toast.makeText(mContext, R.string.fav_del_success,
+							Toast.LENGTH_SHORT).show();
 					item.setIcon(R.drawable.ab_fav_normal);
 					mVideoInfo.setFav(false);
 				} else {
-					Toast.makeText(mContext, "删除失败", Toast.LENGTH_SHORT).show();
+					Toast.makeText(mContext, R.string.fav_del_fail,
+							Toast.LENGTH_SHORT).show();
 				}
 			} else {
 				if (mVideoDB.insertFav(mVideoInfo) > 0) {
-					Toast.makeText(mContext, "收藏成功", Toast.LENGTH_SHORT).show();
+					Toast.makeText(mContext, R.string.fav_success,
+							Toast.LENGTH_SHORT).show();
 					item.setIcon(R.drawable.ab_fav_active);
 					mVideoInfo.setFav(true);
 				} else {
-					Toast.makeText(mContext, "收藏失败", Toast.LENGTH_SHORT).show();
+					Toast.makeText(mContext, R.string.fav_fail,
+							Toast.LENGTH_SHORT).show();
 				}
 			}
 			return true;

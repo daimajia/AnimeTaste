@@ -35,5 +35,10 @@
     <string name="only_wifi_body">检测到您现在使用的不是Wifi网络，可能耗费较大流量，继续么？</string>
     <string name="only_wifi_ok">继续</string>
     <string name="obly_wifi_cancel">退出</string>
+    
+    <string name="fav_success">收藏成功</string>
+    <string name="fav_fail">收藏失败</string>
+    <string name="fav_del_success">删除成功</string>
+    <string name="fav_del_fail">删除失败</string>
 
 </resources>
