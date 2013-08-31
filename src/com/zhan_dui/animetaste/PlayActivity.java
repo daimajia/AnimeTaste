@@ -167,6 +167,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		}
 		setPlayerWindowSize(FULL_WIDTH, FULL_HEIGHT, false);
 		mCurrentScape = OrientationHelper.LANDSCAPE;
+		mZoomButton.setBackgroundResource(R.drawable.screensize_zoomin_button);
 	}
 
 	private void setSmallScreenPlay() {
@@ -175,6 +176,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 				getResources().getDimensionPixelSize(R.dimen.player_height),
 				true);
 		mCurrentScape = OrientationHelper.PORTRAIT;
+		mZoomButton.setBackgroundResource(R.drawable.screensize_zoomout_button);
 	}
 
 	@Override
@@ -262,10 +264,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			}
 
 			if (mCurrentScape == OrientationHelper.LANDSCAPE) {
-				v.setBackgroundResource(R.drawable.screensize_zoomout_button);
 				setSmallScreenPlay();
 			} else if (mCurrentScape == OrientationHelper.PORTRAIT) {
-				v.setBackgroundResource(R.drawable.screensize_zoomin_button);
 				setFullScreenPlay();
 			}
 		}
@@ -292,7 +292,12 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			prepareStop();
+			if (mCurrentScape == OrientationHelper.LANDSCAPE) {
+				setSmallScreenPlay();
+				return true;
+			} else {
+				prepareStop();
+			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}
