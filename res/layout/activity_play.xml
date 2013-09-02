@@ -73,6 +73,8 @@
 
                     <SeekBar
                         android:id="@+id/mediacontroller_seekbar"
+                        android:thumb="@drawable/zeus_scrubber_control_normal_holo"
+                        android:progressDrawable="@drawable/style_seekbar"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignParentBottom="true"
