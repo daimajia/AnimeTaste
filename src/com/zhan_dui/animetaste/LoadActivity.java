@@ -23,11 +23,10 @@ public class LoadActivity extends ActionBarActivity {
 	private Context mContext;
 
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		super.onCreate(savedInstanceState);
 		mContext = this;
 		setContentView(R.layout.activity_load);
-		getSupportActionBar().hide();
 		MobclickAgent.onError(this);
 		if (PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(
 				"only_wifi", true)

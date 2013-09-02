@@ -47,7 +47,7 @@ public class FavActivity extends ActionBarActivity implements
 		@Override
 		protected Void doInBackground(Void... params) {
 			Cursor cursor = mVideoDB.getAllFav();
-			mFavListAdapter = VideoListAdapter.build(mContext, cursor);
+			mFavListAdapter = VideoListAdapter.build(mContext, cursor, false);
 			return null;
 		}
 

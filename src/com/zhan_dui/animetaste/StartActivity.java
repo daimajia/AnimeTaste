@@ -102,7 +102,7 @@ public class StartActivity extends ActionBarActivity implements
 		mShowAdapter = new ShowGalleryPagerAdapter(getSupportFragmentManager(),
 				cursor, 4);
 		mShowPager.setAdapter(mShowAdapter);
-		mVideoAdapter = VideoListAdapter.build(mContext, cursor);
+		mVideoAdapter = VideoListAdapter.build(mContext, cursor, true);
 		mVideoList.setAdapter(mVideoAdapter);
 		mShowIndicator.setViewPager(mShowPager);
 	}
@@ -116,7 +116,7 @@ public class StartActivity extends ActionBarActivity implements
 			mShowAdapter = new ShowGalleryPagerAdapter(
 					getSupportFragmentManager(), videoList, 4);
 			mShowPager.setAdapter(mShowAdapter);
-			mVideoAdapter = VideoListAdapter.build(mContext, videoList);
+			mVideoAdapter = VideoListAdapter.build(mContext, videoList, true);
 			mVideoList.setAdapter(mVideoAdapter);
 			mShowIndicator.setViewPager(mShowPager);
 		} catch (JSONException e) {
@@ -136,6 +136,7 @@ public class StartActivity extends ActionBarActivity implements
 			int visibleItemCount, int totalItemCount) {
 		if (mUpdating == false && totalItemCount != 0
 				&& view.getLastVisiblePosition() == totalItemCount - 1) {
+			mUpdating = true;
 			DataFetcher.instance().getList(mCurrentPage++,
 					new LoadMoreJSONListener());
 		}
@@ -148,13 +149,20 @@ public class StartActivity extends ActionBarActivity implements
 	}
 
 	private class LoadMoreJSONListener extends JsonHttpResponseHandler {
+
+		private View mFooterView;
+
+		public LoadMoreJSONListener() {
+			mUpdating = true;
+		}
+
 		@Override
 		public void onSuccess(int statusCode, JSONObject response) {
 			super.onSuccess(statusCode, response);
 			if (statusCode == 200 && response.has("list")) {
 				try {
 					if (mCurrentPage < 3) {
-						new AddToDBThread(response.getJSONArray("list"), false)
+						new AddToDBThread(response.getJSONArray("list"), true)
 								.start();
 					}
 					mVideoAdapter.addVideosFromJsonArray(response
@@ -169,18 +177,21 @@ public class StartActivity extends ActionBarActivity implements
 		@Override
 		public void onFailure(Throwable error, String content) {
 			super.onFailure(error, content);
+			mCurrentPage--;
 		}
 
 		@Override
 		public void onStart() {
 			super.onStart();
-			mUpdating = true;
+			mFooterView = mLayoutInflater.inflate(R.layout.load_item, null);
+			mVideoList.addFooterView(mFooterView);
 		}
 
 		@Override
 		public void onFinish() {
 			super.onFinish();
 			mUpdating = false;
+			mVideoList.removeFooterView(mFooterView);
 		}
 	}
 
@@ -191,8 +202,8 @@ public class StartActivity extends ActionBarActivity implements
 			startActivity(intent);
 			return true;
 		}
-		if(item.getItemId() == R.id.action_fav){
-			Intent intent = new Intent(mContext,FavActivity.class);
+		if (item.getItemId() == R.id.action_fav) {
+			Intent intent = new Intent(mContext, FavActivity.class);
 			startActivity(intent);
 			return true;
 		}

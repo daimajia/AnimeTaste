@@ -7,8 +7,8 @@ import org.json.JSONException;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnLongClickListener;
@@ -17,28 +17,37 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Picasso.LoadedFrom;
-import com.squareup.picasso.Target;
 import com.zhan_dui.animetaste.R;
+import com.zhan_dui.data.VideoDB;
 import com.zhan_dui.listener.VideoListItemListener;
 import com.zhan_dui.modal.VideoDataFormat;
 
-public class VideoListAdapter extends BaseAdapter implements Target, Callback {
+public class VideoListAdapter extends BaseAdapter {
 	private Context mContext;
+	private VideoDB mVideoDB;
 	private LayoutInflater mLayoutInflater;
 	private final Typeface mRobotoTitle;
 	private ArrayList<VideoDataFormat> mVideoList;
 
+	private final int mWatchedTitleColor;
+	private final int mUnWatchedTitleColor;
+
 	private VideoListAdapter(Context context,
-			ArrayList<VideoDataFormat> videoList) {
+			ArrayList<VideoDataFormat> videoList, Boolean checkIsWatched) {
 		mRobotoTitle = Typeface.createFromAsset(context.getAssets(),
 				"fonts/Roboto-Bold.ttf");
 		mContext = context;
 		mLayoutInflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mVideoList = videoList;
+		mVideoDB = new VideoDB(mContext, VideoDB.NAME, null, VideoDB.VERSION);
+		mUnWatchedTitleColor = mContext.getResources().getColor(
+				R.color.title_unwatched);
+		mWatchedTitleColor = mContext.getResources().getColor(
+				R.color.title_watched);
+		if (checkIsWatched)
+			new CheckIsWatchedTask(0, mVideoList.size()).execute();
 	}
 
 	public void setFav(int vid, boolean fav) {
@@ -48,29 +57,44 @@ public class VideoListAdapter extends BaseAdapter implements Target, Callback {
 				break;
 			}
 		}
+		notifyDataSetChanged();
 	}
 
-	public static VideoListAdapter build(Context context, JSONArray data)
-			throws JSONException {
+	public void setWatched(VideoDataFormat video) {
+		for (int i = 0; i < mVideoList.size(); i++) {
+			if (mVideoList.get(i).Id == video.Id) {
+				mVideoList.get(i).setWatched(true);
+				break;
+			}
+		}
+		notifyDataSetChanged();
+	}
+
+	public static VideoListAdapter build(Context context, JSONArray data,
+			Boolean checkIsWatched) throws JSONException {
 		ArrayList<VideoDataFormat> videos = new ArrayList<VideoDataFormat>();
 		for (int i = 0; i < data.length(); i++) {
 			videos.add(VideoDataFormat.build(data.getJSONObject(i)));
 		}
-		return new VideoListAdapter(context, videos);
+		return new VideoListAdapter(context, videos, checkIsWatched);
 	}
 
-	public static VideoListAdapter build(Context context, Cursor cursor) {
+	public static VideoListAdapter build(Context context, Cursor cursor,
+			Boolean checkIsWatched) {
 		ArrayList<VideoDataFormat> videos = new ArrayList<VideoDataFormat>();
 		while (cursor.moveToNext()) {
 			videos.add(VideoDataFormat.build(cursor));
 		}
-		return new VideoListAdapter(context, videos);
+		return new VideoListAdapter(context, videos, checkIsWatched);
 	}
 
 	public void addVideosFromJsonArray(JSONArray videos) throws JSONException {
+		int start = mVideoList.size();
 		for (int i = 0; i < videos.length(); i++) {
 			mVideoList.add(VideoDataFormat.build(videos.getJSONObject(i)));
 		}
+		int end = mVideoList.size();
+		new CheckIsWatchedTask(start, end).execute();
 	}
 
 	@Override
@@ -89,7 +113,7 @@ public class VideoListAdapter extends BaseAdapter implements Target, Callback {
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(int position, View convertView, ViewGroup parent) {	
 		TextView titleTextView;
 		TextView contentTextView;
 		ImageView thumbImageView;
@@ -111,14 +135,13 @@ public class VideoListAdapter extends BaseAdapter implements Target, Callback {
 			thumbImageView = holder.thumbImageView;
 		}
 		VideoDataFormat video = (VideoDataFormat) getItem(position);
-
 		Picasso.with(mContext).load(video.HomePic)
 				.placeholder(R.drawable.placeholder_thumb)
 				.error(R.drawable.placeholder_fail).into(thumbImageView);
 		titleTextView.setText(video.Name);
 		contentTextView.setText(video.Brief);
 		convertView.setOnClickListener(new VideoListItemListener(mContext,
-				video));
+				this, video));
 		convertView.setOnLongClickListener(new OnLongClickListener() {
 			// 保证长按事件传递
 			@Override
@@ -126,6 +149,11 @@ public class VideoListAdapter extends BaseAdapter implements Target, Callback {
 				return false;
 			}
 		});
+		if (video.isWatched() == true) {
+			titleTextView.setTextColor(mWatchedTitleColor);
+		} else {
+			titleTextView.setTextColor(mUnWatchedTitleColor);
+		}
 		return convertView;
 	}
 
@@ -141,24 +169,30 @@ public class VideoListAdapter extends BaseAdapter implements Target, Callback {
 		}
 	}
 
-	@Override
-	public void onBitmapFailed() {
+	public class CheckIsWatchedTask extends AsyncTask<Void, Void, Void> {
 
-	}
+		private int mStart;
+		private int mEnd;
 
-	@Override
-	public void onBitmapLoaded(Bitmap arg0, LoadedFrom arg1) {
+		public CheckIsWatchedTask(int start, int end) {
+			mStart = start;
+			mEnd = end;
+		}
 
-	}
+		@Override
+		protected Void doInBackground(Void... params) {
+			for (int i = mStart; i < mEnd; i++) {
+				VideoDataFormat currentVideo = mVideoList.get(i);
+				currentVideo.setWatched(mVideoDB.isWatched(currentVideo));
+			}
+			return null;
+		}
 
-	@Override
-	public void onError() {
-		android.util.Log.e("Picasso", "错误！");
-	}
-
-	@Override
-	public void onSuccess() {
-
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			notifyDataSetChanged();
+		}
 	}
 
 }

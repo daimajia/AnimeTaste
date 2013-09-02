@@ -22,6 +22,7 @@ public class VideoDB extends SQLiteOpenHelper {
 
 	public static final String TABLE_VIDEO_NAME = "Video";
 	public static final String TABLE_FAV_NAME = "Fav";
+	public static final String TABLE_WATCHED_NAME = "Watched";
 
 	private static final String DATABASE_VIDEO_CREATE = "create table Video(_id integer primary key autoincrement, "
 			+ "id text not null UNIQUE,"
@@ -40,6 +41,9 @@ public class VideoDB extends SQLiteOpenHelper {
 			+ "_id integer primary key autoincrement," + "vid integer UNIQUE,"
 			+ "addtime text not null" + ")";
 
+	private static final String DATABASE_FAV_WATCHED = "create table Watched("
+			+ "_id integer primary key autoincrement," + "vid integer UNIQUE)";
+
 	public VideoDB(Context context, String name, CursorFactory factory,
 			int version) {
 		super(context, name, factory, version);
@@ -49,6 +53,7 @@ public class VideoDB extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL(DATABASE_VIDEO_CREATE);
 		db.execSQL(DATABASE_FAV_CREATE);
+		db.execSQL(DATABASE_FAV_WATCHED);
 	}
 
 	@Override
@@ -99,6 +104,24 @@ public class VideoDB extends SQLiteOpenHelper {
 		values.put("addtime", favDataFormat.AddTime);
 		return getWritableDatabase().insertWithOnConflict(TABLE_FAV_NAME, null,
 				values, SQLiteDatabase.CONFLICT_REPLACE);
+	}
+
+	public long insertWatched(VideoDataFormat video) {
+		ContentValues values = new ContentValues();
+		values.put("vid", video.Id);
+		return getWritableDatabase().insertWithOnConflict(TABLE_WATCHED_NAME,
+				null, values, SQLiteDatabase.CONFLICT_IGNORE);
+	}
+
+	public boolean isWatched(VideoDataFormat video) {
+		SQLiteStatement statement = getReadableDatabase().compileStatement(
+				"select count(*) from " + TABLE_WATCHED_NAME + " where vid="
+						+ video.Id);
+		if (statement.simpleQueryForLong() > 0) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public VideoDataFormat getFavDetail(int vid) {
