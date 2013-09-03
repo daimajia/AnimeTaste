@@ -7,6 +7,12 @@ import io.vov.vitamio.MediaPlayer.OnPreparedListener;
 import io.vov.vitamio.widget.CenterLayout;
 import io.vov.vitamio.widget.MediaController;
 import io.vov.vitamio.widget.VideoView;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -14,10 +20,13 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
@@ -53,7 +62,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	private TextView mContentTextView;
 	private TextView mAutherTextView;
 	private ShareActionProvider mShareActionProvider;
-	private CenterLayout mVideoWrapper;
 	private VideoView mVideoView;
 	private Button mZoomButton;
 	private ImageView mDetailImageView;
@@ -76,6 +84,10 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	private OrientationEventListener mOrientationEventListener;
 	private MenuItem mFavMenuItem;
 	private Long mPreviousPlayPosition = 0l;
+	private Bitmap mDetailPicture;
+
+	private final String mDir = "AnimeTaste";
+	private final String mShareName = "animetaste-share.jpg";
 
 	@Override
 	public void onCreate(Bundle savedInstance) {
@@ -115,11 +127,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mVideoAction = (View) findViewById(R.id.VideoAction);
 		mAutherTextView = (TextView) findViewById(R.id.author);
 		mPlayButton = (ImageButton) findViewById(R.id.play_button);
-		mVideoWrapper = (CenterLayout) findViewById(R.id.play_view);
 		mLoadingGif = (GifMovieView) findViewById(R.id.loading_gif);
 		mHeaderWrapper = (RelativeLayout) findViewById(R.id.HeaderWrapper);
-		Picasso.with(mContext).load(mVideoInfo.DetailPic)
-				.placeholder(R.drawable.big_bg).into(this);
 
 		Typeface tfTitle = Typeface.createFromAsset(getAssets(),
 				"fonts/Roboto-Bold.ttf");
@@ -131,6 +140,12 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mContentTextView.setText(mVideoInfo.Brief);
 		mAutherTextView.setText(mVideoInfo.Author + " · " + mVideoInfo.Year);
 		mPlayButton.setOnClickListener(this);
+
+		if (getShareFile() != null) {
+			getShareFile().delete();
+		}
+		Picasso.with(mContext).load(mVideoInfo.DetailPic)
+				.placeholder(R.drawable.big_bg).into(this);
 
 		mOrientationEventListener = new OrientationEventListener(mContext) {
 
@@ -154,7 +169,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			mOrientationEventListener.enable();
 		}
 		mVideoInfo.setFav(mVideoDB.isFav(mVideoInfo.Id));
-
 	}
 
 	@SuppressLint("InlinedApi")
@@ -190,12 +204,29 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		String shareTitle = getString(R.string.share_video_title);
 		shareTitle = String.format(shareTitle, mVideoInfo.Name);
 		String shareContent = getString(R.string.share_video_body);
+		intent.setType("image/*");
 		shareContent = String.format(shareContent, mVideoInfo.Name,
 				mVideoInfo.Youku);
 		intent.putExtra(Intent.EXTRA_SUBJECT, shareTitle);
 		intent.putExtra(Intent.EXTRA_TEXT, shareContent);
-		intent.setType("*/*");
+		File file = getShareFile();
+		if (file != null) {
+			intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+		}
+
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		return intent;
+	}
+
+	private File getShareFile() {
+		String path = Environment.getExternalStorageDirectory().getPath()
+				+ File.separator + mDir + File.separator + mShareName;
+		File file = new File(path);
+		if (file.exists()) {
+			return file;
+		} else {
+			return null;
+		}
 	}
 
 	@Override
@@ -204,8 +235,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		MenuItem item = menu.findItem(R.id.menu_item_share);
 		mShareActionProvider = (ShareActionProvider) MenuItemCompat
 				.getActionProvider(item);
-		mShareActionProvider.setShareIntent(getDefaultIntent());
 		mFavMenuItem = menu.findItem(R.id.action_fav);
+		mShareActionProvider.setShareIntent(getDefaultIntent());
 		new CheckIsFavorite().execute();
 		return true;
 	}
@@ -373,14 +404,37 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	@Override
 	public void onBitmapFailed() {
-
+		if (mShareActionProvider != null) {
+			mShareActionProvider.setShareIntent(getDefaultIntent());
+		}
 	}
 
 	@Override
 	public void onBitmapLoaded(Bitmap bitmap, LoadedFrom arg1) {
 		mDetailImageView.setImageBitmap(bitmap);
+		mDetailPicture = bitmap;
 		mLoadingGif.setVisibility(View.INVISIBLE);
 		mPlayButton.setVisibility(View.VISIBLE);
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		mDetailPicture.compress(CompressFormat.JPEG, 100, bytes);
+		File dir = new File(Environment.getExternalStorageDirectory()
+				+ File.separator + mDir);
+		if (dir.exists() == false || dir.isDirectory() == false)
+			dir.mkdir();
+
+		File file = new File(Environment.getExternalStorageDirectory()
+				+ File.separator + mDir + File.separator + mShareName);
+		try {
+			file.createNewFile();
+			FileOutputStream fo = new FileOutputStream(file);
+			fo.write(bytes.toByteArray());
+			fo.close();
+			if (mShareActionProvider != null) {
+				mShareActionProvider.setShareIntent(getDefaultIntent());
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private class CheckIsFavorite extends AsyncTask<Void, Void, Boolean> {
