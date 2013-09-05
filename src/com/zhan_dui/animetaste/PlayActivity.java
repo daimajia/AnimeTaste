@@ -103,8 +103,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		mZoomButton = (Button) findViewById(R.id.screen_btn);
-		mZoomButton.setOnClickListener(this);
 		mVideoControls = (MediaController) findViewById(R.id.media_play_controler);
 		mVideoView = (VideoView) findViewById(R.id.surface_view);
 		mVideoView.setMediaController(mVideoControls);
@@ -129,6 +127,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mPlayButton = (ImageButton) findViewById(R.id.play_button);
 		mLoadingGif = (GifMovieView) findViewById(R.id.loading_gif);
 		mHeaderWrapper = (RelativeLayout) findViewById(R.id.HeaderWrapper);
+		mZoomButton = (Button) findViewById(R.id.screen_btn);
+		mZoomButton.setOnClickListener(this);
 
 		Typeface tfTitle = Typeface.createFromAsset(getAssets(),
 				"fonts/Roboto-Bold.ttf");

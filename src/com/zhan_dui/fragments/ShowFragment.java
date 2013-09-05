@@ -19,11 +19,11 @@ public class ShowFragment extends Fragment {
 	private final VideoDataFormat mVideoInfo;
 	private ImageView mShowImageView;
 
-	private ShowFragment() {
+	public ShowFragment() {
 		mVideoInfo = null;
 	}
 
-	private ShowFragment(VideoDataFormat VideoInfo) {
+	public ShowFragment(VideoDataFormat VideoInfo) {
 		mVideoInfo = VideoInfo;
 	}
 

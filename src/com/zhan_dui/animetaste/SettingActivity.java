@@ -68,7 +68,6 @@ public class SettingActivity extends ActionBarActivity implements
 		mSwitchOnlyWifi.setChecked(mSharedPreferences.getBoolean("only_wifi",
 				true));
 		mSwitchUseHD.setChecked(mSharedPreferences.getBoolean("use_hd", false));
-		ShareSDK.initSDK(mContext);
 	}
 
 	@Override
@@ -94,6 +93,7 @@ public class SettingActivity extends ActionBarActivity implements
 					getText(R.string.share_via)));
 			break;
 		case R.id.focus_us:
+			ShareSDK.initSDK(mContext);
 			mWeibo = new SinaWeibo(mContext);
 			mWeibo.setPlatformActionListener(this);
 			mWeibo.authorize();

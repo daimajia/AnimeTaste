@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
-import android.view.Window;
 import android.widget.Toast;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -23,9 +22,13 @@ public class LoadActivity extends ActionBarActivity {
 	private Context mContext;
 
 	protected void onCreate(Bundle savedInstanceState) {
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		super.onCreate(savedInstanceState);
+		
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().hide();
+		}
 		mContext = this;
+		
 		setContentView(R.layout.activity_load);
 		MobclickAgent.onError(this);
 		if (PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(
