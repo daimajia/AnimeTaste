@@ -51,7 +51,7 @@
         </meta-data>
         <meta-data
             android:name="UMENG_CHANNEL"
-            android:value="hiapk" />
+            android:value="bitbucket" />
         <!-- 友盟结束 -->
         <activity
             android:name="com.zhan_dui.animetaste.StartActivity"
