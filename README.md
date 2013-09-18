@@ -10,7 +10,7 @@ AnimeTaste For Android，为全球动画爱好者所开发。
 
 ### [体验地址](http://www.wandoujia.com/apps/com.zhan_dui.animetaste) ###
 
-![AnimeTaste](http://ww2.sinaimg.cn/mw690/610dc034jw1e885o9kjgzj208c0b40ty.jpg) 
+![AnimeTaste](http://ww2.sinaimg.cn/mw690/610dc034jw1e885o9kjgzj208c0b40ty.jpg)..
 ![AnimeTaste](http://ww3.sinaimg.cn/mw690/610dc034jw1e885obnjy6j208c0b43zo.jpg)
 
 ### 关于AnimeTaste: ###
