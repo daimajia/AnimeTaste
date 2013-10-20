@@ -39,7 +39,7 @@ Step-2:
 
 尝试编译，如果出现错误或者有任何问题，请放轻松[联系我](mailto:daimajia@gmail.com)。
 
-日如果你足够懒，那么可以试试[这个仓储](https://bitbucket.org/daimajia/animetaste-fullpackage)，他包含了所有需要的库。
+如果你足够懒怕麻烦，那么可以试试[这个仓储](https://bitbucket.org/daimajia/animetaste-fullpackage)，他包含了所有需要的库。
 
 
 
