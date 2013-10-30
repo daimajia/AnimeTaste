@@ -8,7 +8,9 @@ AnimeTaste（品赏艾尼莫）是国内首个关注独立动画的网站。
 
 AnimeTaste For Android，为全球动画爱好者所开发。
 
-### [体验地址](http://www.wandoujia.com/apps/com.zhan_dui.animetaste) ###
+### 体验地址: [豌豆荚](http://www.wandoujia.com/apps/com.zhan_dui.animetaste) [Google Play](https://play.google.com/store/apps/details?id=com.zhan_dui.animetaste) ###
+
+### [豌豆荚110期设计奖](http://www.wandoujia.com/award/blog/com.zhan_dui.animetaste)
 
 ![AnimeTaste](http://ww2.sinaimg.cn/mw690/610dc034jw1e885o9kjgzj208c0b40ty.jpg)..
 ![AnimeTaste](http://ww3.sinaimg.cn/mw690/610dc034jw1e885obnjy6j208c0b43zo.jpg)
