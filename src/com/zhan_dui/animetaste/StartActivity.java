@@ -29,7 +29,7 @@ import com.viewpagerindicator.UnderlinePageIndicator;
 import com.zhan_dui.adapters.ShowGalleryPagerAdapter;
 import com.zhan_dui.adapters.VideoListAdapter;
 import com.zhan_dui.data.VideoDB;
-import com.zhan_dui.modal.DataFetcher;
+import com.zhan_dui.modal.DataHandler;
 
 public class StartActivity extends ActionBarActivity implements
 		OnScrollListener {
@@ -137,7 +137,7 @@ public class StartActivity extends ActionBarActivity implements
 		if (mUpdating == false && totalItemCount != 0
 				&& view.getLastVisiblePosition() == totalItemCount - 1) {
 			mUpdating = true;
-			DataFetcher.instance().getList(mCurrentPage++,
+			DataHandler.instance().getList(mCurrentPage++,
 					new LoadMoreJSONListener());
 		}
 

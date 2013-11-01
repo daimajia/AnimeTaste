@@ -22,6 +22,7 @@ import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.sina.weibo.SinaWeibo;
+import cn.sharesdk.tencent.qzone.QZone;
 
 import com.umeng.analytics.MobclickAgent;
 
@@ -30,6 +31,7 @@ public class SettingActivity extends ActionBarActivity implements
 	private View mRecommand;
 	private View mSuggestion;
 	private View mFocusUs;
+	private View mCancelAuth;
 
 	private Switch mSwitchOnlyWifi;
 	private Switch mSwitchUseHD;
@@ -46,12 +48,14 @@ public class SettingActivity extends ActionBarActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = this;
+		ShareSDK.initSDK(mContext);
 		setContentView(R.layout.activity_setting);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		mRecommand = findViewById(R.id.recommend);
 		mSuggestion = findViewById(R.id.suggestion);
 		mFocusUs = findViewById(R.id.focus_us);
+		mCancelAuth = findViewById(R.id.cancel_auth);
 
 		mSwitchOnlyWifi = (Switch) findViewById(R.id.switch_wifi);
 		mSwitchUseHD = (Switch) findViewById(R.id.switch_hd);
@@ -64,6 +68,7 @@ public class SettingActivity extends ActionBarActivity implements
 		mFocusUs.setOnClickListener(this);
 		mSwitchOnlyWifi.setOnCheckedChangeListener(this);
 		mSwitchUseHD.setOnCheckedChangeListener(this);
+		mCancelAuth.setOnClickListener(this);
 
 		mSwitchOnlyWifi.setChecked(mSharedPreferences.getBoolean("only_wifi",
 				true));
@@ -93,11 +98,14 @@ public class SettingActivity extends ActionBarActivity implements
 					getText(R.string.share_via)));
 			break;
 		case R.id.focus_us:
-			ShareSDK.initSDK(mContext);
 			mWeibo = new SinaWeibo(mContext);
 			mWeibo.setPlatformActionListener(this);
 			mWeibo.authorize();
 			break;
+		case R.id.cancel_auth:
+			ShareSDK.getPlatform(mContext, SinaWeibo.NAME).removeAccount();
+			ShareSDK.getPlatform(mContext, QZone.NAME).removeAccount();
+			mSharedPreferences.edit().remove("login").commit();
 		default:
 			break;
 		}

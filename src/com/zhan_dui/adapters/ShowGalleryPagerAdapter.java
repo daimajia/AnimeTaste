@@ -16,13 +16,13 @@ import android.support.v4.app.FragmentPagerAdapter;
 public class ShowGalleryPagerAdapter extends FragmentPagerAdapter {
 
 	private ArrayList<VideoDataFormat> mShow = new ArrayList<VideoDataFormat>();
-	
+
 	public ShowGalleryPagerAdapter(FragmentManager fm,
 			ArrayList<VideoDataFormat> VideoShowList) {
 		super(fm);
 		mShow = VideoShowList;
 	}
-	
+
 	public ShowGalleryPagerAdapter(FragmentManager fm, JSONArray VideoList,
 			int showCount) {
 		super(fm);

@@ -6,7 +6,7 @@
     <dimen name="video_list_content">13sp</dimen>
     <dimen name="video_list_title">17sp</dimen>
     <dimen name="play_title_size">26sp</dimen>
-    <dimen name="play_content_size">14sp</dimen>
+    <dimen name="play_content_size">15sp</dimen>
     <dimen name="play_author_size">20sp</dimen>
     <dimen name="seprate_line">1px</dimen>
     <dimen name="placehold_thumb_width">65dp</dimen>
@@ -24,7 +24,14 @@
     <dimen name="setting_text_padding_left">8dp</dimen>
     <dimen name="setting_item_padding">8dp</dimen>
     <dimen name="play_margin_padding_top_bottom">16dp</dimen>
-    <dimen name="play_margin_padding_left_right">18dp</dimen>
+    <!-- 播放页面文字介绍 -->
+    <dimen name="play_outer_content_padding">13dp</dimen>
+    <dimen name="play_inner_content_padding">15dp</dimen>
+    <dimen name="play_innser_recommend_margin_top">10dp</dimen>
+    <dimen name="play_inner_recommend_padding_top">8dp</dimen>
+    <dimen name="play_recommand_content_padding">12dp</dimen>
+    <dimen name="play_content_part_margin">16dp</dimen>
+    <!-- 播放页面文字介绍 -->
     <dimen name="show_gallery_placeholder">200dp</dimen>
-
+	<dimen name="comment_edit_height">100dp</dimen>
 </resources>

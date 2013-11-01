@@ -113,7 +113,7 @@ public class VideoListAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {	
+	public View getView(int position, View convertView, ViewGroup parent) {
 		TextView titleTextView;
 		TextView contentTextView;
 		ImageView thumbImageView;

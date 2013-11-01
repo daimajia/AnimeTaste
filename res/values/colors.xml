@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	
+
     <color name="title_unwatched">#373737</color>
     <color name="title_watched">#909090</color>
     <color name="textColor">#909090</color>
@@ -11,5 +11,11 @@
     <color name="loadBackground">#4c9aec</color>
     <color name="play_time">#ffffff</color>
     <color name="setting_item_line">#9FA19F</color>
+    <color name="divide_line">#E4E4E4</color>
+    <color name="holo_blue">#E4E4E4</color>
+    <color name="comment_text_color">#333333</color>
+    <color name="white">#ffffff</color>
+    <color name="load_more_normal_color">@color/white</color>
+    <color name="load_more_press_color">@color/holo_blue</color>
 
 </resources>

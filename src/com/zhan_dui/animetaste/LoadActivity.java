@@ -13,9 +13,11 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.widget.Toast;
 
+import com.avos.avoscloud.Parse;
+import com.avos.avoscloud.ParseAnalytics;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.umeng.analytics.MobclickAgent;
-import com.zhan_dui.modal.DataFetcher;
+import com.zhan_dui.modal.DataHandler;
 import com.zhan_dui.utils.NetworkUtils;
 
 public class LoadActivity extends ActionBarActivity {
@@ -23,12 +25,15 @@ public class LoadActivity extends ActionBarActivity {
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+		Parse.initialize(this,
+				"w43xht9daji0uut74pseeiibax8c2tnzxowmx9f81nvtpims",
+				"86q8251hrodk6wnf4znistay1mva9rm1xikvp1s9mhp5n7od");
+		ParseAnalytics.trackAppOpened(getIntent());
 		if (getSupportActionBar() != null) {
 			getSupportActionBar().hide();
 		}
 		mContext = this;
-		
+
 		setContentView(R.layout.activity_load);
 		MobclickAgent.onError(this);
 		if (PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(
@@ -63,7 +68,7 @@ public class LoadActivity extends ActionBarActivity {
 	};
 
 	private void init() {
-		DataFetcher.instance().getList(0, new JsonHttpResponseHandler() {
+		DataHandler.instance().getList(0, new JsonHttpResponseHandler() {
 			@Override
 			public void onSuccess(int statusCode, JSONObject response) {
 				super.onSuccess(statusCode, response);

@@ -12,9 +12,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.ocpsoft.prettytime.PrettyTime;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -27,31 +36,46 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
+import cn.sharesdk.sina.weibo.SinaWeibo;
+import cn.sharesdk.tencent.qzone.QZone;
 
+import com.avos.avoscloud.ParseException;
+import com.avos.avoscloud.ParseObject;
+import com.avos.avoscloud.ParseQuery;
+import com.avos.avoscloud.SaveCallback;
 import com.basv.gifmoviewview.widget.GifMovieView;
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.Target;
 import com.umeng.analytics.MobclickAgent;
+import com.zhan_dui.auth.SocialPlatform;
 import com.zhan_dui.data.VideoDB;
+import com.zhan_dui.modal.Comment;
+import com.zhan_dui.modal.DataHandler;
 import com.zhan_dui.modal.VideoDataFormat;
 import com.zhan_dui.utils.OrientationHelper;
 
@@ -85,21 +109,35 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	private MenuItem mFavMenuItem;
 	private Long mPreviousPlayPosition = 0l;
 	private Bitmap mDetailPicture;
+	private ImageView mRecommandThumb;
+	private TextView mRecommandTitle, mRecommandContent;
+	private LinearLayout mComments;
+	private LayoutInflater mLayoutInflater;
+	private View mLoadMoreComment;
+	private Button mLoadMoreButton;
+
+	private boolean mCommentFinished;
 
 	private final String mDir = "AnimeTaste";
 	private final String mShareName = "animetaste-share.jpg";
+
+	private int mSkip = 0;
+	private int mStep = 5;
+	private PrettyTime mPrettyTime;
 
 	@Override
 	public void onCreate(Bundle savedInstance) {
 		super.onCreate(savedInstance);
 		if (!LibsChecker.checkVitamioLibs(this))
 			return;
+		mPrettyTime = new PrettyTime();
 		mContext = this;
 		mVideoDB = new VideoDB(mContext, VideoDB.NAME, null, VideoDB.VERSION);
 		mVideoInfo = (VideoDataFormat) (getIntent().getExtras()
 				.getSerializable("VideoInfo"));
 		setContentView(R.layout.activity_play);
-
+		mLayoutInflater = (LayoutInflater) mContext
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -128,6 +166,10 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mLoadingGif = (GifMovieView) findViewById(R.id.loading_gif);
 		mHeaderWrapper = (RelativeLayout) findViewById(R.id.HeaderWrapper);
 		mZoomButton = (Button) findViewById(R.id.screen_btn);
+		mRecommandContent = (TextView) findViewById(R.id.recommand_content);
+		mRecommandTitle = (TextView) findViewById(R.id.recommand_title);
+		mRecommandThumb = (ImageView) findViewById(R.id.thumb);
+		mComments = (LinearLayout) findViewById(R.id.comments);
 		mZoomButton.setOnClickListener(this);
 
 		Typeface tfTitle = Typeface.createFromAsset(getAssets(),
@@ -169,7 +211,37 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			mOrientationEventListener.enable();
 		}
 		mVideoInfo.setFav(mVideoDB.isFav(mVideoInfo.Id));
+
+		findViewById(R.id.comment_edit_text).setOnClickListener(this);
+
+		DataHandler.instance().getRandom(1, mRandomeHandler);
+		new CommentsTask().execute();
 	}
+
+	private JsonHttpResponseHandler mRandomeHandler = new JsonHttpResponseHandler() {
+		public void onSuccess(int statusCode, org.json.JSONObject response) {
+			if (statusCode == 200) {
+				try {
+					JSONArray randomList = response.getJSONArray("list");
+					JSONObject video = randomList.getJSONObject(0);
+					VideoDataFormat videoDataFormat = VideoDataFormat
+							.build(video);
+					Picasso.with(mContext).load(videoDataFormat.HomePic)
+							.placeholder(R.drawable.placeholder_thumb)
+							.error(R.drawable.placeholder_fail)
+							.into(mRecommandThumb);
+					mRecommandTitle.setText(videoDataFormat.Name);
+					mRecommandContent.setText(videoDataFormat.Brief);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+
+		public void onFailure(Throwable e, org.json.JSONArray errorResponse) {
+
+		};
+	};
 
 	@SuppressLint("InlinedApi")
 	private void setFullScreenPlay() {
@@ -279,17 +351,136 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mVideoView.requestLayout();
 	}
 
+	public void comment() {
+		if (mSharedPreferences.getBoolean("login", false) == false) {
+			new AlertDialog.Builder(this)
+					.setTitle(R.string.choose_login)
+					.setItems(
+							new String[] { getString(R.string.weibo),
+									getString(R.string.qq) },
+							new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									switch (which) {
+									case 0:
+										new SocialPlatform(mContext).auth(
+												SinaWeibo.NAME, mAuthHandler);
+										break;
+									case 1:
+										new SocialPlatform(mContext).auth(
+												QZone.NAME, mAuthHandler);
+										break;
+									default:
+										break;
+									}
+								}
+							}).setNegativeButton(R.string.cancel_login, null)
+					.show();
+		} else {
+			final EditText editText = new EditText(mContext);
+			editText.setHeight(mContext.getResources().getDimensionPixelSize(
+					R.dimen.comment_edit_height));
+			editText.setGravity(Gravity.LEFT | Gravity.TOP);
+			new AlertDialog.Builder(mContext)
+					.setTitle(R.string.publish_comment)
+					.setView(editText)
+					.setNegativeButton(R.string.cancel_publish, null)
+					.setPositiveButton(R.string.publish,
+							new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									final String content = editText.getText()
+											.toString();
+									if (content.length() == 0) {
+										Toast.makeText(mContext,
+												R.string.comment_nothing,
+												Toast.LENGTH_SHORT).show();
+									} else {
+										new Thread() {
+											public void run() {
+												ParseObject parseComment = new ParseObject(
+														"Comments");
+												ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
+														"Users");
+												try {
+													ParseObject user = query
+															.get(mSharedPreferences
+																	.getString(
+																			"objectid",
+																			"0"));
+													parseComment.put("vid",
+															mVideoInfo.Id);
+													parseComment.put("uid",
+															user);
+													parseComment.put("content",
+															content);
+													parseComment
+															.saveInBackground(new SaveCallback() {
+
+																@Override
+																public void done(
+																		ParseException err) {
+																	if (err == null) {
+																		PlayActivity.this
+																				.runOnUiThread(new Runnable() {
+
+																					@Override
+																					public void run() {
+																						Toast.makeText(
+																								mContext,
+																								R.string.comment_success,
+																								Toast.LENGTH_SHORT)
+																								.show();
+																					}
+																				});
+
+																	} else {
+
+																		PlayActivity.this
+																				.runOnUiThread(new Runnable() {
+
+																					@Override
+																					public void run() {
+																						Toast.makeText(
+																								mContext,
+																								R.string.comment_failed,
+																								Toast.LENGTH_SHORT)
+																								.show();
+																					}
+																				});
+
+																	}
+																}
+															});
+												} catch (ParseException e) {
+													e.printStackTrace();
+												}
+											};
+										}.start();
+
+									}
+								}
+							}).show();
+		}
+	}
+
 	@Override
 	public void onClick(View v) {
-		if (v.getId() == R.id.play_button) {
+
+		switch (v.getId()) {
+		case R.id.play_button:
 			v.setVisibility(View.INVISIBLE);
 			mVideoView.setCanBePlayed(true);
 			mVideoAction.setVisibility(View.INVISIBLE);
 			mVideoView.start();
 			setPlayerWindowSize(FULL_WIDTH, getResources()
 					.getDimensionPixelSize(R.dimen.player_height), true);
-		}
-		if (v.getId() == R.id.screen_btn) {
+			break;
+		case R.id.screen_btn:
 			if (mOrientationEventListener != null) {
 				mOrientationEventListener.disable();
 			}
@@ -299,7 +490,14 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			} else if (mCurrentScape == OrientationHelper.PORTRAIT) {
 				setFullScreenPlay();
 			}
+			break;
+		case R.id.comment_edit_text:
+			comment();
+			break;
+		default:
+			break;
 		}
+
 	}
 
 	@Override
@@ -437,6 +635,103 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		}
 	}
 
+	private class CommentsTask extends AsyncTask<Void, LinearLayout, Void> {
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			if (mLoadMoreComment != null) {
+				mLoadMoreComment.findViewById(R.id.load_progressbar)
+						.setVisibility(View.VISIBLE);
+				mLoadMoreComment.findViewById(R.id.load_more_comment_btn)
+						.setVisibility(View.GONE);
+			}
+		}
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
+					"Comments");
+			query.whereEqualTo("vid", mVideoInfo.Id);
+			query.setLimit(mStep);
+			query.setSkip(mSkip);
+			query.include("uid");
+			query.orderByDescending("updatedAt");
+			try {
+				List<ParseObject> commentList = query.find();
+				if (commentList.size() < mStep) {
+					mCommentFinished = true;
+				}
+				ArrayList<LinearLayout> commentsLayout = new ArrayList<LinearLayout>();
+				for (ParseObject comment : commentList) {
+					ParseObject user = comment.getParseObject("uid");
+					Comment commentInformation = new Comment(
+							user.getString("username"),
+							user.getString("avatar"),
+							user.getString("platform"), comment.getUpdatedAt(),
+							comment.getString("content"));
+					LinearLayout commentItem = (LinearLayout) mLayoutInflater
+							.inflate(R.layout.comment_item, null);
+					TextView content = (TextView) commentItem
+							.findViewById(R.id.content);
+					content.setText(commentInformation.Content);
+					ImageView avatar = (ImageView) commentItem
+							.findViewById(R.id.avatar);
+					Picasso.with(mContext).load(commentInformation.Avatar)
+							.into(avatar);
+					TextView username = (TextView) commentItem
+							.findViewById(R.id.name);
+					username.setText(commentInformation.Username);
+					TextView date = (TextView) commentItem
+							.findViewById(R.id.time);
+					date.setText(mPrettyTime.format(commentInformation.Date));
+					commentsLayout.add(commentItem);
+				}
+				mSkip += mStep;
+				publishProgress(commentsLayout
+						.toArray(new LinearLayout[commentList.size()]));
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onProgressUpdate(LinearLayout... values) {
+			super.onProgressUpdate(values);
+			if (mLoadMoreComment != null) {
+				mComments.removeView(mLoadMoreComment);
+			}
+			for (LinearLayout commentView : values) {
+				mComments.addView(commentView);
+			}
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+
+			mLoadMoreComment = mLayoutInflater.inflate(
+					R.layout.comment_load_more, null);
+			mLoadMoreButton = (Button) mLoadMoreComment
+					.findViewById(R.id.load_more_comment_btn);
+
+			mComments.addView(mLoadMoreComment);
+			if (mCommentFinished == false) {
+				mLoadMoreButton.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						new CommentsTask().execute();
+					}
+				});
+			} else {
+				mLoadMoreButton.setText(R.string.no_more_comments);
+				mLoadMoreButton.setEnabled(false);
+			}
+		}
+	}
+
 	private class CheckIsFavorite extends AsyncTask<Void, Void, Boolean> {
 
 		@Override
@@ -454,4 +749,12 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		}
 
 	}
+
+	@SuppressLint("HandlerLeak")
+	private Handler mAuthHandler = new Handler() {
+		public void handleMessage(android.os.Message msg) {
+			Toast.makeText(PlayActivity.this, msg.what + "", Toast.LENGTH_SHORT)
+					.show();
+		};
+	};
 }
