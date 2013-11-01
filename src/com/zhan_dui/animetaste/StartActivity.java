@@ -46,7 +46,6 @@ public class StartActivity extends ActionBarActivity implements
 	private ShowGalleryPagerAdapter mShowAdapter;
 
 	private LayoutInflater mLayoutInflater;
-	private View mLoadView;
 	private VideoDB mVideoDB;
 
 	private int mDefaultPrepareCount = 15;
@@ -63,7 +62,6 @@ public class StartActivity extends ActionBarActivity implements
 
 		mLayoutInflater = (LayoutInflater) this
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		mLoadView = mLayoutInflater.inflate(R.layout.load_item, null);
 		mVideoList.setOnScrollListener(this);
 
 		View headerView = mLayoutInflater.inflate(R.layout.gallery_item, null,

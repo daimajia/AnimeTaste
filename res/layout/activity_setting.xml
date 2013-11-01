@@ -8,6 +8,7 @@
         android:id="@+id/smail"
         android:layout_width="match_parent"
         android:layout_height="@dimen/photo_height"
+        android:contentDescription="@null"
         android:scaleType="fitXY"
         android:src="@drawable/smail" />
 
@@ -98,6 +99,7 @@
                     android:layout_height="@dimen/setting_arrow"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
+                    android:contentDescription="@null"
                     android:src="@drawable/right_chevron" />
 
                 <View
@@ -120,13 +122,14 @@
                     android:layout_alignParentLeft="true"
                     android:layout_centerVertical="true"
                     android:paddingLeft="@dimen/setting_text_padding_left"
-                    android:text="@string/recommend" />
+                    android:text="@string/recommend_to_friend" />
 
                 <ImageView
                     android:layout_width="@dimen/setting_arrow"
                     android:layout_height="@dimen/setting_arrow"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
+                    android:contentDescription="@null"
                     android:src="@drawable/right_chevron" />
 
                 <View
@@ -156,6 +159,7 @@
                     android:layout_height="@dimen/setting_arrow"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
+                    android:contentDescription="@null"
                     android:src="@drawable/right_chevron" />
 
                 <View
@@ -185,6 +189,7 @@
                     android:layout_height="@dimen/setting_arrow"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
+                    android:contentDescription="@null"
                     android:src="@drawable/right_chevron" />
 
                 <View

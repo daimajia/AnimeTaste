@@ -83,8 +83,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.zhan_dui.animetaste.AuthActivity" >
-        </activity>
         <activity
             android:name="com.zhan_dui.animetaste.SettingActivity"
             android:screenOrientation="portrait" >

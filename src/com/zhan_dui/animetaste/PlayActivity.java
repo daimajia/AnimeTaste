@@ -73,6 +73,7 @@ import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.Target;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.auth.SocialPlatform;
+import com.zhan_dui.auth.User;
 import com.zhan_dui.data.VideoDB;
 import com.zhan_dui.modal.Comment;
 import com.zhan_dui.modal.DataHandler;
@@ -114,9 +115,11 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	private LinearLayout mComments;
 	private LayoutInflater mLayoutInflater;
 	private View mLoadMoreComment;
+	private View mRecommandView;
 	private Button mLoadMoreButton;
 
 	private boolean mCommentFinished;
+	private User mUser;
 
 	private final String mDir = "AnimeTaste";
 	private final String mShareName = "animetaste-share.jpg";
@@ -135,6 +138,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mVideoDB = new VideoDB(mContext, VideoDB.NAME, null, VideoDB.VERSION);
 		mVideoInfo = (VideoDataFormat) (getIntent().getExtras()
 				.getSerializable("VideoInfo"));
+		mUser = new User(mContext);
 		setContentView(R.layout.activity_play);
 		mLayoutInflater = (LayoutInflater) mContext
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -150,7 +154,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 		mSharedPreferences = PreferenceManager
 				.getDefaultSharedPreferences(mContext);
-		if (mSharedPreferences.getBoolean("use_hd", false)) {
+		if (mSharedPreferences.getBoolean("use_hd", true)) {
 			mVideoView.setVideoPath(mVideoInfo.HDVideoUrl);
 		} else {
 			mVideoView.setVideoPath(mVideoInfo.CommonVideoUrl);
@@ -170,6 +174,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mRecommandTitle = (TextView) findViewById(R.id.recommand_title);
 		mRecommandThumb = (ImageView) findViewById(R.id.thumb);
 		mComments = (LinearLayout) findViewById(R.id.comments);
+		mRecommandView = findViewById(R.id.recommand_view);
 		mZoomButton.setOnClickListener(this);
 
 		Typeface tfTitle = Typeface.createFromAsset(getAssets(),
@@ -232,6 +237,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 							.into(mRecommandThumb);
 					mRecommandTitle.setText(videoDataFormat.Name);
 					mRecommandContent.setText(videoDataFormat.Brief);
+					mRecommandView.setTag(videoDataFormat);
+					mRecommandView.setOnClickListener(PlayActivity.this);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -352,7 +359,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	}
 
 	public void comment() {
-		if (mSharedPreferences.getBoolean("login", false) == false) {
+		if (mUser.isLogin() == false) {
 			new AlertDialog.Builder(this)
 					.setTitle(R.string.choose_login)
 					.setItems(
@@ -435,6 +442,29 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 																								R.string.comment_success,
 																								Toast.LENGTH_SHORT)
 																								.show();
+																						View commentItem = mLayoutInflater
+																								.inflate(
+																										R.layout.comment_item,
+																										null);
+																						ImageView avatar = (ImageView) commentItem
+																								.findViewById(R.id.avatar);
+																						TextView name = (TextView) commentItem
+																								.findViewById(R.id.name);
+																						TextView contentTextView = (TextView) commentItem
+																								.findViewById(R.id.content);
+																						contentTextView
+																								.setText(content);
+																						name.setText(mUser
+																								.getUsername());
+																						Picasso.with(
+																								mContext)
+																								.load(mUser
+																										.getAvatar())
+																								.into(avatar);
+																						mComments
+																								.addView(
+																										commentItem,
+																										1);
 																					}
 																				});
 
@@ -493,6 +523,15 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			break;
 		case R.id.comment_edit_text:
 			comment();
+			break;
+		case R.id.recommand_view:
+			prepareStop();
+			mVideoView.stopPlayback();
+			VideoDataFormat videoDataFormat = (VideoDataFormat) v.getTag();
+			Intent intent = new Intent(mContext, PlayActivity.class);
+			intent.putExtra("VideoInfo", videoDataFormat);
+			mContext.startActivity(intent);
+			finish();
 			break;
 		default:
 			break;
@@ -753,8 +792,18 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	@SuppressLint("HandlerLeak")
 	private Handler mAuthHandler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
-			Toast.makeText(PlayActivity.this, msg.what + "", Toast.LENGTH_SHORT)
-					.show();
+			switch (msg.what) {
+			case SocialPlatform.AUTH_SUCCESS:
+				Toast.makeText(mContext, R.string.login_success,
+						Toast.LENGTH_SHORT).show();
+				break;
+			case SocialPlatform.AUTH_FAILED:
+				Toast.makeText(mContext, R.string.login_failed,
+						Toast.LENGTH_SHORT).show();
+				break;
+			default:
+				break;
+			}
 		};
 	};
 }

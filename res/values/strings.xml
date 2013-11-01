@@ -6,7 +6,7 @@
     <string name="only_for_wifi">Only for Wifi</string>
     <string name="use_hd">高清视频</string>
     <string name="suggestion">意见反馈</string>
-    <string name="recommend">推荐给小伙伴</string>
+    <string name="recommend_to_friend">推荐给小伙伴</string>
     <string name="clear_cache">清空缓存</string>
     <string name="focus_us">关注我们</string>
     <string name="cancel_auth">取消所有授权</string>
@@ -50,15 +50,18 @@
     <string name="publish_comment">发布评论</string>
     <string name="cancel_publish">取消</string>
     <string name="publish">发送</string>
-    <string name="comment_nothing">_(:з」∠)_ 什么都没有写...</string>
+    <string name="comment_nothing">_(:з」∠)_ 什么都没有写\.\.\.</string>
     <!-- Login -->
 
 
     <!-- Comment -->
     <string name="comment_success">评论成功</string>
     <string name="comment_failed">评论出现问题</string>
-    <string name="load_more_comments">载入更多评论...</string>
+    <string name="load_more_comments">载入更多评论\.\.\.</string>
     <string name="no_more_comments">没有更多评论</string>
+    <string name="login_success">登陆成功</string>
+    <string name="login_failed">登陆失败</string>
+    <string name="logout_success">退出登陆成功</string>
     <!-- Comment -->
 
 </resources>

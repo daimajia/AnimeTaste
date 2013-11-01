@@ -72,7 +72,7 @@ public class SettingActivity extends ActionBarActivity implements
 
 		mSwitchOnlyWifi.setChecked(mSharedPreferences.getBoolean("only_wifi",
 				true));
-		mSwitchUseHD.setChecked(mSharedPreferences.getBoolean("use_hd", false));
+		mSwitchUseHD.setChecked(mSharedPreferences.getBoolean("use_hd", true));
 	}
 
 	@Override
@@ -106,6 +106,8 @@ public class SettingActivity extends ActionBarActivity implements
 			ShareSDK.getPlatform(mContext, SinaWeibo.NAME).removeAccount();
 			ShareSDK.getPlatform(mContext, QZone.NAME).removeAccount();
 			mSharedPreferences.edit().remove("login").commit();
+			Toast.makeText(mContext, R.string.logout_success,
+					Toast.LENGTH_SHORT).show();
 		default:
 			break;
 		}
