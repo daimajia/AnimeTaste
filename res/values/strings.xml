@@ -50,18 +50,20 @@
     <string name="publish_comment">发布评论</string>
     <string name="cancel_publish">取消</string>
     <string name="publish">发送</string>
-    <string name="comment_nothing">_(:з」∠)_ 什么都没有写\.\.\.</string>
+    <string name="comment_nothing">_(:з」∠)_ 什么都没有写&#8230;&#8230;</string>
+    <string name="comment_too_short">不要小于5个字</string>
     <!-- Login -->
 
 
     <!-- Comment -->
     <string name="comment_success">评论成功</string>
     <string name="comment_failed">评论出现问题</string>
-    <string name="load_more_comments">载入更多评论\.\.\.</string>
+    <string name="load_more_comments">载入更多评论&#8230;&#8230;</string>
     <string name="no_more_comments">没有更多评论</string>
     <string name="login_success">登陆成功</string>
     <string name="login_failed">登陆失败</string>
     <string name="logout_success">退出登陆成功</string>
+    <string name="write_someting">写下你的感想&#8230;&#8230;</string>
     <!-- Comment -->
 
 

@@ -111,6 +111,7 @@ public class SettingActivity extends ActionBarActivity implements
 			ShareSDK.getPlatform(mContext, SinaWeibo.NAME).removeAccount();
 			ShareSDK.getPlatform(mContext, QZone.NAME).removeAccount();
 			mSharedPreferences.edit().remove("login").commit();
+			MobclickAgent.onEvent(mContext, "logout");
 			Toast.makeText(mContext, R.string.logout_success,
 					Toast.LENGTH_SHORT).show();
 			break;
@@ -120,6 +121,7 @@ public class SettingActivity extends ActionBarActivity implements
 			Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
 			try {
 				startActivity(goToMarket);
+				MobclickAgent.onEvent(mContext, "rate");
 			} catch (ActivityNotFoundException e) {
 				Toast.makeText(mContext, R.string.can_not_open_market,
 						Toast.LENGTH_SHORT).show();
@@ -173,6 +175,7 @@ public class SettingActivity extends ActionBarActivity implements
 			case FOLLOW_REPEAT:
 				Toast.makeText(mContext, R.string.follow_success,
 						Toast.LENGTH_SHORT).show();
+				MobclickAgent.onEvent(mContext, "follow");
 				break;
 			case FAIL_AUTH:
 				Toast.makeText(mContext, R.string.auth_failed,

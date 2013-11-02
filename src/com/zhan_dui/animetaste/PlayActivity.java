@@ -41,6 +41,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
+import android.text.InputFilter;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -359,6 +360,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	}
 
 	public void comment() {
+		MobclickAgent.onEvent(mContext, "comment");
 		if (mUser.isLogin() == false) {
 			new AlertDialog.Builder(this)
 					.setTitle(R.string.choose_login)
@@ -389,6 +391,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			final EditText editText = new EditText(mContext);
 			editText.setHeight(mContext.getResources().getDimensionPixelSize(
 					R.dimen.comment_edit_height));
+			editText.setFilters(new InputFilter[] { new InputFilter.LengthFilter(
+					250) });
 			editText.setGravity(Gravity.LEFT | Gravity.TOP);
 			new AlertDialog.Builder(mContext)
 					.setTitle(R.string.publish_comment)
@@ -405,6 +409,10 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 									if (content.length() == 0) {
 										Toast.makeText(mContext,
 												R.string.comment_nothing,
+												Toast.LENGTH_SHORT).show();
+									} else if (content.length() < 5) {
+										Toast.makeText(mContext,
+												R.string.comment_too_short,
 												Toast.LENGTH_SHORT).show();
 									} else {
 										new Thread() {
@@ -531,6 +539,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			Intent intent = new Intent(mContext, PlayActivity.class);
 			intent.putExtra("VideoInfo", videoDataFormat);
 			mContext.startActivity(intent);
+			MobclickAgent.onEvent(mContext, "recommend");
 			finish();
 			break;
 		default:
@@ -762,6 +771,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 					@Override
 					public void onClick(View v) {
 						new CommentsTask().execute();
+						MobclickAgent.onEvent(mContext, "more_comment");
 					}
 				});
 			} else {

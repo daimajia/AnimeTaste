@@ -16,6 +16,7 @@ import com.avos.avoscloud.ParseException;
 import com.avos.avoscloud.ParseObject;
 import com.avos.avoscloud.ParseQuery;
 import com.avos.avoscloud.SaveCallback;
+import com.umeng.analytics.MobclickAgent;
 
 public class SocialPlatform implements PlatformActionListener {
 	private Context mContext;
@@ -69,6 +70,7 @@ public class SocialPlatform implements PlatformActionListener {
 							.putString("uid", platform.getDb().getUserId())
 							.putBoolean("login", true)
 							.putString("platform", platform.getName()).commit();
+					MobclickAgent.onEvent(mContext, "login");
 					mHandler.sendEmptyMessage(AUTH_SUCCESS);
 				} else {
 					mHandler.sendEmptyMessage(AUTH_SAVE_FAILED);
