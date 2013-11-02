@@ -12,7 +12,7 @@ import com.zhan_dui.utils.ApiUtils;
 public class DataHandler {
 	private static DataHandler mInstance;
 	private static final String sRequestListUrl = "http://i.animetaste.net/api/animelist_v2/?api_key=%s&timestamp=%d&page=%d&access_token=%s";
-	private static final String sRandomeRequestUrl = "http://it.animetaste.net/api/animelist_v3/?api_key=%s&timestamp=%d&order=random&limit=%d&access_token=%s";
+	private static final String sRandomeRequestUrl = "http://i.animetaste.net/api/animelist_v3/?api_key=%s&timestamp=%d&order=random&limit=%d&access_token=%s";
 	private static final String API_KEY = "ios";
 	private static final String API_SECRET = "8ce32e9a0072037578899a53e155441f";
 
