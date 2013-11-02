@@ -41,6 +41,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
+import android.support.v7.widget.ShareActionProvider.OnShareTargetSelectedListener;
 import android.text.InputFilter;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -124,6 +125,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	private final String mDir = "AnimeTaste";
 	private final String mShareName = "animetaste-share.jpg";
+	private int mCommentCount;
 
 	private int mSkip = 0;
 	private int mStep = 5;
@@ -315,6 +317,16 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		MenuItem item = menu.findItem(R.id.menu_item_share);
 		mShareActionProvider = (ShareActionProvider) MenuItemCompat
 				.getActionProvider(item);
+		mShareActionProvider
+				.setOnShareTargetSelectedListener(new OnShareTargetSelectedListener() {
+
+					@Override
+					public boolean onShareTargetSelected(
+							ShareActionProvider arg0, Intent arg1) {
+						MobclickAgent.onEvent(mContext, "share");
+						return false;
+					}
+				});
 		mFavMenuItem = menu.findItem(R.id.action_fav);
 		mShareActionProvider.setShareIntent(getDefaultIntent());
 		new CheckIsFavorite().execute();
@@ -394,115 +406,103 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			editText.setFilters(new InputFilter[] { new InputFilter.LengthFilter(
 					250) });
 			editText.setGravity(Gravity.LEFT | Gravity.TOP);
-			new AlertDialog.Builder(mContext)
-					.setTitle(R.string.publish_comment)
+			AlertDialog.Builder commentDialog = new AlertDialog.Builder(
+					mContext).setTitle(R.string.publish_comment)
 					.setView(editText)
 					.setNegativeButton(R.string.cancel_publish, null)
-					.setPositiveButton(R.string.publish,
-							new DialogInterface.OnClickListener() {
+					.setPositiveButton(R.string.publish, null);
+			final AlertDialog dialog = commentDialog.create();
+			dialog.show();
+			dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(
+					new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							final String content = editText.getText()
+									.toString();
+							if (content.length() == 0) {
+								Toast.makeText(mContext,
+										R.string.comment_nothing,
+										Toast.LENGTH_SHORT).show();
+							} else if (content.length() < 5) {
+								Toast.makeText(mContext,
+										R.string.comment_too_short,
+										Toast.LENGTH_SHORT).show();
+							} else {
+								new CommentThread(content).start();
+								dialog.dismiss();
+							}
+						}
+					});
+
+		}
+	}
+
+	private class CommentThread extends Thread {
+		private String mContent;
+
+		private CommentThread(String commentContent) {
+			mContent = commentContent;
+		}
+
+		@Override
+		public void run() {
+			super.run();
+			ParseObject parseComment = new ParseObject("Comments");
+			ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Users");
+			try {
+				ParseObject user = query.get(mSharedPreferences.getString(
+						"objectid", "0"));
+				parseComment.put("vid", mVideoInfo.Id);
+				parseComment.put("uid", user);
+				parseComment.put("content", mContent);
+				parseComment.saveInBackground(new SaveCallback() {
+
+					@Override
+					public void done(ParseException err) {
+						if (err == null) {
+							PlayActivity.this.runOnUiThread(new Runnable() {
 
 								@Override
-								public void onClick(DialogInterface dialog,
-										int which) {
-									final String content = editText.getText()
-											.toString();
-									if (content.length() == 0) {
-										Toast.makeText(mContext,
-												R.string.comment_nothing,
-												Toast.LENGTH_SHORT).show();
-									} else if (content.length() < 5) {
-										Toast.makeText(mContext,
-												R.string.comment_too_short,
-												Toast.LENGTH_SHORT).show();
-									} else {
-										new Thread() {
-											public void run() {
-												ParseObject parseComment = new ParseObject(
-														"Comments");
-												ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
-														"Users");
-												try {
-													ParseObject user = query
-															.get(mSharedPreferences
-																	.getString(
-																			"objectid",
-																			"0"));
-													parseComment.put("vid",
-															mVideoInfo.Id);
-													parseComment.put("uid",
-															user);
-													parseComment.put("content",
-															content);
-													parseComment
-															.saveInBackground(new SaveCallback() {
-
-																@Override
-																public void done(
-																		ParseException err) {
-																	if (err == null) {
-																		PlayActivity.this
-																				.runOnUiThread(new Runnable() {
-
-																					@Override
-																					public void run() {
-																						Toast.makeText(
-																								mContext,
-																								R.string.comment_success,
-																								Toast.LENGTH_SHORT)
-																								.show();
-																						View commentItem = mLayoutInflater
-																								.inflate(
-																										R.layout.comment_item,
-																										null);
-																						ImageView avatar = (ImageView) commentItem
-																								.findViewById(R.id.avatar);
-																						TextView name = (TextView) commentItem
-																								.findViewById(R.id.name);
-																						TextView contentTextView = (TextView) commentItem
-																								.findViewById(R.id.content);
-																						contentTextView
-																								.setText(content);
-																						name.setText(mUser
-																								.getUsername());
-																						Picasso.with(
-																								mContext)
-																								.load(mUser
-																										.getAvatar())
-																								.into(avatar);
-																						mComments
-																								.addView(
-																										commentItem,
-																										1);
-																					}
-																				});
-
-																	} else {
-
-																		PlayActivity.this
-																				.runOnUiThread(new Runnable() {
-
-																					@Override
-																					public void run() {
-																						Toast.makeText(
-																								mContext,
-																								R.string.comment_failed,
-																								Toast.LENGTH_SHORT)
-																								.show();
-																					}
-																				});
-
-																	}
-																}
-															});
-												} catch (ParseException e) {
-													e.printStackTrace();
-												}
-											};
-										}.start();
-
-									}
+								public void run() {
+									Toast.makeText(mContext,
+											R.string.comment_success,
+											Toast.LENGTH_SHORT).show();
+									View commentItem = mLayoutInflater.inflate(
+											R.layout.comment_item, null);
+									ImageView avatar = (ImageView) commentItem
+											.findViewById(R.id.avatar);
+									TextView name = (TextView) commentItem
+											.findViewById(R.id.name);
+									TextView contentTextView = (TextView) commentItem
+											.findViewById(R.id.content);
+									contentTextView.setText(mContent);
+									name.setText(mUser.getUsername());
+									Picasso.with(mContext)
+											.load(mUser.getAvatar())
+											.into(avatar);
+									mComments.addView(commentItem, 1);
 								}
-							}).show();
+							});
+
+						} else {
+
+							PlayActivity.this.runOnUiThread(new Runnable() {
+
+								@Override
+								public void run() {
+									Toast.makeText(mContext,
+											R.string.comment_failed,
+											Toast.LENGTH_SHORT).show();
+								}
+							});
+
+						}
+					}
+				});
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -736,6 +736,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 					commentsLayout.add(commentItem);
 				}
 				mSkip += mStep;
+				mCommentCount += commentList.size();
 				publishProgress(commentsLayout
 						.toArray(new LinearLayout[commentList.size()]));
 			} catch (ParseException e) {
@@ -758,14 +759,12 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		@Override
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
-
-			mLoadMoreComment = mLayoutInflater.inflate(
-					R.layout.comment_load_more, null);
-			mLoadMoreButton = (Button) mLoadMoreComment
-					.findViewById(R.id.load_more_comment_btn);
-
-			mComments.addView(mLoadMoreComment);
 			if (mCommentFinished == false) {
+				mLoadMoreComment = mLayoutInflater.inflate(
+						R.layout.comment_load_more, null);
+				mLoadMoreButton = (Button) mLoadMoreComment
+						.findViewById(R.id.load_more_comment_btn);
+				mComments.addView(mLoadMoreComment);
 				mLoadMoreButton.setOnClickListener(new OnClickListener() {
 
 					@Override
@@ -775,8 +774,10 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 					}
 				});
 			} else {
-				mLoadMoreButton.setText(R.string.no_more_comments);
-				mLoadMoreButton.setEnabled(false);
+				if (mCommentCount > 5) {
+					mLoadMoreButton.setText(R.string.no_more_comments);
+					mLoadMoreButton.setEnabled(false);
+				}
 			}
 		}
 	}

@@ -19,7 +19,7 @@
     <string name="share_via">分享给小伙伴</string>
     <string name="share_title">AnimeTaste分享给你</string>
     <string name="share_video_title">《%1$s》分享给你</string>
-    <string name="share_video_body">《%1$s》这部动画真的很棒，分享给你。%2$s @AnimeTaste全球动画精选</string>
+    <string name="share_video_body">《%1$s》这部动画真的很棒，分享给你。%2$s @AnimeTaste全球动画精选 App下载:http://i.animetaste.net</string>
     <string name="share_app_body">AnimeTaste（品赏艾尼莫）是国内首个关注独立动画的网站。
 移动版聚焦更新的全球独立动画的传播，让您随时随地能观看动画，分享快乐给更多好友。品味动画，重拾幻想。官方：http://i.animetaste.net/ 微博：@AnimeTaste全球动画精选</string>
     <string name="error_load">获取动画失败，请检查网络是否正常</string>
@@ -43,15 +43,15 @@
     <string name="recommend">相关推荐</string>
 
     <!-- Login -->
-    <string name="choose_login">选择登陆方式</string>
+    <string name="choose_login">选择登录方式</string>
     <string name="cancel_login">取消</string>
     <string name="qq">QQ</string>
-    <string name="weibo">微博</string>
+    <string name="weibo">新浪微博</string>
     <string name="publish_comment">发布评论</string>
     <string name="cancel_publish">取消</string>
     <string name="publish">发送</string>
     <string name="comment_nothing">_(:з」∠)_ 什么都没有写&#8230;&#8230;</string>
-    <string name="comment_too_short">不要小于5个字</string>
+    <string name="comment_too_short">一个好的评论，应该不少于五个字哦</string>
     <!-- Login -->
 
 
@@ -60,9 +60,9 @@
     <string name="comment_failed">评论出现问题</string>
     <string name="load_more_comments">载入更多评论&#8230;&#8230;</string>
     <string name="no_more_comments">没有更多评论</string>
-    <string name="login_success">登陆成功</string>
-    <string name="login_failed">登陆失败</string>
-    <string name="logout_success">退出登陆成功</string>
+    <string name="login_success">登录成功</string>
+    <string name="login_failed">登录失败</string>
+    <string name="logout_success">退出登录成功</string>
     <string name="write_someting">写下你的感想&#8230;&#8230;</string>
     <!-- Comment -->
 
