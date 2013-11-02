@@ -64,4 +64,10 @@
     <string name="logout_success">退出登陆成功</string>
     <!-- Comment -->
 
+
+    <!-- Settings -->
+    <string name="rate_for_us">为我们评分</string>
+    <string name="can_not_open_market">无法打开市场</string>
+    <!-- Settings -->
+
 </resources>

@@ -5,9 +5,11 @@ import java.util.HashMap;
 import org.jraf.android.backport.switchwidget.Switch;
 
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -32,6 +34,7 @@ public class SettingActivity extends ActionBarActivity implements
 	private View mSuggestion;
 	private View mFocusUs;
 	private View mCancelAuth;
+	private View mRateForUs;
 
 	private Switch mSwitchOnlyWifi;
 	private Switch mSwitchUseHD;
@@ -56,6 +59,7 @@ public class SettingActivity extends ActionBarActivity implements
 		mSuggestion = findViewById(R.id.suggestion);
 		mFocusUs = findViewById(R.id.focus_us);
 		mCancelAuth = findViewById(R.id.cancel_auth);
+		mRateForUs = findViewById(R.id.rate_for_us);
 
 		mSwitchOnlyWifi = (Switch) findViewById(R.id.switch_wifi);
 		mSwitchUseHD = (Switch) findViewById(R.id.switch_hd);
@@ -69,6 +73,7 @@ public class SettingActivity extends ActionBarActivity implements
 		mSwitchOnlyWifi.setOnCheckedChangeListener(this);
 		mSwitchUseHD.setOnCheckedChangeListener(this);
 		mCancelAuth.setOnClickListener(this);
+		mRateForUs.setOnClickListener(this);
 
 		mSwitchOnlyWifi.setChecked(mSharedPreferences.getBoolean("only_wifi",
 				true));
@@ -108,6 +113,17 @@ public class SettingActivity extends ActionBarActivity implements
 			mSharedPreferences.edit().remove("login").commit();
 			Toast.makeText(mContext, R.string.logout_success,
 					Toast.LENGTH_SHORT).show();
+			break;
+		case R.id.rate_for_us:
+			Uri uri = Uri.parse("market://details?id="
+					+ mContext.getPackageName());
+			Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
+			try {
+				startActivity(goToMarket);
+			} catch (ActivityNotFoundException e) {
+				Toast.makeText(mContext, R.string.can_not_open_market,
+						Toast.LENGTH_SHORT).show();
+			}
 		default:
 			break;
 		}

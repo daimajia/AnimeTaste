@@ -344,8 +344,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			videoParams.width = width;
 		}
 		if (height == FULL_HEIGHT) {
-			headerParams.height = metrics.heightPixels;
-			videoParams.height = metrics.heightPixels;
+			headerParams.height = metrics.heightPixels - getStatusBarHeight();
+			videoParams.height = metrics.heightPixels - getStatusBarHeight();
 		} else {
 			headerParams.height = height;
 			videoParams.height = height;
@@ -806,4 +806,14 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			}
 		};
 	};
+
+	public int getStatusBarHeight() {
+		int result = 0;
+		int resourceId = getResources().getIdentifier("status_bar_height",
+				"dimen", "android");
+		if (resourceId > 0) {
+			result = getResources().getDimensionPixelSize(resourceId);
+		}
+		return result;
+	}
 }
