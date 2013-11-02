@@ -16,19 +16,17 @@ import com.zhan_dui.modal.VideoDataFormat;
 @SuppressLint("ValidFragment")
 public class ShowFragment extends Fragment {
 
-	private final VideoDataFormat mVideoInfo;
 	private ImageView mShowImageView;
 
 	public ShowFragment() {
-		mVideoInfo = null;
-	}
-
-	public ShowFragment(VideoDataFormat VideoInfo) {
-		mVideoInfo = VideoInfo;
 	}
 
 	public static ShowFragment newInstance(VideoDataFormat VideoInfo) {
-		return new ShowFragment(VideoInfo);
+		ShowFragment f = new ShowFragment();
+		Bundle args = new Bundle();
+		args.putSerializable("video_info", VideoInfo);
+		f.setArguments(args);
+		return f;
 	}
 
 	@Override
@@ -38,6 +36,8 @@ public class ShowFragment extends Fragment {
 				.inflate(R.layout.fragment_show, container, false);
 		mShowImageView = (ImageView) layout.findViewById(R.id.show_image);
 		mShowImageView.setImageResource(R.drawable.big_bg);
+		VideoDataFormat mVideoInfo = (VideoDataFormat) getArguments()
+				.getSerializable("video_info");
 		Picasso.with(getActivity().getApplicationContext())
 				.load(mVideoInfo.DetailPic).placeholder(R.drawable.big_bg)
 				.error(R.drawable.big_bg).into(mShowImageView);
