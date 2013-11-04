@@ -20,9 +20,9 @@ public class VideoDB extends SQLiteOpenHelper {
 	public static final int VERSION = 1;
 	public static final String NAME = "AnimeTaste";
 
-	public static final String TABLE_VIDEO_NAME = "Video";
-	public static final String TABLE_FAV_NAME = "Fav";
-	public static final String TABLE_WATCHED_NAME = "Watched";
+	private static final String TABLE_VIDEO_NAME = "Video";
+	private static final String TABLE_FAV_NAME = "Fav";
+	private static final String TABLE_WATCHED_NAME = "Watched";
 
 	private static final String DATABASE_VIDEO_CREATE = "create table Video(_id integer primary key autoincrement, "
 			+ "id text not null UNIQUE,"

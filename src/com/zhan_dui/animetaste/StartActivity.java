@@ -54,8 +54,7 @@ public class StartActivity extends ActionBarActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = this;
-		mVideoDB = new VideoDB(mContext, VideoDB.TABLE_VIDEO_NAME, null,
-				VideoDB.VERSION);
+		mVideoDB = new VideoDB(mContext, VideoDB.NAME, null, VideoDB.VERSION);
 		setContentView(R.layout.activity_start);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		mVideoList = (ListView) findViewById(R.id.videoList);

@@ -17,11 +17,13 @@ import com.avos.avoscloud.Parse;
 import com.avos.avoscloud.ParseAnalytics;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.umeng.analytics.MobclickAgent;
+import com.zhan_dui.data.VideoDB;
 import com.zhan_dui.modal.DataHandler;
 import com.zhan_dui.utils.NetworkUtils;
 
 public class LoadActivity extends ActionBarActivity {
 	private Context mContext;
+	private VideoDB mVideoDB;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -33,6 +35,7 @@ public class LoadActivity extends ActionBarActivity {
 			getSupportActionBar().hide();
 		}
 		mContext = this;
+		mVideoDB = new VideoDB(mContext, VideoDB.NAME, null, VideoDB.VERSION);
 
 		setContentView(R.layout.activity_load);
 		MobclickAgent.onError(this);
@@ -78,14 +81,14 @@ public class LoadActivity extends ActionBarActivity {
 					try {
 						intent.putExtra("LoadData",
 								response.getJSONArray("list").toString());
-
 						startActivity(intent);
 						finish();
 					} catch (JSONException e) {
 						e.printStackTrace();
+						finish();
 					}
 				} else {
-
+					finish();
 				}
 			}
 
@@ -94,7 +97,11 @@ public class LoadActivity extends ActionBarActivity {
 				super.onFailure(error, content);
 				Toast.makeText(getApplicationContext(), R.string.error_load,
 						Toast.LENGTH_SHORT).show();
-				startActivity(new Intent(mContext, StartActivity.class));
+				if (mVideoDB.getVideosCount() > 5)
+					startActivity(new Intent(mContext, StartActivity.class));
+				else {
+					finish();
+				}
 				finish();
 			}
 		});
