@@ -1,19 +1,13 @@
 package com.zhan_dui.animetaste;
 
-import io.vov.vitamio.LibsChecker;
-import io.vov.vitamio.MediaPlayer;
-import io.vov.vitamio.MediaPlayer.OnInfoListener;
-import io.vov.vitamio.MediaPlayer.OnPreparedListener;
-import io.vov.vitamio.widget.CenterLayout;
-import io.vov.vitamio.widget.MediaController;
-import io.vov.vitamio.widget.VideoView;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,7 +21,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Typeface;
@@ -37,28 +30,32 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.ShareActionProvider.OnShareTargetSelectedListener;
 import android.text.InputFilter;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.OrientationEventListener;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import cn.sharesdk.sina.weibo.SinaWeibo;
@@ -68,6 +65,11 @@ import com.avos.avoscloud.ParseException;
 import com.avos.avoscloud.ParseObject;
 import com.avos.avoscloud.ParseQuery;
 import com.avos.avoscloud.SaveCallback;
+import com.baidu.cyberplayer.core.BMediaController;
+import com.baidu.cyberplayer.core.BVideoView;
+import com.baidu.cyberplayer.core.BVideoView.OnCompletionListener;
+import com.baidu.cyberplayer.core.BVideoView.OnErrorListener;
+import com.baidu.cyberplayer.core.BVideoView.OnPreparedListener;
 import com.basv.gifmoviewview.widget.GifMovieView;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.squareup.picasso.Picasso;
@@ -81,22 +83,20 @@ import com.zhan_dui.modal.Comment;
 import com.zhan_dui.modal.DataHandler;
 import com.zhan_dui.modal.VideoDataFormat;
 import com.zhan_dui.utils.OrientationHelper;
+import com.zhan_dui.utils.Screen;
 
+@SuppressLint("DefaultLocale")
 public class PlayActivity extends ActionBarActivity implements OnClickListener,
-		OnPreparedListener, OnInfoListener, Target {
+		Target, OnPreparedListener, OnCompletionListener, OnErrorListener,
+		OnTouchListener {
 
 	private TextView mTitleTextView;
 	private TextView mContentTextView;
 	private TextView mAutherTextView;
 	private ShareActionProvider mShareActionProvider;
-	private VideoView mVideoView;
-	private Button mZoomButton;
 	private ImageView mDetailImageView;
-	private ImageButton mPlayButton;
+	private ImageButton mPrePlayButton;
 	private GifMovieView mLoadingGif;
-	private MediaController mVideoControls;
-
-	private RelativeLayout mHeaderWrapper;
 
 	private int mCurrentScape;
 
@@ -110,18 +110,21 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	private OrientationEventListener mOrientationEventListener;
 	private MenuItem mFavMenuItem;
-	private Long mPreviousPlayPosition = 0l;
 	private Bitmap mDetailPicture;
 	private ImageView mRecommandThumb;
 	private TextView mRecommandTitle, mRecommandContent;
 	private LinearLayout mComments;
 	private LayoutInflater mLayoutInflater;
+	private RelativeLayout mHeaderWrpper;
 	private View mLoadMoreComment;
 	private View mRecommandView;
 	private Button mLoadMoreButton;
+	private Button mZoomButton;
 
 	private boolean mCommentFinished;
 	private User mUser;
+
+	private final String Tag = "AT";
 
 	private final String mDir = "AnimeTaste";
 	private final String mShareName = "animetaste-share.jpg";
@@ -129,101 +132,91 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	private int mSkip = 0;
 	private int mStep = 5;
-	private PrettyTime mPrettyTime;
+	private int mLastPos = 0;
+	private final int UI_EVENT_UPDATE_CURRPOSITION = 1;
 
+	private PrettyTime mPrettyTime;
+	private BVideoView mVV = null;
+	private BMediaController mVVCtl = null;
+	private RelativeLayout mViewHolder = null;
+	private RelativeLayout mController = null;
+	private SeekBar mProgress = null;
+	private TextView mDuration = null;
+	private TextView mCurrPostion = null;
+	private Button mPlaybtn = null;
+	private EditText mCommentEditText;
+	private static final String POWER_LOCK = "PlayActivity";
+	private String AK = "TrqQtzMhuoKhyLmNsfvwfWDo";
+	private String SK = "UuhbIKiNfr8SA3NM";
+
+	private Typeface mRobotoBold, mRobotoThin;
+
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onCreate(Bundle savedInstance) {
 		super.onCreate(savedInstance);
-		if (!LibsChecker.checkVitamioLibs(this))
-			return;
 		mPrettyTime = new PrettyTime();
 		mContext = this;
 		mVideoDB = new VideoDB(mContext, VideoDB.NAME, null, VideoDB.VERSION);
-		mVideoInfo = (VideoDataFormat) (getIntent().getExtras()
-				.getSerializable("VideoInfo"));
+
+		if (getIntent().getExtras().containsKey("VideoInfo")) {
+			mVideoInfo = (VideoDataFormat) (getIntent().getExtras()
+					.getSerializable("VideoInfo"));
+		}
+
+		if (savedInstance != null && savedInstance.containsKey("VideoInfo")) {
+			mVideoInfo = (VideoDataFormat) savedInstance.get("VideoInfo");
+			mLastPos = savedInstance.getInt("LastPosition");
+		}
+
 		mUser = new User(mContext);
+
 		setContentView(R.layout.activity_play);
 		mLayoutInflater = (LayoutInflater) mContext
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-		mVideoControls = (MediaController) findViewById(R.id.media_play_controler);
-		mVideoView = (VideoView) findViewById(R.id.surface_view);
-		mVideoView.setMediaController(mVideoControls);
-		mVideoView.setOnInfoListener(this);
-		mVideoView.setOnPreparedListener(this);
-		mVideoView.setCanBePlayed(false);
-
 		mSharedPreferences = PreferenceManager
 				.getDefaultSharedPreferences(mContext);
-		if (mSharedPreferences.getBoolean("use_hd", true)) {
-			mVideoView.setVideoPath(mVideoInfo.HDVideoUrl);
-		} else {
-			mVideoView.setVideoPath(mVideoInfo.CommonVideoUrl);
-		}
-
 		mCurrentScape = OrientationHelper.PORTRAIT;
 		mTitleTextView = (TextView) findViewById(R.id.title);
 		mContentTextView = (TextView) findViewById(R.id.content);
 		mDetailImageView = (ImageView) findViewById(R.id.detailPic);
 		mVideoAction = (View) findViewById(R.id.VideoAction);
 		mAutherTextView = (TextView) findViewById(R.id.author);
-		mPlayButton = (ImageButton) findViewById(R.id.play_button);
+		mPrePlayButton = (ImageButton) findViewById(R.id.pre_play_button);
 		mLoadingGif = (GifMovieView) findViewById(R.id.loading_gif);
-		mHeaderWrapper = (RelativeLayout) findViewById(R.id.HeaderWrapper);
-		mZoomButton = (Button) findViewById(R.id.screen_btn);
 		mRecommandContent = (TextView) findViewById(R.id.recommand_content);
 		mRecommandTitle = (TextView) findViewById(R.id.recommand_title);
 		mRecommandThumb = (ImageView) findViewById(R.id.thumb);
 		mComments = (LinearLayout) findViewById(R.id.comments);
 		mRecommandView = findViewById(R.id.recommand_view);
-		mZoomButton.setOnClickListener(this);
-
-		Typeface tfTitle = Typeface.createFromAsset(getAssets(),
+		mPlaybtn = (Button) findViewById(R.id.play_btn);
+		mProgress = (SeekBar) findViewById(R.id.media_progress);
+		mDuration = (TextView) findViewById(R.id.time_total);
+		mCurrPostion = (TextView) findViewById(R.id.time_current);
+		mController = (RelativeLayout) findViewById(R.id.controlbar);
+		mViewHolder = (RelativeLayout) findViewById(R.id.view_holder);
+		mVV = (BVideoView) findViewById(R.id.video_view);
+		mCommentEditText = (EditText) findViewById(R.id.comment_edit_text);
+		mHeaderWrpper = (RelativeLayout) findViewById(R.id.header_wrapper);
+		mZoomButton = (Button) findViewById(R.id.zoom_btn);
+		mRobotoBold = Typeface.createFromAsset(getAssets(),
 				"fonts/Roboto-Bold.ttf");
-		Typeface tf = Typeface.createFromAsset(getAssets(),
+		mRobotoThin = Typeface.createFromAsset(getAssets(),
 				"fonts/Roboto-Thin.ttf");
-		mTitleTextView.setTypeface(tfTitle);
-		mAutherTextView.setTypeface(tf);
-		mTitleTextView.setText(mVideoInfo.Name);
-		mContentTextView.setText(mVideoInfo.Brief);
-		mAutherTextView.setText(mVideoInfo.Author + " · " + mVideoInfo.Year);
-		mPlayButton.setOnClickListener(this);
-
-		if (getShareFile() != null) {
-			getShareFile().delete();
-		}
-		Picasso.with(mContext).load(mVideoInfo.DetailPic)
-				.placeholder(R.drawable.big_bg).into(this);
-
-		mOrientationEventListener = new OrientationEventListener(mContext) {
-
-			@Override
-			public void onOrientationChanged(int orientation) {
-				if (mVideoView.isPlaying()) {
-					int tending = OrientationHelper.userTending(orientation,
-							mCurrentScape);
-					if (tending != OrientationHelper.NOTHING) {
-						if (tending == OrientationHelper.LANDSCAPE) {
-							setFullScreenPlay();
-						} else if (tending == OrientationHelper.PORTRAIT) {
-							setSmallScreenPlay();
-						}
-					}
-				}
-			}
-		};
-
-		if (mOrientationEventListener.canDetectOrientation()) {
-			mOrientationEventListener.enable();
-		}
+		initPlayer();
+		initContent();
 		mVideoInfo.setFav(mVideoDB.isFav(mVideoInfo.Id));
-
-		findViewById(R.id.comment_edit_text).setOnClickListener(this);
-
 		DataHandler.instance().getRandom(1, mRandomeHandler);
 		new CommentsTask().execute();
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putInt("LastPosition", mLastPos);
+		outState.putSerializable("VideoInfo", mVideoInfo);
 	}
 
 	private JsonHttpResponseHandler mRandomeHandler = new JsonHttpResponseHandler() {
@@ -252,34 +245,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 		};
 	};
-
-	@SuppressLint("InlinedApi")
-	private void setFullScreenPlay() {
-		mVideoControls.hide();
-		if (Build.VERSION.SDK_INT >= 9) {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-		} else {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-		}
-		setPlayerWindowSize(FULL_WIDTH, FULL_HEIGHT, false);
-		mCurrentScape = OrientationHelper.LANDSCAPE;
-		mZoomButton.setBackgroundResource(R.drawable.screensize_zoomin_button);
-	}
-
-	private void setSmallScreenPlay() {
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		setPlayerWindowSize(FULL_WIDTH,
-				getResources().getDimensionPixelSize(R.dimen.player_height),
-				true);
-		mCurrentScape = OrientationHelper.PORTRAIT;
-		mZoomButton.setBackgroundResource(R.drawable.screensize_zoomout_button);
-	}
-
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putLong("VideoPosition", mVideoView.getCurrentPosition());
-	}
 
 	private Intent getDefaultIntent() {
 		Intent intent = new Intent(Intent.ACTION_SEND);
@@ -324,51 +289,14 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 					public boolean onShareTargetSelected(
 							ShareActionProvider arg0, Intent arg1) {
 						MobclickAgent.onEvent(mContext, "share");
-						return false;
+						pausePlay();
+						return true;
 					}
 				});
 		mFavMenuItem = menu.findItem(R.id.action_fav);
 		mShareActionProvider.setShareIntent(getDefaultIntent());
 		new CheckIsFavorite().execute();
 		return true;
-	}
-
-	private final int FULL_WIDTH = -1;
-	private final int FULL_HEIGHT = -1;
-
-	private void setPlayerWindowSize(int width, int height,
-			boolean actionbarVisibility) {
-		if (actionbarVisibility) {
-			getSupportActionBar().show();
-		} else {
-			getSupportActionBar().hide();
-		}
-		DisplayMetrics metrics = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		RelativeLayout.LayoutParams headerParams = (LayoutParams) mHeaderWrapper
-				.getLayoutParams();
-		CenterLayout.LayoutParams videoParams = (io.vov.vitamio.widget.CenterLayout.LayoutParams) mVideoView
-				.getLayoutParams();
-		if (width == FULL_WIDTH) {
-			headerParams.width = metrics.widthPixels;
-			videoParams.width = metrics.widthPixels;
-		} else {
-			headerParams.width = width;
-			videoParams.width = width;
-		}
-		if (height == FULL_HEIGHT) {
-			headerParams.height = metrics.heightPixels - getStatusBarHeight();
-			videoParams.height = metrics.heightPixels - getStatusBarHeight();
-		} else {
-			headerParams.height = height;
-			videoParams.height = height;
-		}
-		mHeaderWrapper.setLayoutParams(headerParams);
-		mHeaderWrapper.requestLayout();
-
-		mVideoView.setLayoutParams(videoParams);
-		mVideoView.requestFocus();
-		mVideoView.requestLayout();
 	}
 
 	public void comment() {
@@ -424,6 +352,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 								Toast.makeText(mContext,
 										R.string.comment_nothing,
 										Toast.LENGTH_SHORT).show();
+
 							} else if (content.length() < 5) {
 								Toast.makeText(mContext,
 										R.string.comment_too_short,
@@ -510,37 +439,46 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	public void onClick(View v) {
 
 		switch (v.getId()) {
-		case R.id.play_button:
-			v.setVisibility(View.INVISIBLE);
-			mVideoView.setCanBePlayed(true);
+		case R.id.pre_play_button:
+			mPrePlayButton.setVisibility(View.INVISIBLE);
 			mVideoAction.setVisibility(View.INVISIBLE);
-			mVideoView.start();
-			setPlayerWindowSize(FULL_WIDTH, getResources()
-					.getDimensionPixelSize(R.dimen.player_height), true);
+			mPlaybtn.performClick();
+			startPlay(mLastPos);
+			updateControlBar(false);
+			if (mSharedPreferences.getBoolean("use_hd", true)) {
+				mVV.setVideoPath(mVideoInfo.HDVideoUrl);
+			} else {
+				mVV.setVideoPath(mVideoInfo.CommonVideoUrl);
+			}
 			break;
-		case R.id.screen_btn:
-			if (mOrientationEventListener != null) {
-				mOrientationEventListener.disable();
+		case R.id.play_btn:
+			if (mVV.isPlaying()) {
+				mPlaybtn.setBackgroundResource(R.drawable.play_btn_style);
+				mVV.pause();
+			} else {
+				mPlaybtn.setBackgroundResource(R.drawable.pause_btn_style);
+				mVV.resume();
 			}
-
-			if (mCurrentScape == OrientationHelper.LANDSCAPE) {
-				setSmallScreenPlay();
-			} else if (mCurrentScape == OrientationHelper.PORTRAIT) {
-				setFullScreenPlay();
-			}
+			mController.setVisibility(View.INVISIBLE);
 			break;
 		case R.id.comment_edit_text:
 			comment();
 			break;
 		case R.id.recommand_view:
-			prepareStop();
-			mVideoView.stopPlayback();
+			stopPlay();
 			VideoDataFormat videoDataFormat = (VideoDataFormat) v.getTag();
 			Intent intent = new Intent(mContext, PlayActivity.class);
 			intent.putExtra("VideoInfo", videoDataFormat);
 			mContext.startActivity(intent);
 			MobclickAgent.onEvent(mContext, "recommend");
 			finish();
+			break;
+		case R.id.zoom_btn:
+			if (mCurrentScape == OrientationHelper.LANDSCAPE) {
+				setMinSize();
+			} else {
+				setMaxSize();
+			}
 			break;
 		default:
 			break;
@@ -549,55 +487,9 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	}
 
 	@Override
-	public boolean onInfo(MediaPlayer mp, int what, int extra) {
-		if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
-			if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-				mLoadingGif.setVisibility(View.INVISIBLE);
-				mPlayButton.setVisibility(View.VISIBLE);
-			} else {
-				mVideoControls.hide();
-			}
-		}
-		return true;
-	}
-
-	@Override
-	public void onPrepared(MediaPlayer mp) {
-		mp.setPlaybackSpeed(0.999999f);
-	}
-
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if (mCurrentScape == OrientationHelper.LANDSCAPE) {
-				setSmallScreenPlay();
-				return true;
-			} else {
-				prepareStop();
-			}
-		}
-		return super.onKeyDown(keyCode, event);
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		if (mOrientationEventListener != null)
-			mOrientationEventListener.disable();
-	}
-
-	/**
-	 * 这是播放器的一个Bug,要是直接退出就会出现杂音，一定要在播放状态退出 才不会有杂音
-	 */
-	private void prepareStop() {
-		mVideoView.setVolume(0.0f, 0.0f);
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			prepareStop();
 			finish();
 			return true;
 		case R.id.action_fav:
@@ -630,25 +522,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	}
 
 	@Override
-	protected void onResume() {
-		super.onResume();
-		mVideoView.setVolume(1.0f, 1.0f);
-		mVideoView.seekTo(mPreviousPlayPosition);
-		MobclickAgent.onResume(mContext);
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		if (mVideoView.isPlaying() == false) {
-			mVideoView.setVolume(0.0f, 0.0f);
-		} else {
-			mPreviousPlayPosition = mVideoView.getCurrentPosition();
-		}
-		MobclickAgent.onPause(mContext);
-	}
-
-	@Override
 	public void onBitmapFailed() {
 		if (mShareActionProvider != null) {
 			mShareActionProvider.setShareIntent(getDefaultIntent());
@@ -660,7 +533,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mDetailImageView.setImageBitmap(bitmap);
 		mDetailPicture = bitmap;
 		mLoadingGif.setVisibility(View.INVISIBLE);
-		mPlayButton.setVisibility(View.VISIBLE);
+		mPrePlayButton.setVisibility(View.VISIBLE);
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		mDetailPicture.compress(CompressFormat.JPEG, 100, bytes);
 		File dir = new File(Environment.getExternalStorageDirectory()
@@ -818,13 +691,240 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		};
 	};
 
-	public int getStatusBarHeight() {
-		int result = 0;
-		int resourceId = getResources().getIdentifier("status_bar_height",
-				"dimen", "android");
-		if (resourceId > 0) {
-			result = getResources().getDimensionPixelSize(resourceId);
+	@SuppressLint("HandlerLeak")
+	Handler mUIHandler = new Handler() {
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case UI_EVENT_UPDATE_CURRPOSITION:
+				int currPosition = mVV.getCurrentPosition();
+				int duration = mVV.getDuration();
+				updateTextViewWithTimeFormat(mCurrPostion, currPosition);
+				updateTextViewWithTimeFormat(mDuration, duration);
+				mProgress.setMax(duration);
+				mProgress.setProgress(currPosition);
+
+				mUIHandler.sendEmptyMessageDelayed(
+						UI_EVENT_UPDATE_CURRPOSITION, 200);
+				break;
+			default:
+				break;
+			}
 		}
-		return result;
+	};
+
+	private void updateTextViewWithTimeFormat(TextView view, int second) {
+		int hh = second / 3600;
+		int mm = second % 3600 / 60;
+		int ss = second % 60;
+		String strTemp = null;
+		if (0 != hh) {
+			strTemp = String.format("%02d:%02d:%02d", hh, mm, ss);
+		} else {
+			strTemp = String.format("%02d:%02d", mm, ss);
+		}
+		view.setText(strTemp);
 	}
-}
+
+	public void updateControlBar(boolean show) {
+		if (show) {
+			if (mController.getVisibility() == View.INVISIBLE) {
+				mController.setVisibility(View.VISIBLE);
+				new Timer().schedule(new TimerTask() {
+
+					@Override
+					public void run() {
+						PlayActivity.this.runOnUiThread(new Runnable() {
+
+							@Override
+							public void run() {
+								updateControlBar(false);
+							}
+						});
+					}
+				}, 4000);
+			}
+		} else {
+			mController.setVisibility(View.INVISIBLE);
+		}
+	}
+
+	private void initPlayer() {
+		BVideoView.setAKSK(AK, SK);
+		mZoomButton.setOnClickListener(this);
+		mVV.setVideoScalingMode(BVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+		mVVCtl = new BMediaController(this);
+		mVV.setMediaController(mVVCtl);
+		mPlaybtn.setOnClickListener(this);
+		mVV.setOnPreparedListener(this);
+		mVV.setOnCompletionListener(this);
+		mVV.setOnErrorListener(this);
+		registerCallbackForControls();
+	}
+
+	private void initContent() {
+		mTitleTextView.setTypeface(mRobotoBold);
+		mAutherTextView.setTypeface(mRobotoThin);
+		mTitleTextView.setText(mVideoInfo.Name);
+		mContentTextView.setText(mVideoInfo.Brief);
+		mAutherTextView.setText(mVideoInfo.Author + " · " + mVideoInfo.Year);
+		mPrePlayButton.setOnClickListener(this);
+		mViewHolder.setOnTouchListener(this);
+		mCommentEditText.setOnClickListener(this);
+		if (getShareFile() != null) {
+			getShareFile().delete();
+		}
+		Picasso.with(mContext).load(mVideoInfo.DetailPic)
+				.placeholder(R.drawable.big_bg).into(this);
+	}
+
+	private void startPlay(int from) {
+		setMaxSize();
+		mVV.seekTo(from);
+		mVV.start();
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+	}
+
+	private void stopPlay() {
+		if (mVV.isPlaying() == false)
+			return;
+		mLastPos = mVV.getCurrentPosition();
+		mVV.stopPlayback();
+		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+	}
+
+	private void pausePlay() {
+		if (mVV.isPlaying() == false)
+			return;
+		mLastPos = mVV.getCurrentPosition();
+		mVV.pause();
+		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+	}
+
+	@SuppressLint("InlinedApi")
+	private void setMaxSize() {
+		if (Build.VERSION.SDK_INT >= 9) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+		} else {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		}
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		getSupportActionBar().hide();
+		RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
+				Screen.getScreenWidth(getWindowManager()),
+				Screen.getScreenHeight(getWindowManager()));
+		mHeaderWrpper.setLayoutParams(param);
+		mVV.setLayoutParams(param);
+		mZoomButton.setBackgroundResource(R.drawable.screensize_zoomin_button);
+		mCurrentScape = OrientationHelper.LANDSCAPE;
+	}
+
+	private void setMinSize() {
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		getSupportActionBar().show();
+		RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
+				Screen.getScreenWidth(getWindowManager()), getResources()
+						.getDimensionPixelSize(R.dimen.player_height));
+		mHeaderWrpper.setLayoutParams(param);
+		mVV.setLayoutParams(param);
+		mZoomButton.setBackgroundResource(R.drawable.screensize_zoomout_button);
+		mCurrentScape = OrientationHelper.PORTRAIT;
+	}
+
+	private void registerCallbackForControls() {
+
+		OnSeekBarChangeListener seekBarChangeListener = new OnSeekBarChangeListener() {
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				updateTextViewWithTimeFormat(mCurrPostion, progress);
+			}
+
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				mUIHandler.removeMessages(UI_EVENT_UPDATE_CURRPOSITION);
+			}
+
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				int iseekPos = seekBar.getProgress();
+				mVV.seekTo(iseekPos);
+				mUIHandler.sendEmptyMessage(UI_EVENT_UPDATE_CURRPOSITION);
+			}
+		};
+		mProgress.setOnSeekBarChangeListener(seekBarChangeListener);
+	}
+
+	@Override
+	public boolean onError(int arg0, int arg1) {
+		Toast.makeText(mContext, R.string.play_error, Toast.LENGTH_SHORT)
+				.show();
+		return true;
+	}
+
+	@SuppressLint("HandlerLeak")
+	private Handler mCompleteHandler = new Handler() {
+		public void handleMessage(android.os.Message msg) {
+			mPrePlayButton.setVisibility(View.VISIBLE);
+			mVideoAction.setVisibility(View.VISIBLE);
+		};
+	};
+
+	@Override
+	public void onCompletion() {
+		mCompleteHandler.sendEmptyMessage(0);
+		mLastPos = 0;
+		if (mCurrentScape == OrientationHelper.LANDSCAPE) {
+			PlayActivity.this.runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+					setMinSize();
+				}
+			});
+		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (mLastPos != 0) {
+			startPlay(mLastPos);
+		}
+		MobclickAgent.onResume(mContext);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		pausePlay();
+		MobclickAgent.onPause(mContext);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		stopPlay();
+		if (mOrientationEventListener != null)
+			mOrientationEventListener.disable();
+	}
+
+	@Override
+	public void onPrepared() {
+		mUIHandler.sendEmptyMessage(UI_EVENT_UPDATE_CURRPOSITION);
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		updateControlBar(true);
+		return false;
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if (mCurrentScape == OrientationHelper.LANDSCAPE) {
+				setMinSize();
+				return true;
+			}
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+};
