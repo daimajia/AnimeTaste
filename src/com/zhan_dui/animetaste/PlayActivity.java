@@ -124,8 +124,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	private boolean mCommentFinished;
 	private User mUser;
 
-	private final String Tag = "AT";
-
 	private final String mDir = "AnimeTaste";
 	private final String mShareName = "animetaste-share.jpg";
 	private int mCommentCount;
@@ -145,13 +143,11 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	private TextView mCurrPostion = null;
 	private Button mPlaybtn = null;
 	private EditText mCommentEditText;
-	private static final String POWER_LOCK = "PlayActivity";
 	private String AK = "TrqQtzMhuoKhyLmNsfvwfWDo";
 	private String SK = "UuhbIKiNfr8SA3NM";
 
 	private Typeface mRobotoBold, mRobotoThin;
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onCreate(Bundle savedInstance) {
 		super.onCreate(savedInstance);
@@ -752,8 +748,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		BVideoView.setAKSK(AK, SK);
 		mZoomButton.setOnClickListener(this);
 		mVV.setVideoScalingMode(BVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT);
-		mVVCtl = new BMediaController(this);
-		mVV.setMediaController(mVVCtl);
 		mPlaybtn.setOnClickListener(this);
 		mVV.setOnPreparedListener(this);
 		mVV.setOnCompletionListener(this);
