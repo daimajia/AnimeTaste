@@ -30,7 +30,7 @@ Step-1: 解决所有依赖
 
 *	[ShareSDK for Android](http://sharesdk.cn/) 社交关注。
 *	[Picasso](https://github.com/square/picasso) 图片缓存
-*	[VitamioBundle](https://github.com/daimajia/VitamioBundle) 请使用此修改后的版本
+*	[Baidu-T5Player-SDK-Android](http://developer.baidu.com/wiki/index.php?title=docs/cplat/media/sdk) 百度T5 Player SDK
 *	[Android-Switch-Backport](https://github.com/BoD/android-switch-backport) Switch的兼容库
 *	[Gif-Movie-View](https://github.com/sbakhtiarov/gif-movie-view) Gif动画播放
 *	[ViewPagerIndicator](https://github.com/JakeWharton/Android-ViewPagerIndicator) 滑动画廊
