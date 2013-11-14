@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -65,7 +66,6 @@ import com.avos.avoscloud.ParseException;
 import com.avos.avoscloud.ParseObject;
 import com.avos.avoscloud.ParseQuery;
 import com.avos.avoscloud.SaveCallback;
-import com.baidu.cyberplayer.core.BMediaController;
 import com.baidu.cyberplayer.core.BVideoView;
 import com.baidu.cyberplayer.core.BVideoView.OnCompletionListener;
 import com.baidu.cyberplayer.core.BVideoView.OnErrorListener;
@@ -85,7 +85,6 @@ import com.zhan_dui.modal.VideoDataFormat;
 import com.zhan_dui.utils.OrientationHelper;
 import com.zhan_dui.utils.Screen;
 
-@SuppressLint("DefaultLocale")
 public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		Target, OnPreparedListener, OnCompletionListener, OnErrorListener,
 		OnTouchListener {
@@ -111,9 +110,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	private OrientationEventListener mOrientationEventListener;
 	private MenuItem mFavMenuItem;
 	private Bitmap mDetailPicture;
-	private ImageView mRecommandThumb;
-	private TextView mRecommandTitle, mRecommandContent;
-	private LinearLayout mComments;
+	private LinearLayout mComments, mRecomendList;
 	private LayoutInflater mLayoutInflater;
 	private RelativeLayout mHeaderWrpper;
 	private View mLoadMoreComment;
@@ -135,7 +132,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	private PrettyTime mPrettyTime;
 	private BVideoView mVV = null;
-	private BMediaController mVVCtl = null;
 	private RelativeLayout mViewHolder = null;
 	private RelativeLayout mController = null;
 	private SeekBar mProgress = null;
@@ -182,9 +178,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mAutherTextView = (TextView) findViewById(R.id.author);
 		mPrePlayButton = (ImageButton) findViewById(R.id.pre_play_button);
 		mLoadingGif = (GifMovieView) findViewById(R.id.loading_gif);
-		mRecommandContent = (TextView) findViewById(R.id.recommand_content);
-		mRecommandTitle = (TextView) findViewById(R.id.recommand_title);
-		mRecommandThumb = (ImageView) findViewById(R.id.thumb);
 		mComments = (LinearLayout) findViewById(R.id.comments);
 		mRecommandView = findViewById(R.id.recommand_view);
 		mPlaybtn = (Button) findViewById(R.id.play_btn);
@@ -197,6 +190,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mCommentEditText = (EditText) findViewById(R.id.comment_edit_text);
 		mHeaderWrpper = (RelativeLayout) findViewById(R.id.header_wrapper);
 		mZoomButton = (Button) findViewById(R.id.zoom_btn);
+		mRecomendList = (LinearLayout) findViewById(R.id.recommend_list);
 		mRobotoBold = Typeface.createFromAsset(getAssets(),
 				"fonts/Roboto-Bold.ttf");
 		mRobotoThin = Typeface.createFromAsset(getAssets(),
@@ -204,7 +198,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		initPlayer();
 		initContent();
 		mVideoInfo.setFav(mVideoDB.isFav(mVideoInfo.Id));
-		DataHandler.instance().getRandom(1, mRandomeHandler);
+		DataHandler.instance().getRandom(5, mRandomeHandler);
 		new CommentsTask().execute();
 	}
 
@@ -220,17 +214,34 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			if (statusCode == 200) {
 				try {
 					JSONArray randomList = response.getJSONArray("list");
-					JSONObject video = randomList.getJSONObject(0);
-					VideoDataFormat videoDataFormat = VideoDataFormat
-							.build(video);
-					Picasso.with(mContext).load(videoDataFormat.HomePic)
-							.placeholder(R.drawable.placeholder_thumb)
-							.error(R.drawable.placeholder_fail)
-							.into(mRecommandThumb);
-					mRecommandTitle.setText(videoDataFormat.Name);
-					mRecommandContent.setText(videoDataFormat.Brief);
-					mRecommandView.setTag(videoDataFormat);
-					mRecommandView.setOnClickListener(PlayActivity.this);
+					for (int i = 0; i < randomList.length(); i++) {
+						LinearLayout recommend_item = (LinearLayout) mLayoutInflater
+								.inflate(R.layout.recommend_item, null);
+						ImageView recommendThumb = (ImageView) recommend_item
+								.findViewById(R.id.thumb);
+						TextView recommendTitle = (TextView) recommend_item
+								.findViewById(R.id.recommand_title);
+						TextView recommendContent = (TextView) recommend_item
+								.findViewById(R.id.recommand_content);
+
+						JSONObject video = randomList.getJSONObject(i);
+						VideoDataFormat videoDataFormat = VideoDataFormat
+								.build(video);
+						Picasso.with(mContext).load(videoDataFormat.HomePic)
+								.placeholder(R.drawable.placeholder_thumb)
+								.error(R.drawable.placeholder_fail)
+								.into(recommendThumb);
+						recommendTitle.setText(videoDataFormat.Name);
+						recommendContent.setText(videoDataFormat.Brief);
+						mRecommandView.setTag(videoDataFormat);
+						mRecommandView.setOnClickListener(PlayActivity.this);
+						View line = mRecommandView
+								.findViewById(R.id.divide_line);
+						if (i == randomList.length() - 1 && line != null) {
+							recommend_item.removeView(line);
+						}
+						mRecomendList.addView(recommend_item);
+					}
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -714,9 +725,9 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		int ss = second % 60;
 		String strTemp = null;
 		if (0 != hh) {
-			strTemp = String.format("%02d:%02d:%02d", hh, mm, ss);
+			strTemp = String.format(Locale.CHINA, "%02d:%02d:%02d", hh, mm, ss);
 		} else {
-			strTemp = String.format("%02d:%02d", mm, ss);
+			strTemp = String.format(Locale.CHINA, "%02d:%02d", mm, ss);
 		}
 		view.setText(strTemp);
 	}

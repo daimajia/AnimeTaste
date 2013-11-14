@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp" >
+
+        <ImageView
+            android:id="@+id/thumb"
+            android:layout_width="@dimen/placehold_thumb_width"
+            android:layout_height="@dimen/placehold_thumb_height"
+            android:layout_alignParentLeft="true"
+            android:contentDescription="@null"
+            android:scaleType="fitXY"
+            android:src="@drawable/placeholder_thumb" />
+
+        <TextView
+            android:id="@+id/recommand_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/thumb"
+            android:layout_marginLeft="12dp"
+            android:layout_toRightOf="@+id/thumb"
+            android:textSize="@dimen/video_list_title"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/recommand_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/recommand_title"
+            android:layout_below="@+id/recommand_title"
+            android:layout_marginTop="4dp"
+            android:maxLines="2"
+            android:textColor="@color/videoListItemContentColor"
+            android:textSize="@dimen/video_list_content" >
+        </TextView>
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/divide_line"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/seprate_line"
+        android:background="@color/divide_line" />
+
+</LinearLayout>

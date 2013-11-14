@@ -113,7 +113,7 @@ public class VideoDB extends SQLiteOpenHelper {
 				null, values, SQLiteDatabase.CONFLICT_IGNORE);
 	}
 
-	public boolean isWatched(VideoDataFormat video) {
+	public synchronized boolean isWatched(VideoDataFormat video) {
 		SQLiteStatement statement = getReadableDatabase().compileStatement(
 				"select count(*) from " + TABLE_WATCHED_NAME + " where vid="
 						+ video.Id);

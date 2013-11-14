@@ -3,7 +3,6 @@ package com.zhan_dui.modal;
 import java.util.TreeMap;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;

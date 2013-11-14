@@ -174,60 +174,6 @@
                     android:textSize="@dimen/play_content_size" />
             </RelativeLayout>
 
-            <RelativeLayout
-                android:id="@+id/recommand_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/play_innser_recommend_margin_top"
-                android:background="@drawable/card_frame"
-                android:paddingBottom="@dimen/play_inner_content_padding"
-                android:paddingLeft="@dimen/play_inner_content_padding"
-                android:paddingRight="@dimen/play_inner_content_padding"
-                android:paddingTop="@dimen/play_inner_recommend_padding_top" >
-
-                <TextView
-                    android:id="@+id/recommend"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginBottom="10dp"
-                    android:text="@string/recommend"
-                    android:textColor="@color/textColor" />
-
-                <ImageView
-                    android:id="@+id/thumb"
-                    android:layout_width="@dimen/placehold_thumb_width"
-                    android:layout_height="@dimen/placehold_thumb_height"
-                    android:layout_alignParentLeft="true"
-                    android:layout_below="@+id/recommend"
-                    android:contentDescription="@null"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/placeholder_thumb" />
-
-                <TextView
-                    android:id="@+id/recommand_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignTop="@+id/thumb"
-                    android:layout_marginLeft="12dp"
-                    android:layout_toRightOf="@+id/thumb"
-                    android:textSize="@dimen/video_list_title"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/recommand_content"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignLeft="@+id/recommand_title"
-                    android:layout_below="@+id/recommand_title"
-                    android:layout_marginTop="4dp"
-                    android:maxLines="2"
-                    android:textColor="@color/videoListItemContentColor"
-                    android:textSize="@dimen/video_list_content" >
-                </TextView>
-            </RelativeLayout>
-
             <LinearLayout
                 android:id="@+id/comments"
                 android:layout_width="match_parent"
@@ -252,6 +198,35 @@
                     android:paddingBottom="5dp"
                     android:textSize="@dimen/play_content_size" />
             </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/recommand_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/play_innser_recommend_margin_top"
+                android:background="@drawable/card_frame"
+                android:paddingBottom="@dimen/play_inner_content_padding"
+                android:paddingLeft="@dimen/play_inner_content_padding"
+                android:paddingRight="@dimen/play_inner_content_padding"
+                android:paddingTop="@dimen/play_inner_recommend_padding_top" >
+
+                <TextView
+                    android:id="@+id/recommend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:text="@string/recommend"
+                    android:textColor="@color/textColor" />
+
+                <LinearLayout
+                    android:id="@+id/recommend_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/recommend"
+                    android:orientation="vertical" >
+                </LinearLayout>
+            </RelativeLayout>
         </LinearLayout>
     </RelativeLayout>
 

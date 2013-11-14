@@ -122,9 +122,9 @@ public class VideoListAdapter extends BaseAdapter {
 			convertView = mLayoutInflater.inflate(R.layout.video_item, parent,
 					false);
 			titleTextView = (TextView) convertView.findViewById(R.id.title);
-			titleTextView.setTypeface(mRobotoTitle);
 			contentTextView = (TextView) convertView.findViewById(R.id.content);
 			thumbImageView = (ImageView) convertView.findViewById(R.id.thumb);
+			titleTextView.setTypeface(mRobotoTitle);
 			holder = new ViewHolder(titleTextView, contentTextView,
 					thumbImageView);
 			convertView.setTag(holder);
