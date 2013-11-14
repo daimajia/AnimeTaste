@@ -3,6 +3,7 @@ package com.zhan_dui.modal;
 import java.util.TreeMap;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -63,10 +64,10 @@ public class DataHandler {
 		TreeMap<String, String> params = new TreeMap<String, String>();
 		params.put("api_key", API_KEY);
 		params.put("timestamp", String.valueOf(timestamp));
+		params.put("feature", "1");
 		String access_token = ApiUtils.getAccessToken(params, API_SECRET);
 		String request = String.format(sFeaturesUrl, API_KEY, timestamp,
 				access_token);
 		get(request, handler);
 	}
-
 }

@@ -52,7 +52,7 @@ public class LoadActivity extends ActionBarActivity {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							dialog.dismiss();
-							init();
+							initLatest();
 						}
 					});
 			builder.setNegativeButton(R.string.obly_wifi_cancel,
@@ -65,24 +65,20 @@ public class LoadActivity extends ActionBarActivity {
 					});
 			builder.create().show();
 		} else {
-			init();
+			initLatest();
 		}
 
 	};
 
-	private void init() {
+	private void initLatest() {
 		DataHandler.instance().getList(0, new JsonHttpResponseHandler() {
 			@Override
 			public void onSuccess(int statusCode, JSONObject response) {
 				super.onSuccess(statusCode, response);
-				Intent intent = new Intent(LoadActivity.this,
-						StartActivity.class);
+
 				if (statusCode == 200 && response.has("list")) {
 					try {
-						intent.putExtra("LoadData",
-								response.getJSONArray("list").toString());
-						startActivity(intent);
-						finish();
+						initFeatures(response.getJSONArray("list").toString());
 					} catch (JSONException e) {
 						e.printStackTrace();
 						finish();
@@ -103,6 +99,29 @@ public class LoadActivity extends ActionBarActivity {
 					finish();
 				}
 				finish();
+			}
+		});
+	}
+
+	private void initFeatures(final String lastestVideosArrayString) {
+		DataHandler.instance().getFetures(new JsonHttpResponseHandler() {
+			@Override
+			public void onSuccess(int statusCode, JSONObject response) {
+				super.onSuccess(statusCode, response);
+				try {
+					Intent intent = new Intent(LoadActivity.this,
+							StartActivity.class);
+					intent.putExtra("LoadData", lastestVideosArrayString);
+					intent.putExtra("LoadFeatures",
+							response.getJSONArray("list").toString());
+					startActivity(intent);
+				} catch (JSONException e) {
+					Toast.makeText(mContext, "获取数据出错", Toast.LENGTH_SHORT)
+							.show();
+				} finally {
+					finish();
+				}
+
 			}
 		});
 	}

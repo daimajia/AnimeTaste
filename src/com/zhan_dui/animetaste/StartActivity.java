@@ -88,7 +88,8 @@ public class StartActivity extends ActionBarActivity implements
 				.findViewById(R.id.indicator);
 
 		if (getIntent().hasExtra("LoadData")) {
-			init(getIntent().getStringExtra("LoadData"));
+			init(getIntent().getStringExtra("LoadData"), getIntent()
+					.getStringExtra("LoadFeatures"));
 		} else {
 			init();
 		}
@@ -104,14 +105,15 @@ public class StartActivity extends ActionBarActivity implements
 		mShowIndicator.setViewPager(mShowPager);
 	}
 
-	public void init(String data) {
+	public void init(String ListData, String FeaturesString) {
 		try {
-			JSONArray videoList = new JSONArray(data);
+			JSONArray videoList = new JSONArray(ListData);
+			JSONArray featuresList = new JSONArray(FeaturesString);
 			if (videoList != null) {
 				new AddToDBThread(videoList, true).start();
 			}
 			mShowAdapter = new ShowGalleryPagerAdapter(
-					getSupportFragmentManager(), videoList, 4);
+					getSupportFragmentManager(), featuresList, 6);
 			mShowPager.setAdapter(mShowAdapter);
 			mVideoAdapter = VideoListAdapter.build(mContext, videoList, true);
 			mVideoList.setAdapter(mVideoAdapter);
