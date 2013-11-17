@@ -60,6 +60,12 @@
     <!-- Login -->
 
 
+    <!-- Rate -->
+    <string name="rate_share_message">花片刻时间把AnimeTaste分享给更多的小伙伴吧？</string>
+    <string name="rate_share_i_do">我愿意</string>
+    <string name="rate_share_title">●ω●</string>
+    <string name="rate_share_sorry">我考虑下</string>
+    <!-- Rate -->
     <!-- Comment -->
     <string name="comment_success">评论成功</string>
     <string name="comment_failed">评论出现问题</string>

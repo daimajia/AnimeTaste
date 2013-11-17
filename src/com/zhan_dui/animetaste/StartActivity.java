@@ -4,7 +4,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -103,9 +107,31 @@ public class StartActivity extends ActionBarActivity implements
 	}
 
 	public void rateForUs() {
-		if (mSharedPreferences.getInt("playcount", 0) == 10) {
-			// 添加评分
-			
+		if (mSharedPreferences.getInt("playcount", 0) > 10
+				&& mSharedPreferences.getBoolean("sharedApp", false) == false) {
+			AlertDialog.Builder builder = new Builder(mContext);
+			builder.setMessage(R.string.rate_share_message);
+			builder.setTitle(R.string.rate_share_title);
+			builder.setPositiveButton(R.string.rate_share_i_do,
+					new OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							Intent shareIntent = new Intent(Intent.ACTION_SEND);
+							shareIntent.setType("text/plain");
+							shareIntent.putExtra(
+									android.content.Intent.EXTRA_SUBJECT,
+									getText(R.string.share_title));
+							shareIntent.putExtra(
+									android.content.Intent.EXTRA_TEXT,
+									getText(R.string.share_app_body));
+							startActivity(Intent.createChooser(shareIntent,
+									getText(R.string.share_via)));
+						}
+					});
+			builder.setNegativeButton(R.string.rate_share_sorry, null);
+			builder.show();
+			mSharedPreferences.edit().putBoolean("sharedApp", true).commit();
 		}
 	}
 

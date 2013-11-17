@@ -13,6 +13,8 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.widget.Toast;
 
+import cn.sharesdk.framework.ShareSDK;
+
 import com.avos.avoscloud.Parse;
 import com.avos.avoscloud.ParseAnalytics;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -27,14 +29,15 @@ public class LoadActivity extends ActionBarActivity {
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mContext = this;
 		Parse.initialize(this,
 				"w43xht9daji0uut74pseeiibax8c2tnzxowmx9f81nvtpims",
 				"86q8251hrodk6wnf4znistay1mva9rm1xikvp1s9mhp5n7od");
+		ShareSDK.initSDK(mContext);
 		ParseAnalytics.trackAppOpened(getIntent());
 		if (getSupportActionBar() != null) {
 			getSupportActionBar().hide();
 		}
-		mContext = this;
 		mVideoDB = new VideoDB(mContext, VideoDB.NAME, null, VideoDB.VERSION);
 
 		setContentView(R.layout.activity_load);
