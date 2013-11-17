@@ -876,6 +876,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	public void onCompletion() {
 		mCompleteHandler.sendEmptyMessage(0);
 		mLastPos = 0;
+		int playcount = mSharedPreferences.getInt("playcount", 0);
+		mSharedPreferences.edit().putInt("playcount", playcount + 1).commit();
 		if (mCurrentScape == OrientationHelper.LANDSCAPE) {
 			PlayActivity.this.runOnUiThread(new Runnable() {
 

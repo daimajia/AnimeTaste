@@ -6,9 +6,11 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.PointF;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
@@ -48,12 +50,16 @@ public class StartActivity extends ActionBarActivity implements
 	private LayoutInflater mLayoutInflater;
 	private VideoDB mVideoDB;
 
+	private SharedPreferences mSharedPreferences;
+
 	private int mDefaultPrepareCount = 15;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = this;
+		mSharedPreferences = PreferenceManager
+				.getDefaultSharedPreferences(mContext);
 		mVideoDB = new VideoDB(mContext, VideoDB.NAME, null, VideoDB.VERSION);
 		setContentView(R.layout.activity_start);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -92,6 +98,14 @@ public class StartActivity extends ActionBarActivity implements
 					.getStringExtra("LoadFeatures"));
 		} else {
 			init();
+		}
+		rateForUs();
+	}
+
+	public void rateForUs() {
+		if (mSharedPreferences.getInt("playcount", 0) == 10) {
+			// 添加评分
+			
 		}
 	}
 
