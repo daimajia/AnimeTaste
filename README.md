@@ -50,7 +50,7 @@ Step-2:
 
 *	[西北大学](http://zh.wikipedia.org/wiki/%E8%A5%BF%E5%8C%97%E5%A4%A7%E5%AD%A6_\(%E4%B8%AD%E5%9B%BD\))
 *	[北京师范大学](http://www.bnu.edu.cn)
-*	我的站点: [代码家](http://www.zhan-dui.com)
+*	我的站点: [代码家](http://www.daimajia.com)
 *	我的微博:[代码家](http://weibo.com/daimajia)
 *	Twitter:[daimajia](http://twitter.com/daimajia)
 *	Instagram:[daimajia](http://instagram.com/daimajia)
