@@ -52,7 +52,7 @@
         </meta-data>
         <meta-data
             android:name="UMENG_CHANNEL"
-            android:value="XiaoMi" />
+            android:value="360" />
         <!-- 友盟结束 -->
         <activity
             android:name="com.zhan_dui.animetaste.StartActivity"

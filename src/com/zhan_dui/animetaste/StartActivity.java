@@ -127,6 +127,7 @@ public class StartActivity extends ActionBarActivity implements
 									getText(R.string.share_app_body));
 							startActivity(Intent.createChooser(shareIntent,
 									getText(R.string.share_via)));
+							MobclickAgent.onEvent(mContext, "need_share");
 						}
 					});
 			builder.setNegativeButton(R.string.rate_share_sorry, null);
