@@ -1,7 +1,9 @@
 <resources>
 
     <!-- general styles for the action bar -->
-
+	<declare-styleable name="AppTheme">
+		<attr name="switchStyle" format="reference" />
+	</declare-styleable>
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
