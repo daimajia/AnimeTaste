@@ -1,9 +1,5 @@
 package com.zhan_dui.animetaste;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
@@ -15,32 +11,42 @@ import android.database.Cursor;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
+import android.view.*;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
+import android.widget.*;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.ListView;
-
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.umeng.analytics.MobclickAgent;
+import com.umeng.update.UmengUpdateAgent;
 import com.viewpagerindicator.PageIndicator;
 import com.viewpagerindicator.UnderlinePageIndicator;
 import com.zhan_dui.adapters.ShowGalleryPagerAdapter;
 import com.zhan_dui.adapters.VideoListAdapter;
 import com.zhan_dui.data.VideoDB;
 import com.zhan_dui.modal.DataHandler;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class StartActivity extends ActionBarActivity implements
-		OnScrollListener {
+		OnScrollListener,AdapterView.OnItemClickListener,OnTouchListener {
 
 	private ListView mVideoList;
+    private ListView mDrawerList;
+    private LinearLayout mDrawer;
+
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private SimpleAdapter mDrawerAapter;
 
 	private VideoListAdapter mVideoAdapter;
 	private Context mContext;
@@ -58,6 +64,8 @@ public class StartActivity extends ActionBarActivity implements
 
 	private int mDefaultPrepareCount = 15;
 
+
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -65,13 +73,18 @@ public class StartActivity extends ActionBarActivity implements
 		mSharedPreferences = PreferenceManager
 				.getDefaultSharedPreferences(mContext);
 		mVideoDB = new VideoDB(mContext, VideoDB.NAME, null, VideoDB.VERSION);
-		setContentView(R.layout.activity_start);
+		setContentView(R.layout.activity_main);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
-		mVideoList = (ListView) findViewById(R.id.videoList);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
 
+		mVideoList = (ListView) findViewById(R.id.videoList);
+        mDrawerList = (ListView)findViewById(R.id.function_list);
+        mDrawer = (LinearLayout)findViewById(R.id.drawer);
 		mLayoutInflater = (LayoutInflater) this
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		mVideoList.setOnScrollListener(this);
+        mDrawer.setOnTouchListener(this);
 
 		View headerView = mLayoutInflater.inflate(R.layout.gallery_item, null,
 				false);
@@ -103,10 +116,27 @@ public class StartActivity extends ActionBarActivity implements
 		} else {
 			init();
 		}
-		rateForUs();
+        mDrawerAapter = new SimpleAdapter(this,getDrawerItems(),R.layout.drawer_item,new String[]{"img","title"},new int[]{R.id.item_icon,R.id.item_name});
+        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        mDrawerToggle = new ActionBarDrawerToggle(this,mDrawerLayout,R.drawable.ic_drawer,R.string.app_name,R.string.app_name){
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerList.setAdapter(mDrawerAapter);
+        mDrawerList.setOnItemClickListener(this);
+
+		rateForUsOrCheckUpdate();
 	}
 
-	public void rateForUs() {
+	public void rateForUsOrCheckUpdate() {
 		if (mSharedPreferences.getInt("playcount", 0) > 10
 				&& mSharedPreferences.getBoolean("sharedApp", false) == false) {
 			AlertDialog.Builder builder = new Builder(mContext);
@@ -133,7 +163,9 @@ public class StartActivity extends ActionBarActivity implements
 			builder.setNegativeButton(R.string.rate_share_sorry, null);
 			builder.show();
 			mSharedPreferences.edit().putBoolean("sharedApp", true).commit();
-		}
+		}else{
+            UmengUpdateAgent.update(this);
+        }
 	}
 
 	public void init() {
@@ -165,6 +197,23 @@ public class StartActivity extends ActionBarActivity implements
 
 	}
 
+    private List<Map<String,Object>> getDrawerItems(){
+        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("img",R.drawable.drawer_light);
+        map.put("title",getString(R.string.guess));
+        list.add(map);
+        map = new HashMap<String, Object>();
+        map.put("img",R.drawable.drawer_all);
+        map.put("title",getString(R.string.all));
+        list.add(map);
+        map = new HashMap<String, Object>();
+        map.put("img",R.drawable.drawer_heart);
+        map.put("title",getString(R.string.my_fav));
+        list.add(map);
+        return list;
+    }
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.start, menu);
@@ -188,7 +237,24 @@ public class StartActivity extends ActionBarActivity implements
 
 	}
 
-	private class LoadMoreJSONListener extends JsonHttpResponseHandler {
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        String title = ((TextView)view.findViewById(R.id.item_name)).getText().toString();
+        if(title.equals(getString(R.string.guess))){
+
+        }else if(title.equals(getString(R.string.my_fav))){
+
+        }else if(title.equals(getString(R.string.all))){
+            mDrawerLayout.closeDrawers();
+        }
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        return true;
+    }
+
+    private class LoadMoreJSONListener extends JsonHttpResponseHandler {
 
 		private View mFooterView;
 
