@@ -7,9 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import com.parse.Parse;
-import com.parse.ParseObject;
+import com.avos.avoscloud.ParseObject;
 
 public class FeedbackActivity extends ActionBarActivity {
 	private EditText mFeedback;
@@ -21,10 +19,6 @@ public class FeedbackActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_feedback);
 		mContext = this;
 		mFeedback = (EditText) findViewById(R.id.suggestion);
-
-		Parse.initialize(this, "dzVYrVqqsEVAadpKvzgCGTEMm7LZBpDJOMI6x79t",
-				"soirDTgDunAHoPFBoIgpA7EN3gp5KoYF4AflcC3n");
-
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
@@ -43,8 +37,8 @@ public class FeedbackActivity extends ActionBarActivity {
 				Toast.makeText(mContext, R.string.empty, Toast.LENGTH_SHORT)
 						.show();
 			} else {
-				ParseObject feed = new ParseObject("Feedback");
-				feed.put("content", feedback);
+                ParseObject feed = new ParseObject("Feedback");
+                feed.put("content",feedback);
 				feed.put("phone", android.os.Build.MODEL);
 				feed.put("os", android.os.Build.VERSION.SDK_INT);
 				feed.saveInBackground();
