@@ -59,12 +59,8 @@ public class StartActivity extends ActionBarActivity implements
 	private RecommendAdapter mRecommendAdapter;
 
 	private LayoutInflater mLayoutInflater;
-	private AnimeTasteDB mAnimeTasteDB;
 
 	private SharedPreferences mSharedPreferences;
-
-	private int mDefaultPrepareCount = 15;
-
 
 
 	@Override
@@ -73,7 +69,6 @@ public class StartActivity extends ActionBarActivity implements
 		mContext = this;
 		mSharedPreferences = PreferenceManager
 				.getDefaultSharedPreferences(mContext);
-		mAnimeTasteDB = new AnimeTasteDB(mContext, AnimeTasteDB.NAME, null, AnimeTasteDB.VERSION);
 		setContentView(R.layout.activity_main);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
@@ -82,56 +83,7 @@ public class LoadActivity extends ActionBarActivity {
             public void onSuccess(int statusCode,JSONObject response) {
                 super.onSuccess(response);
                 if(statusCode == 200 && response.has("data")){
-                    try{
-                        JSONObject list = response.getJSONObject("data").getJSONObject("list");
-                        JSONArray animations = list.getJSONArray("anime");
-                        JSONArray category = list.getJSONArray("category");
-                        JSONArray advert = list.getJSONArray("advert");
-                        JSONArray feature = list.getJSONArray("recommend");
-                        ArrayList<Animation> Animations = Animation.build(animations);
-                        ArrayList<Category> Categories = new ArrayList<Category>();
-                        ArrayList<Advertise> Advertises = new ArrayList<Advertise>();
-                        ArrayList<Animation> Recommends = new ArrayList<Animation>();
-                        new Delete().from(Animation.class).where("IsFavorite=?",0).execute();
-                        new Delete().from(Category.class).execute();
-                        new Delete().from(Advertise.class).execute();
-                        ActiveAndroid.beginTransaction();
-
-                        for(int i =0;i<Animations.size();i++){
-                            if(null == new Select().from(Animation.class).where("IsFavorite=? and AnimationId=?",1,Animations.get(i).AnimationId).executeSingle())
-                                Animations.get(i).save();
-                            else{
-                                Animations.get(i).setFav(true);
-                            }
-                        }
-                        for(int i = 0; i < category.length();i++){
-                            Category cat = Category.build(category.getJSONObject(i));
-                            Categories.add(cat);
-                            cat.save();
-                        }
-                        for(int i = 0; i < advert.length();i++){
-                            Advertise ad = Advertise.build(advert.getJSONObject(i));
-                            Advertises.add(ad);
-                            ad.save();
-                        }
-                        for(int i = 0; i< feature.length();i++){
-                            Recommends.add(Animation.build(feature.getJSONObject(i)));
-                        }
-                        ActiveAndroid.setTransactionSuccessful();
-                        Intent intent = new Intent(LoadActivity.this,
-                                StartActivity.class);
-                        intent.putParcelableArrayListExtra("Animations",Animations);
-                        intent.putParcelableArrayListExtra("Categories",Categories);
-                        intent.putParcelableArrayListExtra("Advertises",Advertises);
-                        intent.putParcelableArrayListExtra("Recommends",Recommends);
-                        intent.putExtra("Success",true);
-                        startActivity(intent);
-                    }catch(Exception e){
-                        e.printStackTrace();
-                        error();
-                    }finally {
-                        ActiveAndroid.endTransaction();
-                    }
+                    new PrepareTask(response).execute();
                 }else{
                     error();
                 }
@@ -144,6 +96,81 @@ public class LoadActivity extends ActionBarActivity {
                 Toast.makeText(mContext,R.string.get_data_error,Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private class PrepareTask extends AsyncTask<Void,Void,Boolean>{
+        private JSONObject mSetupResponse;
+        private Intent mIntent;
+        private boolean mResult = false;
+
+        public PrepareTask(JSONObject setupObject){
+            mSetupResponse = setupObject;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try{
+                JSONObject list = mSetupResponse.getJSONObject("data").getJSONObject("list");
+                JSONArray animations = list.getJSONArray("anime");
+                JSONArray category = list.getJSONArray("category");
+                JSONArray advert = list.getJSONArray("advert");
+                JSONArray feature = list.getJSONArray("recommend");
+                ArrayList<Animation> Animations = Animation.build(animations);
+                ArrayList<Category> Categories = new ArrayList<Category>();
+                ArrayList<Advertise> Advertises = new ArrayList<Advertise>();
+                ArrayList<Animation> Recommends = new ArrayList<Animation>();
+                new Delete().from(Animation.class).where("IsFavorite=?",0).execute();
+                new Delete().from(Category.class).execute();
+                new Delete().from(Advertise.class).execute();
+                ActiveAndroid.beginTransaction();
+
+                for(int i =0;i<Animations.size();i++){
+                    if(null == new Select().from(Animation.class).where("IsFavorite=? and AnimationId=?",1,Animations.get(i).AnimationId).executeSingle())
+                        Animations.get(i).save();
+                    else{
+                        Animations.get(i).setFav(true);
+                    }
+                }
+                for(int i = 0; i < category.length();i++){
+                    Category cat = Category.build(category.getJSONObject(i));
+                    Categories.add(cat);
+                    cat.save();
+                }
+                for(int i = 0; i < advert.length();i++){
+                    Advertise ad = Advertise.build(advert.getJSONObject(i));
+                    Advertises.add(ad);
+                    ad.save();
+                }
+                for(int i = 0; i< feature.length();i++){
+                    Recommends.add(Animation.build(feature.getJSONObject(i)));
+                }
+                ActiveAndroid.setTransactionSuccessful();
+                mIntent = new Intent(LoadActivity.this,
+                        StartActivity.class);
+                mIntent.putParcelableArrayListExtra("Animations",Animations);
+                mIntent.putParcelableArrayListExtra("Categories",Categories);
+                mIntent.putParcelableArrayListExtra("Advertises",Advertises);
+                mIntent.putParcelableArrayListExtra("Recommends",Recommends);
+                mIntent.putExtra("Success",true);
+                mResult = true;
+            }catch(Exception e){
+                e.printStackTrace();
+                mResult = false;
+            }finally {
+                ActiveAndroid.endTransaction();
+                return mResult;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+            if(mResult){
+                startActivity(mIntent);
+            }else{
+                error();
+            }
+        }
     }
 
     private void error(){

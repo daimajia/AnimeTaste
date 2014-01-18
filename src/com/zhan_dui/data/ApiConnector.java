@@ -12,11 +12,12 @@ import java.util.TreeMap;
 public class ApiConnector {
 
 	private static ApiConnector mInstance;
+
     private static final String INIT_REQUEST_URL = "http://i.animetaste.net/api/setup/?api_key=%s&timestamp=%s&anime=%d&feature=%d&advert=%d&access_token=%s";
     private static final String ANIMATION_REQUEST_URL = "http://i.animetaste.net/api/animelist_v4/?api_key=%s&timestamp=%s&page=%d&access_token=%s";
-	private static final String sRandomeRequestUrl = "http://i.animetaste.net/api/animelist_v3/?api_key=%s&timestamp=%d&order=random&limit=%d&access_token=%s";
-	private static final String sFeaturesUrl = "http://i.animetaste.net/api/animelist_v3/?api_key=%s&timestamp=%d&feature=1&access_token=%s";
-	private static final String API_KEY = "android";
+    private static final String ANIMATION_RANDOM_URL = "http://i.animetaste.net/api/animelist_v4/?api_key=%s&timestamp=%d&order=random&limit=%d&access_token=%s";
+
+    private static final String API_KEY = "android";
 	private static final String API_SECRET = "7763079ba6abf342a99ab5a1dfa87ba8";
 
 	private ApiConnector() {
@@ -71,20 +72,8 @@ public class ApiConnector {
 		params.put("order", "random");
 		params.put("limit", String.valueOf(count));
 		String access_token = ApiUtils.getAccessToken(params, API_SECRET);
-		String request = String.format(sRandomeRequestUrl, API_KEY, timeStamp,
+		String request = String.format(ANIMATION_RANDOM_URL, API_KEY, timeStamp,
 				count, access_token);
-		get(request, handler);
-	}
-
-	public void getFetures(JsonHttpResponseHandler handler) {
-		long timestamp = System.currentTimeMillis() / 1000L;
-		TreeMap<String, String> params = new TreeMap<String, String>();
-		params.put("api_key", API_KEY);
-		params.put("timestamp", String.valueOf(timestamp));
-		params.put("feature", "1");
-		String access_token = ApiUtils.getAccessToken(params, API_SECRET);
-		String request = String.format(sFeaturesUrl, API_KEY, timestamp,
-				access_token);
 		get(request, handler);
 	}
 }

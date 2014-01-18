@@ -184,47 +184,70 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
         outState.putParcelable("Animation", mAnimation);
 	}
 
+    private class RandomRecommendTask extends AsyncTask<Void,Void,Void>{
+
+        private JSONArray mRandomJsonArray;
+        private LinearLayout mRandomLayout;
+
+        public RandomRecommendTask(JSONArray recommendJsonArray){
+            mRandomJsonArray = recommendJsonArray;
+            mRandomLayout = new LinearLayout(mContext);
+            mRandomLayout.setOrientation(LinearLayout.VERTICAL);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            for (int i = 0; i < mRandomJsonArray.length(); i++) {
+                LinearLayout recommend_item = (LinearLayout) mLayoutInflater
+                        .inflate(R.layout.recommend_item, null);
+                ImageView recommendThumb = (ImageView) recommend_item
+                        .findViewById(R.id.thumb);
+                TextView recommendTitle = (TextView) recommend_item
+                        .findViewById(R.id.recommand_title);
+                TextView recommendContent = (TextView) recommend_item
+                        .findViewById(R.id.recommand_content);
+                try{
+                JSONObject animationObject = mRandomJsonArray.getJSONObject(i);
+                Animation animation = Animation
+                        .build(animationObject);
+                Picasso.with(mContext).load(animation.HomePic)
+                        .placeholder(R.drawable.placeholder_thumb)
+                        .error(R.drawable.placeholder_fail)
+                        .into(recommendThumb);
+                recommendTitle.setText(animation.Name);
+                recommendContent.setText(animation.Brief);
+                recommend_item.setTag(animation);
+                recommend_item.setOnClickListener(PlayActivity.this);
+                View line = mRecommandView
+                        .findViewById(R.id.divide_line);
+                if (i == mRandomJsonArray.length() - 1 && line != null) {
+                    recommend_item.removeView(line);
+                }
+                mRandomLayout.addView(recommend_item);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            mRecomendList.addView(mRandomLayout);
+        }
+    }
+
 	private JsonHttpResponseHandler mRandomHandler = new JsonHttpResponseHandler() {
 		public void onSuccess(int statusCode, org.json.JSONObject response) {
 			if (statusCode == 200) {
 				try {
-					JSONArray randomList = response.getJSONArray("list");
-					for (int i = 0; i < randomList.length(); i++) {
-						LinearLayout recommend_item = (LinearLayout) mLayoutInflater
-								.inflate(R.layout.recommend_item, null);
-						ImageView recommendThumb = (ImageView) recommend_item
-								.findViewById(R.id.thumb);
-						TextView recommendTitle = (TextView) recommend_item
-								.findViewById(R.id.recommand_title);
-						TextView recommendContent = (TextView) recommend_item
-								.findViewById(R.id.recommand_content);
-
-						JSONObject video = randomList.getJSONObject(i);
-						Animation animation = Animation
-								.build(video);
-						Picasso.with(mContext).load(animation.HomePic)
-								.placeholder(R.drawable.placeholder_thumb)
-								.error(R.drawable.placeholder_fail)
-								.into(recommendThumb);
-						recommendTitle.setText(animation.Name);
-						recommendContent.setText(animation.Brief);
-						mRecommandView.setTag(animation);
-						mRecommandView.setOnClickListener(PlayActivity.this);
-						View line = mRecommandView
-								.findViewById(R.id.divide_line);
-						if (i == randomList.length() - 1 && line != null) {
-							recommend_item.removeView(line);
-						}
-						mRecomendList.addView(recommend_item);
-					}
+					JSONArray animations = response.getJSONObject("data").getJSONObject("list").getJSONArray("anime");
+                    new RandomRecommendTask(animations).execute();
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
 			}
-		};
-
-		public void onFailure(Throwable e, org.json.JSONArray errorResponse) {
-
 		};
 	};
 
@@ -448,11 +471,11 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		case R.id.comment_edit_text:
 			comment();
 			break;
-		case R.id.recommand_view:
+		case R.id.recommend_item:
 			stopPlay();
 			Animation animation = (Animation) v.getTag();
 			Intent intent = new Intent(mContext, PlayActivity.class);
-			intent.putExtra("VideoInfo", animation);
+			intent.putExtra("Animation", animation);
 			mContext.startActivity(intent);
 			MobclickAgent.onEvent(mContext, "recommend");
 			finish();
@@ -638,24 +661,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			}
 		}
 	}
-
-//	private class CheckIsFavorite extends AsyncTask<Void, Void, Boolean> {
-//
-//		@Override
-//		protected Boolean doInBackground(Void... params) {
-//			return mAnimeTasteDB.isFav(mAnimation.AnimationId);
-//		}
-//
-//		@Override
-//		protected void onPostExecute(Boolean result) {
-//			super.onPostExecute(result);
-//			mAnimation.setFav(result);
-//			if (result) {
-//				mFavMenuItem.setIcon(R.drawable.ab_fav_active);
-//			}
-//		}
-//
-//	}
 
 	@SuppressLint("HandlerLeak")
 	private Handler mAuthHandler = new Handler() {

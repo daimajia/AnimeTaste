@@ -18,7 +18,6 @@ import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Select;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.adapters.AnimationListAdapter;
-import com.zhan_dui.data.AnimeTasteDB;
 import com.zhan_dui.modal.Animation;
 
 import java.util.ArrayList;
@@ -30,14 +29,12 @@ public class FavoriteActivity extends ActionBarActivity implements
 	private Context mContext;
 	private ListView mFavListView;
 	private AnimationListAdapter mFavListAdapter;
-	private AnimeTasteDB mAnimeTasteDB;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = this;
 		setContentView(R.layout.activity_fav);
-		mAnimeTasteDB = new AnimeTasteDB(mContext, AnimeTasteDB.NAME, null, AnimeTasteDB.VERSION);
 		mFavListView = (ListView) findViewById(R.id.videoList);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);

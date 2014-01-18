@@ -127,12 +127,17 @@ public class Animation extends Model implements Parcelable {
 		return IsWatched;
 	}
 
+    public void setWatched(Boolean watched){
+       IsWatched = watched;
+    }
+
 	public void setFav(Boolean fav) {
 		IsFav = fav;
 	}
 
     public Long addToFavorite(){
         IsFav = true;
+
         return save();
     }
 
@@ -168,7 +173,8 @@ public class Animation extends Model implements Parcelable {
 	public static Animation build(JSONObject object) {
         
         if(Looper.myLooper() == Looper.getMainLooper()){
-            Throwable warn = new Throwable("Please do not execute Animation.build(JSONObject object) in Main thread");
+            Throwable warn = new Throwable("Please do not execute Animation.build(JSONObject object) " +
+                                           "in Main thread, it's bad performance and may block the ui thread");
             Log.w("Animation Warning",warn);
         }
         
@@ -184,7 +190,8 @@ public class Animation extends Model implements Parcelable {
         String uhd = EMPTY,hd = EMPTY,sd = EMPTY;
         boolean isWatched = false;
         try {
-            isWatched = new Select().from(WatchRecord.class).where("aid=?",id).executeSingle() == null ? false : true;
+            isWatched = new Select().from(WatchRecord.class).where("aid=?",id).executeSingle() != null;
+            isFav = new Select().from(Animation.class).where("AnimationId=? and IsFavorite=?",id,1).executeSingle() != null;
             JSONObject videoSourceObject = object.getJSONObject("VideoSource");
             uhd = videoSourceObject.has("uhd") ? videoSourceObject.getString("uhd") : EMPTY;
             hd = videoSourceObject.has("hd") ? videoSourceObject.getString("hd") : EMPTY;

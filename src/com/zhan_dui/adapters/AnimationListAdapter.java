@@ -46,10 +46,6 @@ public class AnimationListAdapter extends BaseAdapter {
         return new AnimationListAdapter(context,animations);
     }
 
-    public void addAnimationsFromArrayList(final ArrayList<Animation> newAnimations){
-        new AddNewAnimationTask(newAnimations).execute();
-    }
-
     public void addAnimationsFromJsonArray(final JSONArray animationsJsonArray){
         new AddNewAnimationTask(animationsJsonArray).execute();
     }
@@ -155,6 +151,8 @@ public class AnimationListAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View view) {
+            mAnimation.setWatched(true);
+            notifyDataSetChanged();
             Intent intent = new Intent(mContext, PlayActivity.class);
             intent.putExtra("Animation",mAnimation);
             mContext.startActivity(intent);
