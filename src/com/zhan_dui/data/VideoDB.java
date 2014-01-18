@@ -1,5 +1,7 @@
 package com.zhan_dui.data;
 
+import com.zhan_dui.modal.Animation;
+import com.zhan_dui.modal.Favorite;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,12 +14,9 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 
-import com.zhan_dui.modal.FavDataFormat;
-import com.zhan_dui.modal.VideoDataFormat;
-
 public class VideoDB extends SQLiteOpenHelper {
 
-	public static final int VERSION = 1;
+	public static final int VERSION = 2;
 	public static final String NAME = "AnimeTaste";
 
 	private static final String TABLE_VIDEO_NAME = "Video";
@@ -62,7 +61,7 @@ public class VideoDB extends SQLiteOpenHelper {
 	}
 
 	public void insertVideo(JSONObject video) {
-		insertVideo(VideoDataFormat.build(video), false);
+		insertVideo(Animation.build(video), false);
 	}
 
 	public void insertVideos(JSONArray videos) {
@@ -75,7 +74,7 @@ public class VideoDB extends SQLiteOpenHelper {
 		}
 	}
 
-	public long insertVideo(VideoDataFormat video, boolean isFav) {
+	public long insertVideo(Animation video, boolean isFav) {
 		ContentValues values = new ContentValues();
 		values.put("id", video.Id);
 		values.put("name", video.Name);
@@ -85,35 +84,35 @@ public class VideoDB extends SQLiteOpenHelper {
 		values.put("brief", video.Brief);
 		values.put("homepic", video.HomePic);
 		values.put("detailpic", video.DetailPic);
-		values.put("updatetime", video.UpdatedTime);
-		values.put("inserttime", video.InsertTime);
 		values.put("isfav", String.valueOf(isFav));
+        values.put("updatetime","");
+        values.put("inserttime","");
 		return getWritableDatabase().insertWithOnConflict(TABLE_VIDEO_NAME,
 				null, values, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
 	public void insertFav(JSONObject video) {
-		insertFav(VideoDataFormat.build(video));
+		insertFav(Animation.build(video));
 	}
 
-	public long insertFav(VideoDataFormat video) {
+	public long insertFav(Animation video) {
 		insertVideo(video, true);
 		ContentValues values = new ContentValues();
-		FavDataFormat favDataFormat = new FavDataFormat(video);
-		values.put("vid", favDataFormat.VideoID);
-		values.put("addtime", favDataFormat.AddTime);
+		Favorite favorite = new Favorite(video);
+		values.put("vid", favorite.VideoID);
+		values.put("addtime", favorite.AddTime);
 		return getWritableDatabase().insertWithOnConflict(TABLE_FAV_NAME, null,
 				values, SQLiteDatabase.CONFLICT_REPLACE);
 	}
 
-	public long insertWatched(VideoDataFormat video) {
+	public long insertWatched(Animation video) {
 		ContentValues values = new ContentValues();
 		values.put("vid", video.Id);
 		return getWritableDatabase().insertWithOnConflict(TABLE_WATCHED_NAME,
 				null, values, SQLiteDatabase.CONFLICT_IGNORE);
 	}
 
-	public synchronized boolean isWatched(VideoDataFormat video) {
+	public synchronized boolean isWatched(Animation video) {
 		SQLiteStatement statement = getReadableDatabase().compileStatement(
 				"select count(*) from " + TABLE_WATCHED_NAME + " where vid="
 						+ video.Id);
@@ -124,24 +123,24 @@ public class VideoDB extends SQLiteOpenHelper {
 		}
 	}
 
-	public VideoDataFormat getFavDetail(int vid) {
+	public Animation getFavDetail(int vid) {
 		Cursor cursor = getReadableDatabase().query(TABLE_VIDEO_NAME, null,
 				"vid=" + vid, null, null, null, null, "1");
 		if (cursor != null && cursor.getCount() != 0) {
 			cursor.moveToFirst();
-			return VideoDataFormat.build(cursor);
+			return Animation.build(cursor);
 		} else {
 			return null;
 		}
 	}
 
-	public VideoDataFormat getVideoDetail(int _id) {
+	public Animation getVideoDetail(int _id) {
 		Cursor cursor = getReadableDatabase().query(TABLE_VIDEO_NAME, null,
 				"_id=?", new String[] { String.valueOf(_id) }, null, null,
 				null, "1");
 		if (cursor != null && cursor.getCount() != 0) {
 			cursor.moveToFirst();
-			return VideoDataFormat.build(cursor);
+			return Animation.build(cursor);
 		} else {
 			return null;
 		}
@@ -192,7 +191,7 @@ public class VideoDB extends SQLiteOpenHelper {
 		return getWritableDatabase().delete(TABLE_FAV_NAME, null, null);
 	}
 
-	public int removeFav(VideoDataFormat video) {
+	public int removeFav(Animation video) {
 		return removeFav(video.Id);
 	}
 

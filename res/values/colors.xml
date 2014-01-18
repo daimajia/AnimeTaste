@@ -17,5 +17,10 @@
     <color name="white">#ffffff</color>
     <color name="load_more_normal_color">@color/white</color>
     <color name="load_more_press_color">@color/holo_blue</color>
+	<!-- Drawer -->
+	<color name="drawer_background">#303030</color>
+	<color name="drawer_selected_background">#4491DF</color>
+	<color name="drawer_text">#ffffff</color>
+	<color name="drawer_divider">#333333</color>
 
 </resources>

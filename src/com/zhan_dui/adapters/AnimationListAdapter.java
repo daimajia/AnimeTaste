@@ -1,11 +1,7 @@
 package com.zhan_dui.adapters;
 
-import java.util.ArrayList;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -16,25 +12,28 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.squareup.picasso.Picasso;
+import com.zhan_dui.animetaste.PlayActivity;
 import com.zhan_dui.animetaste.R;
 import com.zhan_dui.data.VideoDB;
-import com.zhan_dui.listener.VideoListItemListener;
-import com.zhan_dui.modal.VideoDataFormat;
+import com.zhan_dui.modal.Animation;
+import org.json.JSONArray;
+import org.json.JSONException;
 
-public class VideoListAdapter extends BaseAdapter {
+import java.util.ArrayList;
+
+public class AnimationListAdapter extends BaseAdapter {
 	private Context mContext;
 	private VideoDB mVideoDB;
 	private LayoutInflater mLayoutInflater;
 	private final Typeface mRobotoTitle;
-	private ArrayList<VideoDataFormat> mVideoList;
+	private ArrayList<Animation> mVideoList;
 
 	private final int mWatchedTitleColor;
 	private final int mUnWatchedTitleColor;
 
-	private VideoListAdapter(Context context,
-			ArrayList<VideoDataFormat> videoList, Boolean checkIsWatched) {
+	private AnimationListAdapter(Context context,
+                                 ArrayList<Animation> videoList, Boolean checkIsWatched) {
 		mRobotoTitle = Typeface.createFromAsset(context.getAssets(),
 				"fonts/Roboto-Bold.ttf");
 		mContext = context;
@@ -60,7 +59,7 @@ public class VideoListAdapter extends BaseAdapter {
 		notifyDataSetChanged();
 	}
 
-	public void setWatched(VideoDataFormat video) {
+	public void setWatched(Animation video) {
 		for (int i = 0; i < mVideoList.size(); i++) {
 			if (mVideoList.get(i).Id == video.Id) {
 				mVideoList.get(i).setWatched(true);
@@ -70,28 +69,32 @@ public class VideoListAdapter extends BaseAdapter {
 		notifyDataSetChanged();
 	}
 
-	public static VideoListAdapter build(Context context, JSONArray data,
+	public static AnimationListAdapter build(Context context, JSONArray data,
 			Boolean checkIsWatched) throws JSONException {
-		ArrayList<VideoDataFormat> videos = new ArrayList<VideoDataFormat>();
+		ArrayList<Animation> videos = new ArrayList<Animation>();
 		for (int i = 0; i < data.length(); i++) {
-			videos.add(VideoDataFormat.build(data.getJSONObject(i)));
+			videos.add(Animation.build(data.getJSONObject(i)));
 		}
-		return new VideoListAdapter(context, videos, checkIsWatched);
+		return new AnimationListAdapter(context, videos, checkIsWatched);
 	}
 
-	public static VideoListAdapter build(Context context, Cursor cursor,
+	public static AnimationListAdapter build(Context context, Cursor cursor,
 			Boolean checkIsWatched) {
-		ArrayList<VideoDataFormat> videos = new ArrayList<VideoDataFormat>();
+		ArrayList<Animation> videos = new ArrayList<Animation>();
 		while (cursor.moveToNext()) {
-			videos.add(VideoDataFormat.build(cursor));
+			videos.add(Animation.build(cursor));
 		}
-		return new VideoListAdapter(context, videos, checkIsWatched);
+		return new AnimationListAdapter(context, videos, checkIsWatched);
 	}
+
+    public static AnimationListAdapter build(Context context,ArrayList<Animation> Animations, Boolean checkIsWatched){
+        return new AnimationListAdapter(context,Animations,checkIsWatched);
+    }
 
 	public void addVideosFromJsonArray(JSONArray videos) throws JSONException {
 		int start = mVideoList.size();
 		for (int i = 0; i < videos.length(); i++) {
-			mVideoList.add(VideoDataFormat.build(videos.getJSONObject(i)));
+			mVideoList.add(Animation.build(videos.getJSONObject(i)));
 		}
 		int end = mVideoList.size();
 		new CheckIsWatchedTask(start, end).execute();
@@ -134,14 +137,13 @@ public class VideoListAdapter extends BaseAdapter {
 			contentTextView = holder.contentText;
 			thumbImageView = holder.thumbImageView;
 		}
-		VideoDataFormat video = (VideoDataFormat) getItem(position);
-		Picasso.with(mContext).load(video.HomePic)
+		Animation animation = (Animation) getItem(position);
+		Picasso.with(mContext).load(animation.HomePic)
 				.placeholder(R.drawable.placeholder_thumb)
 				.error(R.drawable.placeholder_fail).into(thumbImageView);
-		titleTextView.setText(video.Name);
-		contentTextView.setText(video.Brief);
-		convertView.setOnClickListener(new VideoListItemListener(mContext,
-				this, video));
+		titleTextView.setText(animation.Name);
+		contentTextView.setText(animation.Brief);
+		convertView.setOnClickListener(new AnimationItemOnClickListener(animation));
 		convertView.setOnLongClickListener(new OnLongClickListener() {
 			// 保证长按事件传递
 			@Override
@@ -149,13 +151,34 @@ public class VideoListAdapter extends BaseAdapter {
 				return false;
 			}
 		});
-		if (video.isWatched() == true) {
+		if (animation.isWatched() == true) {
 			titleTextView.setTextColor(mWatchedTitleColor);
 		} else {
 			titleTextView.setTextColor(mUnWatchedTitleColor);
 		}
 		return convertView;
 	}
+
+    /**
+     * Animation item Click listener
+     */
+    private class AnimationItemOnClickListener implements View.OnClickListener{
+        private Animation mAnimation;
+
+        public AnimationItemOnClickListener(Animation animation){
+            this.mAnimation = animation;
+        }
+
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(mContext, PlayActivity.class);
+            intent.putExtra("VideoInfo",mAnimation);
+            mContext.startActivity(intent);
+            mVideoDB.insertWatched(mAnimation);
+            if(mAnimation.isWatched() == false)
+                setWatched(mAnimation);
+        }
+    }
 
 	private static class ViewHolder {
 		public TextView titleText;
@@ -182,7 +205,7 @@ public class VideoListAdapter extends BaseAdapter {
 		@Override
 		protected Void doInBackground(Void... params) {
 			for (int i = mStart; i < mEnd; i++) {
-				VideoDataFormat currentVideo = mVideoList.get(i);
+				Animation currentVideo = mVideoList.get(i);
 				currentVideo.setWatched(mVideoDB.isWatched(currentVideo));
 			}
 			return null;

@@ -1,20 +1,5 @@
 package com.zhan_dui.animetaste;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.ocpsoft.prettytime.PrettyTime;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -26,42 +11,20 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
+import android.os.*;
 import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.ShareActionProvider.OnShareTargetSelectedListener;
 import android.text.InputFilter;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.OrientationEventListener;
-import android.view.View;
+import android.view.*;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.SeekBar;
+import android.widget.*;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TextView;
-import android.widget.Toast;
 import cn.sharesdk.sina.weibo.SinaWeibo;
 import cn.sharesdk.tencent.qzone.QZone;
-
 import com.avos.avoscloud.ParseException;
 import com.avos.avoscloud.ParseObject;
 import com.avos.avoscloud.ParseQuery;
@@ -78,12 +41,22 @@ import com.squareup.picasso.Target;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.auth.SocialPlatform;
 import com.zhan_dui.auth.User;
+import com.zhan_dui.data.ApiConnector;
 import com.zhan_dui.data.VideoDB;
+import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Comment;
-import com.zhan_dui.modal.DataHandler;
-import com.zhan_dui.modal.VideoDataFormat;
 import com.zhan_dui.utils.OrientationHelper;
 import com.zhan_dui.utils.Screen;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.ocpsoft.prettytime.PrettyTime;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.*;
 
 public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		Target, OnPreparedListener, OnCompletionListener, OnErrorListener,
@@ -105,9 +78,12 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	private View mVideoAction;
 
-	private VideoDataFormat mVideoInfo;
+	private Animation mVideoInfo;
 
 	private OrientationEventListener mOrientationEventListener;
+
+
+
 	private MenuItem mFavMenuItem;
 	private Bitmap mDetailPicture;
 	private LinearLayout mComments, mRecomendList;
@@ -152,12 +128,11 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mVideoDB = new VideoDB(mContext, VideoDB.NAME, null, VideoDB.VERSION);
 
 		if (getIntent().getExtras().containsKey("VideoInfo")) {
-			mVideoInfo = (VideoDataFormat) (getIntent().getExtras()
-					.getSerializable("VideoInfo"));
+            mVideoInfo = getIntent().getParcelableExtra("VideoInfo");
 		}
 
 		if (savedInstance != null && savedInstance.containsKey("VideoInfo")) {
-			mVideoInfo = (VideoDataFormat) savedInstance.get("VideoInfo");
+			mVideoInfo = savedInstance.getParcelable("VideoInfo");
 			mLastPos = savedInstance.getInt("LastPosition");
 		}
 
@@ -198,7 +173,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		initPlayer();
 		initContent();
 		mVideoInfo.setFav(mVideoDB.isFav(mVideoInfo.Id));
-		DataHandler.instance().getRandom(5, mRandomeHandler);
+		ApiConnector.instance().getRandom(5, mRandomeHandler);
 		new CommentsTask().execute();
 	}
 
@@ -206,7 +181,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putInt("LastPosition", mLastPos);
-		outState.putSerializable("VideoInfo", mVideoInfo);
+        outState.putParcelable("VideoInfo",mVideoInfo);
 	}
 
 	private JsonHttpResponseHandler mRandomeHandler = new JsonHttpResponseHandler() {
@@ -225,15 +200,15 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 								.findViewById(R.id.recommand_content);
 
 						JSONObject video = randomList.getJSONObject(i);
-						VideoDataFormat videoDataFormat = VideoDataFormat
+						Animation animation = Animation
 								.build(video);
-						Picasso.with(mContext).load(videoDataFormat.HomePic)
+						Picasso.with(mContext).load(animation.HomePic)
 								.placeholder(R.drawable.placeholder_thumb)
 								.error(R.drawable.placeholder_fail)
 								.into(recommendThumb);
-						recommendTitle.setText(videoDataFormat.Name);
-						recommendContent.setText(videoDataFormat.Brief);
-						mRecommandView.setTag(videoDataFormat);
+						recommendTitle.setText(animation.Name);
+						recommendContent.setText(animation.Brief);
+						mRecommandView.setTag(animation);
 						mRecommandView.setOnClickListener(PlayActivity.this);
 						View line = mRecommandView
 								.findViewById(R.id.divide_line);
@@ -473,9 +448,9 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			break;
 		case R.id.recommand_view:
 			stopPlay();
-			VideoDataFormat videoDataFormat = (VideoDataFormat) v.getTag();
+			Animation animation = (Animation) v.getTag();
 			Intent intent = new Intent(mContext, PlayActivity.class);
-			intent.putExtra("VideoInfo", videoDataFormat);
+			intent.putExtra("VideoInfo", animation);
 			mContext.startActivity(intent);
 			MobclickAgent.onEvent(mContext, "recommend");
 			finish();

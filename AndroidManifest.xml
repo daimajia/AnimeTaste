@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.GET_TASKS"/>
 
     <application
         android:allowBackup="true"
@@ -73,7 +74,7 @@
         </activity>
 
          <activity
-            android:name="com.zhan_dui.animetaste.FavActivity"
+            android:name=".FavoriteActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" >
         </activity>
         <activity
@@ -97,6 +98,10 @@
             android:name="com.zhan_dui.animetaste.FeedbackActivity"
             android:screenOrientation="portrait" >
         </activity>
+	    <activity
+			android:name="com.zhan_dui.animetaste.AdvertiseActivity"
+			android:screenOrientation="portrait">
+	    </activity>
     </application>
 
 </manifest>

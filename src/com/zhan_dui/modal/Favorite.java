@@ -2,22 +2,22 @@ package com.zhan_dui.modal;
 
 import org.json.JSONObject;
 
-public class FavDataFormat {
+public class Favorite {
 
 	public final Integer VideoID;
 	public final Long AddTime;
 
-	public FavDataFormat(JSONObject object, Long addTime) {
+	public Favorite(JSONObject object, Long addTime) {
 		AddTime = addTime;
-		VideoID = VideoDataFormat.build(object).Id;
+		VideoID = Animation.build(object).Id;
 	}
 
-	public FavDataFormat(VideoDataFormat video, Long addTime) {
+	public Favorite(Animation video, Long addTime) {
 		AddTime = addTime;
 		VideoID = video.Id;
 	}
 
-	public FavDataFormat(VideoDataFormat video) {
+	public Favorite(Animation video) {
 		VideoID = video.Id;
 		AddTime = System.currentTimeMillis();
 	}

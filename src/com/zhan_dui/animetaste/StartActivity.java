@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -24,10 +23,13 @@ import com.umeng.analytics.MobclickAgent;
 import com.umeng.update.UmengUpdateAgent;
 import com.viewpagerindicator.PageIndicator;
 import com.viewpagerindicator.UnderlinePageIndicator;
-import com.zhan_dui.adapters.ShowGalleryPagerAdapter;
-import com.zhan_dui.adapters.VideoListAdapter;
+import com.zhan_dui.adapters.AnimationListAdapter;
+import com.zhan_dui.adapters.RecommendAdapter;
+import com.zhan_dui.data.ApiConnector;
 import com.zhan_dui.data.VideoDB;
-import com.zhan_dui.modal.DataHandler;
+import com.zhan_dui.modal.Advertise;
+import com.zhan_dui.modal.Animation;
+import com.zhan_dui.modal.Category;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,14 +50,14 @@ public class StartActivity extends ActionBarActivity implements
     private ActionBarDrawerToggle mDrawerToggle;
     private SimpleAdapter mDrawerAapter;
 
-	private VideoListAdapter mVideoAdapter;
+	private AnimationListAdapter mVideoAdapter;
 	private Context mContext;
-	private int mCurrentPage = 1;
+	private int mCurrentPage = 3;
 	private Boolean mUpdating = false;
 
-	private ViewPager mShowPager;
-	private PageIndicator mShowIndicator;
-	private ShowGalleryPagerAdapter mShowAdapter;
+	private ViewPager mRecommendPager;
+	private PageIndicator mRecommendIndicator;
+	private RecommendAdapter mRecommendAdapter;
 
 	private LayoutInflater mLayoutInflater;
 	private VideoDB mVideoDB;
@@ -89,30 +91,29 @@ public class StartActivity extends ActionBarActivity implements
 		View headerView = mLayoutInflater.inflate(R.layout.gallery_item, null,
 				false);
 		mVideoList.addHeaderView(headerView);
-		mShowPager = (ViewPager) headerView.findViewById(R.id.pager);
-		mShowPager.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				PointF downP = new PointF();
-				PointF curP = new PointF();
-				int act = event.getAction();
-				if (act == MotionEvent.ACTION_DOWN
-						|| act == MotionEvent.ACTION_MOVE
-						|| act == MotionEvent.ACTION_UP) {
-					((ViewGroup) v).requestDisallowInterceptTouchEvent(true);
-					if (downP.x == curP.x && downP.y == curP.y) {
-						return false;
-					}
-				}
-				return false;
-			}
-		});
-		mShowIndicator = (UnderlinePageIndicator) headerView
+		mRecommendPager = (ViewPager) headerView.findViewById(R.id.pager);
+		mRecommendPager.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                PointF downP = new PointF();
+                PointF curP = new PointF();
+                int act = event.getAction();
+                if (act == MotionEvent.ACTION_DOWN
+                        || act == MotionEvent.ACTION_MOVE
+                        || act == MotionEvent.ACTION_UP) {
+                    ((ViewGroup) v).requestDisallowInterceptTouchEvent(true);
+                    if (downP.x == curP.x && downP.y == curP.y) {
+                        return false;
+                    }
+                }
+                return false;
+            }
+        });
+		mRecommendIndicator = (UnderlinePageIndicator) headerView
 				.findViewById(R.id.indicator);
 
-		if (getIntent().hasExtra("LoadData")) {
-			init(getIntent().getStringExtra("LoadData"), getIntent()
-					.getStringExtra("LoadFeatures"));
+		if (getIntent().hasExtra("Success")) {
+			init(getIntent());
 		} else {
 			init();
 		}
@@ -169,33 +170,26 @@ public class StartActivity extends ActionBarActivity implements
 	}
 
 	public void init() {
-		Cursor cursor = mVideoDB.getVideos(mDefaultPrepareCount);
-		mShowAdapter = new ShowGalleryPagerAdapter(getSupportFragmentManager(),
-				cursor, 4);
-		mShowPager.setAdapter(mShowAdapter);
-		mVideoAdapter = VideoListAdapter.build(mContext, cursor, true);
-		mVideoList.setAdapter(mVideoAdapter);
-		mShowIndicator.setViewPager(mShowPager);
+//		Cursor cursor = mVideoDB.getVideos(mDefaultPrepareCount);
+//		mRecommendAdapter = new RecommendAdapter(getSupportFragmentManager(),
+//				cursor, 4);
+//		mRecommendPager.setAdapter(mRecommendAdapter);
+//		mVideoAdapter = AnimationListAdapter.build(mContext, cursor, true);
+//		mVideoList.setAdapter(mVideoAdapter);
+//		mRecommendIndicator.setViewPager(mRecommendPager);
 	}
 
-	public void init(String ListData, String FeaturesString) {
-		try {
-			JSONArray videoList = new JSONArray(ListData);
-			JSONArray featuresList = new JSONArray(FeaturesString);
-			if (videoList != null) {
-				new AddToDBThread(videoList, true).start();
-			}
-			mShowAdapter = new ShowGalleryPagerAdapter(
-					getSupportFragmentManager(), featuresList, 6);
-			mShowPager.setAdapter(mShowAdapter);
-			mVideoAdapter = VideoListAdapter.build(mContext, videoList, true);
-			mVideoList.setAdapter(mVideoAdapter);
-			mShowIndicator.setViewPager(mShowPager);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-
-	}
+    public void init(Intent intent){
+        ArrayList<Animation> Animations = intent.getParcelableArrayListExtra("Animations");
+        ArrayList<Category> Categories = intent.getParcelableArrayListExtra("Categories");
+        ArrayList<Advertise> Advertises = intent.getParcelableArrayListExtra("Advertises");
+        ArrayList<Animation> Recommends = intent.getParcelableArrayListExtra("Recommends");
+        mRecommendAdapter = new RecommendAdapter(getSupportFragmentManager(),Advertises,Recommends);
+        mRecommendPager.setAdapter(mRecommendAdapter);
+        mVideoAdapter = AnimationListAdapter.build(mContext, Animations, true);
+        mVideoList.setAdapter(mVideoAdapter);
+        mRecommendIndicator.setViewPager(mRecommendPager);
+    }
 
     private List<Map<String,Object>> getDrawerItems(){
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
@@ -226,7 +220,7 @@ public class StartActivity extends ActionBarActivity implements
 		if (mUpdating == false && totalItemCount != 0
 				&& view.getLastVisiblePosition() == totalItemCount - 1) {
 			mUpdating = true;
-			DataHandler.instance().getList(mCurrentPage++,
+			ApiConnector.instance().getList(mCurrentPage++,
 					new LoadMoreJSONListener());
 		}
 
@@ -265,14 +259,10 @@ public class StartActivity extends ActionBarActivity implements
 		@Override
 		public void onSuccess(int statusCode, JSONObject response) {
 			super.onSuccess(statusCode, response);
-			if (statusCode == 200 && response.has("list")) {
+			if (statusCode == 200 && response.has("data")) {
 				try {
-					if (mCurrentPage < 3) {
-						new AddToDBThread(response.getJSONArray("list"), true)
-								.start();
-					}
 					mVideoAdapter.addVideosFromJsonArray(response
-							.getJSONArray("list"));
+							.getJSONObject("data").getJSONObject("list").getJSONArray("anime"));
 					mVideoAdapter.notifyDataSetChanged();
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -309,7 +299,7 @@ public class StartActivity extends ActionBarActivity implements
 			return true;
 		}
 		if (item.getItemId() == R.id.action_fav) {
-			Intent intent = new Intent(mContext, FavActivity.class);
+			Intent intent = new Intent(mContext, FavoriteActivity.class);
 			startActivity(intent);
 			return true;
 		}

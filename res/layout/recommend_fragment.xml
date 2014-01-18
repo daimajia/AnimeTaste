@@ -4,7 +4,7 @@
     android:layout_height="198dp" >
 
     <ImageView
-        android:id="@+id/show_image"
+        android:id="@+id/recommend_image"
         android:layout_width="fill_parent"
         android:layout_height="@dimen/show_gallery_placeholder"
         android:scaleType="fitXY"

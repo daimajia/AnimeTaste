@@ -1,8 +1,5 @@
 package com.zhan_dui.animetaste;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,16 +9,21 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.widget.Toast;
-
 import cn.sharesdk.framework.ShareSDK;
-
 import com.avos.avoscloud.Parse;
 import com.avos.avoscloud.ParseAnalytics;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.umeng.analytics.MobclickAgent;
+import com.zhan_dui.data.ApiConnector;
 import com.zhan_dui.data.VideoDB;
-import com.zhan_dui.modal.DataHandler;
+import com.zhan_dui.modal.Advertise;
+import com.zhan_dui.modal.Animation;
+import com.zhan_dui.modal.Category;
 import com.zhan_dui.utils.NetworkUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class LoadActivity extends ActionBarActivity {
 	private Context mContext;
@@ -55,7 +57,7 @@ public class LoadActivity extends ActionBarActivity {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							dialog.dismiss();
-							initLatest();
+							init();
 						}
 					});
 			builder.setNegativeButton(R.string.obly_wifi_cancel,
@@ -68,66 +70,60 @@ public class LoadActivity extends ActionBarActivity {
 					});
 			builder.create().show();
 		} else {
-			initLatest();
+			init();
 		}
 
 	};
 
-	private void initLatest() {
-		DataHandler.instance().getList(0, new JsonHttpResponseHandler() {
-			@Override
-			public void onSuccess(int statusCode, JSONObject response) {
-				super.onSuccess(statusCode, response);
+    private void init(){
+        ApiConnector.instance().getInitData(20,5,2,new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode,JSONObject response) {
+                super.onSuccess(response);
+                if(statusCode == 200 && response.has("data")){
+                    try{
+                        JSONObject list = response.getJSONObject("data").getJSONObject("list");
+                        JSONArray anime = list.getJSONArray("anime");
+                        JSONArray category = list.getJSONArray("category");
+                        JSONArray advert = list.getJSONArray("advert");
+                        JSONArray feature = list.getJSONArray("recommend");
+                        ArrayList<Animation> Animations = Animation.build(anime);
+                        ArrayList<Category> Categories = new ArrayList<Category>();
+                        ArrayList<Advertise> Advertises = new ArrayList<Advertise>();
+                        ArrayList<Animation> Recommends = new ArrayList<Animation>();
+                        for(int i = 0; i < category.length();i++){
+                            Categories.add(Category.build(category.getJSONObject(i)));
+                        }
+                        for(int i = 0; i < advert.length();i++){
+                            Advertises.add(Advertise.build(advert.getJSONObject(i)));
+                        }
+                        for(int i = 0; i< feature.length();i++){
+                            Recommends.add(Animation.build(feature.getJSONObject(i)));
+                        }
+                        Intent intent = new Intent(LoadActivity.this,
+                                StartActivity.class);
+                        intent.putParcelableArrayListExtra("Animations",Animations);
+                        intent.putParcelableArrayListExtra("Categories",Categories);
+                        intent.putParcelableArrayListExtra("Advertises",Advertises);
+                        intent.putParcelableArrayListExtra("Recommends",Recommends);
+                        intent.putExtra("Success",true);
+                        startActivity(intent);
+                    }catch(Exception e){
+                        e.printStackTrace();
+                        error();
+                    }
+                }else{
+                    error();
+                }
+            }
+        });
+    }
 
-				if (statusCode == 200 && response.has("list")) {
-					try {
-						initFeatures(response.getJSONArray("list").toString());
-					} catch (JSONException e) {
-						e.printStackTrace();
-						finish();
-					}
-				} else {
-					finish();
-				}
-			}
-
-			@Override
-			public void onFailure(Throwable error, String content) {
-				super.onFailure(error, content);
-				Toast.makeText(getApplicationContext(), R.string.error_load,
-						Toast.LENGTH_SHORT).show();
-				if (mVideoDB.getVideosCount() > 5)
-					startActivity(new Intent(mContext, StartActivity.class));
-				else {
-					finish();
-				}
-				finish();
-			}
-		});
-	}
-
-	private void initFeatures(final String lastestVideosArrayString) {
-		DataHandler.instance().getFetures(new JsonHttpResponseHandler() {
-			@Override
-			public void onSuccess(int statusCode, JSONObject response) {
-				super.onSuccess(statusCode, response);
-				try {
-					Intent intent = new Intent(LoadActivity.this,
-							StartActivity.class);
-					intent.putExtra("LoadData", lastestVideosArrayString);
-					intent.putExtra("LoadFeatures",
-							response.getJSONArray("list").toString());
-					startActivity(intent);
-				} catch (JSONException e) {
-					Toast.makeText(mContext, "获取数据出错", Toast.LENGTH_SHORT)
-							.show();
-				} finally {
-					finish();
-				}
-
-			}
-		});
-	}
+    private void error(){
+        Toast.makeText(mContext, "获取数据出错", Toast.LENGTH_SHORT)
+                .show();
+        finish();
+    }
 
 	@Override
 	protected void onResume() {

@@ -83,4 +83,11 @@
     <string name="can_not_open_market">无法打开市场</string>
     <!-- Settings -->
 
+	<!-- Drawer -->
+	<string name="guess">猜你喜欢</string>
+	<string name="all">全部视频</string>
+	<string name="my_fav">我的收藏</string>
+	<string name="category">分类浏览</string>
+	<!-- Drawer -->
+
 </resources>

@@ -21,27 +21,37 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <!-- As the main content view, the view below consumes the entire
-         space available using match_parent in both dimensions. -->
     <FrameLayout
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent" >
+	    <ListView
+			    android:id="@+id/videoList"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			    android:fastScrollEnabled="true" />
+	</FrameLayout>
+	<LinearLayout android:id="@+id/drawer" android:orientation="vertical" android:layout_width="@dimen/drawer_width" android:layout_gravity="start" android:layout_height="match_parent" android:background="#303030">
+		<ListView
+				android:id="@+id/function_list"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="start"
+				android:choiceMode="singleChoice"
+				android:divider="@drawable/drawer_item_divider"
+				android:dividerHeight="2dp"
+				android:background="#303030"/>
+		<TextView android:textColor="@color/drawer_text" android:layout_margin="10dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/category"/>
+		<View android:layout_width="match_parent" android:layout_height="3dp" android:background="@color/drawer_divider"/>
+		<ListView
+				android:id="@+id/category_list"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="start"
+				android:choiceMode="singleChoice"
+				android:divider="@drawable/drawer_item_divider"
+				android:dividerHeight="2dp"
+				android:background="#303030" android:layout_marginBottom="20dp"/>
+	</LinearLayout>
 
-    <!-- android:layout_gravity="start" tells DrawerLayout to treat
-         this as a sliding drawer on the left side for left-to-right
-         languages and on the right side for right-to-left languages.
-         The drawer is given a fixed width in dp and extends the full height of
-         the container. A solid background is used for contrast
-         with the content view. -->
-    <ListView
-        android:id="@+id/left_drawer"
-        android:layout_width="240dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
-        android:background="#111"/>
 </android.support.v4.widget.DrawerLayout>

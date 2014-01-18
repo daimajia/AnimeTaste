@@ -17,16 +17,16 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
 import com.umeng.analytics.MobclickAgent;
-import com.zhan_dui.adapters.VideoListAdapter;
+import com.zhan_dui.adapters.AnimationListAdapter;
 import com.zhan_dui.data.VideoDB;
-import com.zhan_dui.modal.VideoDataFormat;
+import com.zhan_dui.modal.Animation;
 
-public class FavActivity extends ActionBarActivity implements
+public class FavoriteActivity extends ActionBarActivity implements
 		OnItemLongClickListener {
 
 	private Context mContext;
 	private ListView mFavListView;
-	private VideoListAdapter mFavListAdapter;
+	private AnimationListAdapter mFavListAdapter;
 	private VideoDB mVideoDB;
 
 	@Override
@@ -47,7 +47,7 @@ public class FavActivity extends ActionBarActivity implements
 		@Override
 		protected Void doInBackground(Void... params) {
 			Cursor cursor = mVideoDB.getAllFav();
-			mFavListAdapter = VideoListAdapter.build(mContext, cursor, false);
+			mFavListAdapter = AnimationListAdapter.build(mContext, cursor, false);
 			return null;
 		}
 
@@ -124,7 +124,7 @@ public class FavActivity extends ActionBarActivity implements
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View item,
 			int position, long id) {
-		final VideoDataFormat videoData = (VideoDataFormat) mFavListAdapter
+		final Animation videoData = (Animation) mFavListAdapter
 				.getItem(position);
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext)
 				.setTitle(R.string.delete_title)

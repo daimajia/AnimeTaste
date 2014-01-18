@@ -34,4 +34,7 @@
     <!-- 播放页面文字介绍 -->
     <dimen name="show_gallery_placeholder">200dp</dimen>
 	<dimen name="comment_edit_height">100dp</dimen>
+	<!-- Drawer -->
+	<dimen name="drawer_width">245dp</dimen>
+	<!-- Drawer -->
 </resources>
