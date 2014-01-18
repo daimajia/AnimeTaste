@@ -41,8 +41,8 @@ import com.squareup.picasso.Target;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.auth.SocialPlatform;
 import com.zhan_dui.auth.User;
+import com.zhan_dui.data.AnimeTasteDB;
 import com.zhan_dui.data.ApiConnector;
-import com.zhan_dui.data.VideoDB;
 import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Comment;
 import com.zhan_dui.utils.OrientationHelper;
@@ -74,11 +74,11 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	private Context mContext;
 	private SharedPreferences mSharedPreferences;
-	private VideoDB mVideoDB;
+	private AnimeTasteDB mAnimeTasteDB;
 
 	private View mVideoAction;
 
-	private Animation mVideoInfo;
+	private Animation mAnimation;
 
 	private OrientationEventListener mOrientationEventListener;
 
@@ -125,14 +125,14 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		super.onCreate(savedInstance);
 		mPrettyTime = new PrettyTime();
 		mContext = this;
-		mVideoDB = new VideoDB(mContext, VideoDB.NAME, null, VideoDB.VERSION);
+		mAnimeTasteDB = new AnimeTasteDB(mContext, AnimeTasteDB.NAME, null, AnimeTasteDB.VERSION);
 
-		if (getIntent().getExtras().containsKey("VideoInfo")) {
-            mVideoInfo = getIntent().getParcelableExtra("VideoInfo");
+		if (getIntent().getExtras().containsKey("Animation")) {
+            mAnimation = getIntent().getParcelableExtra("Animation");
 		}
 
-		if (savedInstance != null && savedInstance.containsKey("VideoInfo")) {
-			mVideoInfo = savedInstance.getParcelable("VideoInfo");
+		if (savedInstance != null && savedInstance.containsKey("Animation")) {
+			mAnimation = savedInstance.getParcelable("Animation");
 			mLastPos = savedInstance.getInt("LastPosition");
 		}
 
@@ -172,8 +172,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 				"fonts/Roboto-Thin.ttf");
 		initPlayer();
 		initContent();
-		mVideoInfo.setFav(mVideoDB.isFav(mVideoInfo.Id));
-		ApiConnector.instance().getRandom(5, mRandomeHandler);
+        mAnimation.recordWatch();
+		ApiConnector.instance().getRandom(5, mRandomHandler);
 		new CommentsTask().execute();
 	}
 
@@ -181,10 +181,10 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putInt("LastPosition", mLastPos);
-        outState.putParcelable("VideoInfo",mVideoInfo);
+        outState.putParcelable("Animation", mAnimation);
 	}
 
-	private JsonHttpResponseHandler mRandomeHandler = new JsonHttpResponseHandler() {
+	private JsonHttpResponseHandler mRandomHandler = new JsonHttpResponseHandler() {
 		public void onSuccess(int statusCode, org.json.JSONObject response) {
 			if (statusCode == 200) {
 				try {
@@ -231,11 +231,11 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	private Intent getDefaultIntent() {
 		Intent intent = new Intent(Intent.ACTION_SEND);
 		String shareTitle = getString(R.string.share_video_title);
-		shareTitle = String.format(shareTitle, mVideoInfo.Name);
+		shareTitle = String.format(shareTitle, mAnimation.Name);
 		String shareContent = getString(R.string.share_video_body);
 		intent.setType("image/*");
-		shareContent = String.format(shareContent, mVideoInfo.Name,
-				mVideoInfo.Youku);
+		shareContent = String.format(shareContent, mAnimation.Name,
+				mAnimation.Youku);
 		intent.putExtra(Intent.EXTRA_SUBJECT, shareTitle);
 		intent.putExtra(Intent.EXTRA_TEXT, shareContent);
 		File file = getShareFile();
@@ -277,7 +277,9 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 				});
 		mFavMenuItem = menu.findItem(R.id.action_fav);
 		mShareActionProvider.setShareIntent(getDefaultIntent());
-		new CheckIsFavorite().execute();
+		if(mAnimation.isFavorite()){
+            mFavMenuItem.setIcon(R.drawable.ab_fav_active);
+        }
 		return true;
 	}
 
@@ -364,7 +366,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			try {
 				ParseObject user = query.get(mSharedPreferences.getString(
 						"objectid", "0"));
-				parseComment.put("vid", mVideoInfo.Id);
+				parseComment.put("vid", mAnimation.AnimationId);
 				parseComment.put("uid", user);
 				parseComment.put("content", mContent);
 				parseComment.saveInBackground(new SaveCallback() {
@@ -428,9 +430,9 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			startPlay(mLastPos);
 			updateControlBar(false);
 			if (mSharedPreferences.getBoolean("use_hd", true)) {
-				mVV.setVideoPath(mVideoInfo.HDVideoUrl);
+				mVV.setVideoPath(mAnimation.HDVideoUrl);
 			} else {
-				mVV.setVideoPath(mVideoInfo.CommonVideoUrl);
+				mVV.setVideoPath(mAnimation.CommonVideoUrl);
 			}
 			break;
 		case R.id.play_btn:
@@ -475,22 +477,22 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			finish();
 			return true;
 		case R.id.action_fav:
-			if (mVideoInfo.isFavorite()) {
-				if (mVideoDB.removeFav(mVideoInfo) > 0) {
+			if (mAnimation.isFavorite()) {
+				if (mAnimation.removeFromFavorite() > 0) {
 					Toast.makeText(mContext, R.string.fav_del_success,
 							Toast.LENGTH_SHORT).show();
 					item.setIcon(R.drawable.ab_fav_normal);
-					mVideoInfo.setFav(false);
+					mAnimation.setFav(false);
 				} else {
 					Toast.makeText(mContext, R.string.fav_del_fail,
 							Toast.LENGTH_SHORT).show();
 				}
 			} else {
-				if (mVideoDB.insertFav(mVideoInfo) > 0) {
+				if (mAnimation.addToFavorite() > 0) {
 					Toast.makeText(mContext, R.string.fav_success,
 							Toast.LENGTH_SHORT).show();
 					item.setIcon(R.drawable.ab_fav_active);
-					mVideoInfo.setFav(true);
+					mAnimation.setFav(true);
 				} else {
 					Toast.makeText(mContext, R.string.fav_fail,
 							Toast.LENGTH_SHORT).show();
@@ -555,7 +557,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		protected Void doInBackground(Void... params) {
 			ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
 					"Comments");
-			query.whereEqualTo("vid", mVideoInfo.Id);
+			query.whereEqualTo("vid", mAnimation.AnimationId);
 			query.setLimit(mStep);
 			query.setSkip(mSkip);
 			query.include("uid");
@@ -637,23 +639,23 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		}
 	}
 
-	private class CheckIsFavorite extends AsyncTask<Void, Void, Boolean> {
-
-		@Override
-		protected Boolean doInBackground(Void... params) {
-			return mVideoDB.isFav(mVideoInfo.Id);
-		}
-
-		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
-			mVideoInfo.setFav(result);
-			if (result) {
-				mFavMenuItem.setIcon(R.drawable.ab_fav_active);
-			}
-		}
-
-	}
+//	private class CheckIsFavorite extends AsyncTask<Void, Void, Boolean> {
+//
+//		@Override
+//		protected Boolean doInBackground(Void... params) {
+//			return mAnimeTasteDB.isFav(mAnimation.AnimationId);
+//		}
+//
+//		@Override
+//		protected void onPostExecute(Boolean result) {
+//			super.onPostExecute(result);
+//			mAnimation.setFav(result);
+//			if (result) {
+//				mFavMenuItem.setIcon(R.drawable.ab_fav_active);
+//			}
+//		}
+//
+//	}
 
 	@SuppressLint("HandlerLeak")
 	private Handler mAuthHandler = new Handler() {
@@ -744,16 +746,16 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	private void initContent() {
 		mTitleTextView.setTypeface(mRobotoBold);
 		mAutherTextView.setTypeface(mRobotoThin);
-		mTitleTextView.setText(mVideoInfo.Name);
-		mContentTextView.setText(mVideoInfo.Brief);
-		mAutherTextView.setText(mVideoInfo.Author + " · " + mVideoInfo.Year);
+		mTitleTextView.setText(mAnimation.Name);
+		mContentTextView.setText(mAnimation.Brief);
+		mAutherTextView.setText(mAnimation.Author + " · " + mAnimation.Year);
 		mPrePlayButton.setOnClickListener(this);
 		mViewHolder.setOnTouchListener(this);
 		mCommentEditText.setOnClickListener(this);
 		if (getShareFile() != null) {
 			getShareFile().delete();
 		}
-		Picasso.with(mContext).load(mVideoInfo.DetailPic)
+		Picasso.with(mContext).load(mAnimation.DetailPic)
 				.placeholder(R.drawable.big_bg).into(this);
 	}
 

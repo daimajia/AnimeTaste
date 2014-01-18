@@ -32,6 +32,8 @@ public class ApiConnector {
 
 	private void get(String request, JsonHttpResponseHandler handler) {
 		AsyncHttpClient client = new AsyncHttpClient();
+        client.setTimeout(10000);
+
 		client.get(request, null, handler);
 	}
 

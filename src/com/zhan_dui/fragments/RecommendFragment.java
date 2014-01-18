@@ -1,6 +1,5 @@
 package com.zhan_dui.fragments;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
 import com.squareup.picasso.Picasso;
 import com.zhan_dui.animetaste.AdvertiseActivity;
 import com.zhan_dui.animetaste.PlayActivity;
@@ -16,7 +14,6 @@ import com.zhan_dui.animetaste.R;
 import com.zhan_dui.modal.Advertise;
 import com.zhan_dui.modal.Animation;
 
-@SuppressLint("ValidFragment")
 public class RecommendFragment extends Fragment {
 
 	private ImageView mRecommendImage;
@@ -81,7 +78,7 @@ public class RecommendFragment extends Fragment {
         @Override
         public void onClick(View view) {
             Intent intent = new Intent(getActivity(), PlayActivity.class);
-            intent.putExtra("VideoInfo",mAnimation);
+            intent.putExtra("Animation",mAnimation);
             startActivity(intent);
         }
     }

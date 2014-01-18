@@ -5,4 +5,10 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
+	<WebView
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:id="@+id/recommend_webview" android:layout_gravity="center_horizontal"/>
+
+
 </LinearLayout>

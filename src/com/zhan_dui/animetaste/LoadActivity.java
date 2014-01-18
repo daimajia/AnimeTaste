@@ -8,14 +8,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.widget.Toast;
 import cn.sharesdk.framework.ShareSDK;
+import com.activeandroid.ActiveAndroid;
+import com.activeandroid.query.Delete;
+import com.activeandroid.query.Select;
 import com.avos.avoscloud.Parse;
 import com.avos.avoscloud.ParseAnalytics;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.data.ApiConnector;
-import com.zhan_dui.data.VideoDB;
 import com.zhan_dui.modal.Advertise;
 import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Category;
@@ -27,7 +30,6 @@ import java.util.ArrayList;
 
 public class LoadActivity extends ActionBarActivity {
 	private Context mContext;
-	private VideoDB mVideoDB;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -40,7 +42,6 @@ public class LoadActivity extends ActionBarActivity {
 		if (getSupportActionBar() != null) {
 			getSupportActionBar().hide();
 		}
-		mVideoDB = new VideoDB(mContext, VideoDB.NAME, null, VideoDB.VERSION);
 
 		setContentView(R.layout.activity_load);
 		MobclickAgent.onError(this);
@@ -83,23 +84,40 @@ public class LoadActivity extends ActionBarActivity {
                 if(statusCode == 200 && response.has("data")){
                     try{
                         JSONObject list = response.getJSONObject("data").getJSONObject("list");
-                        JSONArray anime = list.getJSONArray("anime");
+                        JSONArray animations = list.getJSONArray("anime");
                         JSONArray category = list.getJSONArray("category");
                         JSONArray advert = list.getJSONArray("advert");
                         JSONArray feature = list.getJSONArray("recommend");
-                        ArrayList<Animation> Animations = Animation.build(anime);
+                        ArrayList<Animation> Animations = Animation.build(animations);
                         ArrayList<Category> Categories = new ArrayList<Category>();
                         ArrayList<Advertise> Advertises = new ArrayList<Advertise>();
                         ArrayList<Animation> Recommends = new ArrayList<Animation>();
+                        new Delete().from(Animation.class).where("IsFavorite=?",0).execute();
+                        new Delete().from(Category.class).execute();
+                        new Delete().from(Advertise.class).execute();
+                        ActiveAndroid.beginTransaction();
+
+                        for(int i =0;i<Animations.size();i++){
+                            if(null == new Select().from(Animation.class).where("IsFavorite=? and AnimationId=?",1,Animations.get(i).AnimationId).executeSingle())
+                                Animations.get(i).save();
+                            else{
+                                Animations.get(i).setFav(true);
+                            }
+                        }
                         for(int i = 0; i < category.length();i++){
-                            Categories.add(Category.build(category.getJSONObject(i)));
+                            Category cat = Category.build(category.getJSONObject(i));
+                            Categories.add(cat);
+                            cat.save();
                         }
                         for(int i = 0; i < advert.length();i++){
-                            Advertises.add(Advertise.build(advert.getJSONObject(i)));
+                            Advertise ad = Advertise.build(advert.getJSONObject(i));
+                            Advertises.add(ad);
+                            ad.save();
                         }
                         for(int i = 0; i< feature.length();i++){
                             Recommends.add(Animation.build(feature.getJSONObject(i)));
                         }
+                        ActiveAndroid.setTransactionSuccessful();
                         Intent intent = new Intent(LoadActivity.this,
                                 StartActivity.class);
                         intent.putParcelableArrayListExtra("Animations",Animations);
@@ -111,16 +129,25 @@ public class LoadActivity extends ActionBarActivity {
                     }catch(Exception e){
                         e.printStackTrace();
                         error();
+                    }finally {
+                        ActiveAndroid.endTransaction();
                     }
                 }else{
                     error();
                 }
             }
+
+            @Override
+            public void onFailure(Throwable throwable, String s) {
+                super.onFailure(throwable, s);
+                Log.e("error",s);
+                Toast.makeText(mContext,R.string.get_data_error,Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
     private void error(){
-        Toast.makeText(mContext, "获取数据出错", Toast.LENGTH_SHORT)
+        Toast.makeText(mContext, R.string.get_data_error, Toast.LENGTH_SHORT)
                 .show();
         finish();
     }

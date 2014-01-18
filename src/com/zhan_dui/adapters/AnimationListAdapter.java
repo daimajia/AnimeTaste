@@ -2,7 +2,6 @@ package com.zhan_dui.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.view.LayoutInflater;
@@ -15,99 +14,88 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.zhan_dui.animetaste.PlayActivity;
 import com.zhan_dui.animetaste.R;
-import com.zhan_dui.data.VideoDB;
 import com.zhan_dui.modal.Animation;
 import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.util.ArrayList;
 
 public class AnimationListAdapter extends BaseAdapter {
 	private Context mContext;
-	private VideoDB mVideoDB;
 	private LayoutInflater mLayoutInflater;
 	private final Typeface mRobotoTitle;
-	private ArrayList<Animation> mVideoList;
+	private ArrayList<Animation> mAnimations;
 
 	private final int mWatchedTitleColor;
 	private final int mUnWatchedTitleColor;
 
 	private AnimationListAdapter(Context context,
-                                 ArrayList<Animation> videoList, Boolean checkIsWatched) {
+                                 ArrayList<Animation> animations) {
 		mRobotoTitle = Typeface.createFromAsset(context.getAssets(),
 				"fonts/Roboto-Bold.ttf");
 		mContext = context;
 		mLayoutInflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		mVideoList = videoList;
-		mVideoDB = new VideoDB(mContext, VideoDB.NAME, null, VideoDB.VERSION);
+		mAnimations = animations;
 		mUnWatchedTitleColor = mContext.getResources().getColor(
 				R.color.title_unwatched);
 		mWatchedTitleColor = mContext.getResources().getColor(
 				R.color.title_watched);
-		if (checkIsWatched)
-			new CheckIsWatchedTask(0, mVideoList.size()).execute();
 	}
 
-	public void setFav(int vid, boolean fav) {
-		for (int i = 0; i < mVideoList.size(); i++) {
-			if (mVideoList.get(i).Id == vid) {
-				mVideoList.get(i).setFav(fav);
-				break;
-			}
-		}
-		notifyDataSetChanged();
-	}
-
-	public void setWatched(Animation video) {
-		for (int i = 0; i < mVideoList.size(); i++) {
-			if (mVideoList.get(i).Id == video.Id) {
-				mVideoList.get(i).setWatched(true);
-				break;
-			}
-		}
-		notifyDataSetChanged();
-	}
-
-	public static AnimationListAdapter build(Context context, JSONArray data,
-			Boolean checkIsWatched) throws JSONException {
-		ArrayList<Animation> videos = new ArrayList<Animation>();
-		for (int i = 0; i < data.length(); i++) {
-			videos.add(Animation.build(data.getJSONObject(i)));
-		}
-		return new AnimationListAdapter(context, videos, checkIsWatched);
-	}
-
-	public static AnimationListAdapter build(Context context, Cursor cursor,
-			Boolean checkIsWatched) {
-		ArrayList<Animation> videos = new ArrayList<Animation>();
-		while (cursor.moveToNext()) {
-			videos.add(Animation.build(cursor));
-		}
-		return new AnimationListAdapter(context, videos, checkIsWatched);
-	}
-
-    public static AnimationListAdapter build(Context context,ArrayList<Animation> Animations, Boolean checkIsWatched){
-        return new AnimationListAdapter(context,Animations,checkIsWatched);
+    public static AnimationListAdapter build(Context context,ArrayList<Animation> animations){
+        return new AnimationListAdapter(context,animations);
     }
 
-	public void addVideosFromJsonArray(JSONArray videos) throws JSONException {
-		int start = mVideoList.size();
-		for (int i = 0; i < videos.length(); i++) {
-			mVideoList.add(Animation.build(videos.getJSONObject(i)));
-		}
-		int end = mVideoList.size();
-		new CheckIsWatchedTask(start, end).execute();
-	}
+    public void addAnimationsFromArrayList(final ArrayList<Animation> newAnimations){
+        new AddNewAnimationTask(newAnimations).execute();
+    }
+
+    public void addAnimationsFromJsonArray(final JSONArray animationsJsonArray){
+        new AddNewAnimationTask(animationsJsonArray).execute();
+    }
+
+    private class AddNewAnimationTask extends AsyncTask<Void,Void,Void>{
+
+        private JSONArray animationsJsonArray;
+        private ArrayList<Animation> animationsArrayList;
+
+        public AddNewAnimationTask(JSONArray animations){
+            animationsJsonArray = animations;
+        }
+
+        public AddNewAnimationTask(ArrayList<Animation> animations){
+            animationsArrayList = animations;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            ArrayList<Animation> newAnimations = new ArrayList<Animation>();
+            if(animationsJsonArray!=null){
+                newAnimations = Animation.build(animationsJsonArray);
+            }else if(animationsArrayList != null){
+                newAnimations = animationsArrayList;
+            }
+            for(int i=0;i<newAnimations.size();i++){
+                mAnimations.add(newAnimations.get(i));
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            notifyDataSetChanged();
+        }
+    }
 
 	@Override
 	public int getCount() {
-		return mVideoList.size();
+		return mAnimations.size();
 	}
 
 	@Override
 	public Object getItem(int position) {
-		return mVideoList.get(position);
+		return mAnimations.get(position);
 	}
 
 	@Override
@@ -151,11 +139,7 @@ public class AnimationListAdapter extends BaseAdapter {
 				return false;
 			}
 		});
-		if (animation.isWatched() == true) {
-			titleTextView.setTextColor(mWatchedTitleColor);
-		} else {
-			titleTextView.setTextColor(mUnWatchedTitleColor);
-		}
+        titleTextView.setTextColor(animation.isWatched()?mWatchedTitleColor:mUnWatchedTitleColor);
 		return convertView;
 	}
 
@@ -172,11 +156,8 @@ public class AnimationListAdapter extends BaseAdapter {
         @Override
         public void onClick(View view) {
             Intent intent = new Intent(mContext, PlayActivity.class);
-            intent.putExtra("VideoInfo",mAnimation);
+            intent.putExtra("Animation",mAnimation);
             mContext.startActivity(intent);
-            mVideoDB.insertWatched(mAnimation);
-            if(mAnimation.isWatched() == false)
-                setWatched(mAnimation);
         }
     }
 
@@ -191,31 +172,4 @@ public class AnimationListAdapter extends BaseAdapter {
 			thumbImageView = image;
 		}
 	}
-
-	public class CheckIsWatchedTask extends AsyncTask<Void, Void, Void> {
-
-		private int mStart;
-		private int mEnd;
-
-		public CheckIsWatchedTask(int start, int end) {
-			mStart = start;
-			mEnd = end;
-		}
-
-		@Override
-		protected Void doInBackground(Void... params) {
-			for (int i = mStart; i < mEnd; i++) {
-				Animation currentVideo = mVideoList.get(i);
-				currentVideo.setWatched(mVideoDB.isWatched(currentVideo));
-			}
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-			notifyDataSetChanged();
-		}
-	}
-
 }

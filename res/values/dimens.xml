@@ -13,11 +13,11 @@
     <dimen name="placehold_thumb_height">65dp</dimen>
     <dimen name="logo">120dp</dimen>
     <dimen name="halfLogo">60dp</dimen>
-    <dimen name="player_height">200dp</dimen>
+    <dimen name="player_height">225dp</dimen>
     <dimen name="play_controls_height">60dp</dimen>
     <dimen name="play_controls_margin_bottom">16dp</dimen>
     <dimen name="play_controls_padding">8dp</dimen>
-    <dimen name="photo_height">220dp</dimen>
+    <dimen name="photo_height">225dp</dimen>
     <dimen name="setting_item_height">55dp</dimen>
     <dimen name="setting_padding">15dp</dimen>
     <dimen name="setting_arrow">20dp</dimen>
@@ -32,7 +32,7 @@
     <dimen name="play_recommand_content_padding">12dp</dimen>
     <dimen name="play_content_part_margin">16dp</dimen>
     <!-- 播放页面文字介绍 -->
-    <dimen name="show_gallery_placeholder">200dp</dimen>
+    <dimen name="show_gallery_placeholder">225dp</dimen>
 	<dimen name="comment_edit_height">100dp</dimen>
 	<!-- Drawer -->
 	<dimen name="drawer_width">245dp</dimen>

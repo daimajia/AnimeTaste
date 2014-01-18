@@ -1,24 +1,28 @@
 package com.zhan_dui.modal;
 
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
 import org.json.JSONObject;
 
+@Table(name="Favorite")
 public class Favorite {
-
-	public final Integer VideoID;
-	public final Long AddTime;
+    @Column(name = "aid")
+	public final Integer animationId;
+    @Column(name = "addtime")
+	public final Long addTime;
 
 	public Favorite(JSONObject object, Long addTime) {
-		AddTime = addTime;
-		VideoID = Animation.build(object).Id;
+		this.addTime = addTime;
+		animationId = Animation.build(object).AnimationId;
 	}
 
 	public Favorite(Animation video, Long addTime) {
-		AddTime = addTime;
-		VideoID = video.Id;
+		this.addTime = addTime;
+		animationId = video.AnimationId;
 	}
 
 	public Favorite(Animation video) {
-		VideoID = video.Id;
-		AddTime = System.currentTimeMillis();
+		animationId = video.AnimationId;
+		addTime = System.currentTimeMillis();
 	}
 }

@@ -1,42 +1,65 @@
 package com.zhan_dui.modal;
 
-import android.database.Cursor;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
+import com.activeandroid.query.Select;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class Animation implements Parcelable {
+@Table(name="Animations")
+public class Animation extends Model implements Parcelable {
 
-	public final String OriginVideoUrl;
-	public final Integer Id;
-	public final String Name;
-	public final String HDVideoUrl;
-	public final String CommonVideoUrl;
-	public final String Author;
-	public final String Year;
-	public final String Brief;
-	public final String HomePic;
-	public final String DetailPic;
-    public final String Youku;
-    public final String UHD;
-    public final String HD;
-    public final String SD;
+    @Column(name="AnimationId")
+	public  Integer AnimationId;
+    @Column(name="Name")
+	public  String Name;
+    @Column(name="OriginVideoUrl")
+    public  String OriginVideoUrl;
+    @Column(name="HdUrl")
+	public  String HDVideoUrl;
+    @Column(name="CommonUrl")
+	public  String CommonVideoUrl;
+    @Column(name="Author")
+	public  String Author;
+    @Column(name="Year")
+	public  String Year;
+    @Column(name="Brief")
+	public  String Brief;
+    @Column(name="HomePic")
+	public  String HomePic;
+    @Column(name="DetailPic")
+	public  String DetailPic;
+    @Column(name="Youku")
+    public  String Youku;
+    @Column(name="UHD")
+    public  String UHD;
+    @Column(name="HD")
+    public  String HD;
+    @Column(name="SD")
+    public  String SD;
 
-    private boolean IsFav;
-    private boolean IsWatched;
-    private static final String EMPTY = "NOT EXSIST";
-    public static final String NONE_VALUE = "-1";
+    @Column(name="IsFavorite")
+    public boolean IsFav;
+    @Column(name="IsWatched")
+    public boolean IsWatched;
+
+    private static final  String EMPTY = "NOT EXSIST";
+    public static final  String NONE_VALUE = "-1";
 
     @Override
     public int describeContents() {
         return 0;
     }
 
-    public static final Creator<Animation> CREATOR = new Creator<Animation>() {
+    public static final  Creator<Animation> CREATOR = new Creator<Animation>() {
         @Override
         public Animation createFromParcel(Parcel parcel) {
             return new Animation(parcel);
@@ -48,13 +71,18 @@ public class Animation implements Parcelable {
         }
     };
 
+
+    public Animation(){
+        
+    }
+
     public Animation(Parcel in){
-        this(in.readInt(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readInt()==0);
+        this(in.readInt(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readInt()==0,in.readInt()==0);
     }
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(Id);
+        parcel.writeInt(AnimationId);
         parcel.writeString(Name);
         parcel.writeString(OriginVideoUrl);
         parcel.writeString(Author);
@@ -66,13 +94,14 @@ public class Animation implements Parcelable {
         parcel.writeString(HD);
         parcel.writeString(SD);
         parcel.writeInt(IsFav?0:1);
+        parcel.writeInt(IsWatched?0:1);
     }
 
-	private Animation(Integer id, String name, String videoUrl,
+	private Animation(Integer animationID, String name, String videoUrl,
                       String author, String year, String brief, String homePic,
-                      String detailPic,String uhd,String hd,String sd,Boolean isFav) {
+                      String detailPic,String uhd,String hd,String sd,Boolean isFav,Boolean isWatched) {
 		super();
-		Id = id;
+		AnimationId = animationID;
 		Name = name;
 		OriginVideoUrl = videoUrl;
 		Author = author;
@@ -81,7 +110,7 @@ public class Animation implements Parcelable {
 		HomePic = homePic;
 		DetailPic = detailPic;
 		IsFav = isFav;
-		IsWatched = false;
+		IsWatched = isWatched;
 		Youku = OriginVideoUrl;
         UHD = uhd;
         HD = hd;
@@ -102,11 +131,47 @@ public class Animation implements Parcelable {
 		IsFav = fav;
 	}
 
-	public void setWatched(Boolean watch) {
-		IsWatched = watch;
-	}
+    public Long addToFavorite(){
+        IsFav = true;
+        return save();
+    }
 
+    public Long removeFromFavorite(){
+        IsFav = false;
+        return save();
+    }
+
+    public void recordWatch(){
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                Select select = new Select();
+                WatchRecord record =
+                        select.from(WatchRecord.class)
+                                .where("aid=?", AnimationId)
+                                .executeSingle();
+                if(record == null){
+                    WatchRecord watchRecord  = new WatchRecord(AnimationId,true);
+                    watchRecord.save();
+                    IsWatched = true;
+                }
+            }
+        }.start();
+    }
+
+    /**
+     * 通过JSONObject开始构建Animation对象,大量数据时，只能在线程中执行
+     * @param object    Animation JsonObject
+     * @return  Animation对象
+     */
 	public static Animation build(JSONObject object) {
+        
+        if(Looper.myLooper() == Looper.getMainLooper()){
+            Throwable warn = new Throwable("Please do not execute Animation.build(JSONObject object) in Main thread");
+            Log.w("Animation Warning",warn);
+        }
+        
         int id = Integer.valueOf(getValue(object, "Id"));
         String name = getValue(object, "Name");
         String originVideoUrl = getValue(object, "VideoUrl");
@@ -117,32 +182,24 @@ public class Animation implements Parcelable {
         String detailPic = getValue(object, "DetailPic");
         Boolean isFav = false;
         String uhd = EMPTY,hd = EMPTY,sd = EMPTY;
+        boolean isWatched = false;
         try {
+            isWatched = new Select().from(WatchRecord.class).where("aid=?",id).executeSingle() == null ? false : true;
             JSONObject videoSourceObject = object.getJSONObject("VideoSource");
             uhd = videoSourceObject.has("uhd") ? videoSourceObject.getString("uhd") : EMPTY;
             hd = videoSourceObject.has("hd") ? videoSourceObject.getString("hd") : EMPTY;
             sd = videoSourceObject.has("sd") ? videoSourceObject.getString("sd") : EMPTY;
         } catch (JSONException e) {
         }finally {
-            return new Animation(id,name,originVideoUrl,author,year,brief,homePic,detailPic,uhd,hd,sd,isFav);
+            return new Animation(id,name,originVideoUrl,author,year,brief,homePic,detailPic,uhd,hd,sd,isFav,isWatched);
         }
 	}
 
-	public static Animation build(Cursor cursor) {
-		int id = cursor.getInt(cursor.getColumnIndex("id"));
-		String name = cursor.getString(cursor.getColumnIndex("name"));
-		String videoUrl = cursor.getString(cursor.getColumnIndex("videourl"));
-		String author = cursor.getString(cursor.getColumnIndex("author"));
-		String year = cursor.getString(cursor.getColumnIndex("year"));
-		String brief = cursor.getString(cursor.getColumnIndex("brief"));
-		String homePic = cursor.getString(cursor.getColumnIndex("homepic"));
-		String detailPic = cursor.getString(cursor.getColumnIndex("detailpic"));
-		Boolean isFav = Boolean.valueOf(cursor.getString(cursor
-				.getColumnIndex("isfav")));
-		return new Animation(id, name, videoUrl, author, year, brief,
-				homePic, detailPic, EMPTY,EMPTY,EMPTY, isFav);
-	}
-
+    /***
+     *
+     * @param animationArray
+     * @return
+     */
     public static ArrayList<Animation> build(JSONArray animationArray){
         ArrayList<Animation> animations = new ArrayList<Animation>();
         for(int i=0;i<animationArray.length();i++){

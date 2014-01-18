@@ -25,12 +25,11 @@ import com.viewpagerindicator.PageIndicator;
 import com.viewpagerindicator.UnderlinePageIndicator;
 import com.zhan_dui.adapters.AnimationListAdapter;
 import com.zhan_dui.adapters.RecommendAdapter;
+import com.zhan_dui.data.AnimeTasteDB;
 import com.zhan_dui.data.ApiConnector;
-import com.zhan_dui.data.VideoDB;
 import com.zhan_dui.modal.Advertise;
 import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Category;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -60,7 +59,7 @@ public class StartActivity extends ActionBarActivity implements
 	private RecommendAdapter mRecommendAdapter;
 
 	private LayoutInflater mLayoutInflater;
-	private VideoDB mVideoDB;
+	private AnimeTasteDB mAnimeTasteDB;
 
 	private SharedPreferences mSharedPreferences;
 
@@ -74,7 +73,7 @@ public class StartActivity extends ActionBarActivity implements
 		mContext = this;
 		mSharedPreferences = PreferenceManager
 				.getDefaultSharedPreferences(mContext);
-		mVideoDB = new VideoDB(mContext, VideoDB.NAME, null, VideoDB.VERSION);
+		mAnimeTasteDB = new AnimeTasteDB(mContext, AnimeTasteDB.NAME, null, AnimeTasteDB.VERSION);
 		setContentView(R.layout.activity_main);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -170,7 +169,7 @@ public class StartActivity extends ActionBarActivity implements
 	}
 
 	public void init() {
-//		Cursor cursor = mVideoDB.getVideos(mDefaultPrepareCount);
+//		Cursor cursor = mAnimeTasteDB.getAnimations(mDefaultPrepareCount);
 //		mRecommendAdapter = new RecommendAdapter(getSupportFragmentManager(),
 //				cursor, 4);
 //		mRecommendPager.setAdapter(mRecommendAdapter);
@@ -186,7 +185,7 @@ public class StartActivity extends ActionBarActivity implements
         ArrayList<Animation> Recommends = intent.getParcelableArrayListExtra("Recommends");
         mRecommendAdapter = new RecommendAdapter(getSupportFragmentManager(),Advertises,Recommends);
         mRecommendPager.setAdapter(mRecommendAdapter);
-        mVideoAdapter = AnimationListAdapter.build(mContext, Animations, true);
+        mVideoAdapter = AnimationListAdapter.build(mContext, Animations);
         mVideoList.setAdapter(mVideoAdapter);
         mRecommendIndicator.setViewPager(mRecommendPager);
     }
@@ -261,9 +260,8 @@ public class StartActivity extends ActionBarActivity implements
 			super.onSuccess(statusCode, response);
 			if (statusCode == 200 && response.has("data")) {
 				try {
-					mVideoAdapter.addVideosFromJsonArray(response
+					mVideoAdapter.addAnimationsFromJsonArray(response
 							.getJSONObject("data").getJSONObject("list").getJSONArray("anime"));
-					mVideoAdapter.notifyDataSetChanged();
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -316,25 +314,6 @@ public class StartActivity extends ActionBarActivity implements
 	protected void onPause() {
 		super.onPause();
 		MobclickAgent.onPause(mContext);
-	}
-
-	public class AddToDBThread extends Thread {
-		private JSONArray mVideos;
-		private Boolean mReoveAllWithoutFav;
-
-		public AddToDBThread(JSONArray videos, boolean removeAllWithoutFav) {
-			mVideos = videos;
-			mReoveAllWithoutFav = removeAllWithoutFav;
-		}
-
-		@Override
-		public void run() {
-			super.run();
-			if (mReoveAllWithoutFav) {
-				mVideoDB.removeAllVideosWithoutFav();
-			}
-			mVideoDB.insertVideos(mVideos);
-		}
 	}
 
 }

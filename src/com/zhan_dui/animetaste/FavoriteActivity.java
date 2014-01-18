@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -12,14 +11,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
-
+import android.widget.Toast;
+import com.activeandroid.ActiveAndroid;
+import com.activeandroid.query.Select;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.adapters.AnimationListAdapter;
-import com.zhan_dui.data.VideoDB;
+import com.zhan_dui.data.AnimeTasteDB;
 import com.zhan_dui.modal.Animation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FavoriteActivity extends ActionBarActivity implements
 		OnItemLongClickListener {
@@ -27,14 +30,14 @@ public class FavoriteActivity extends ActionBarActivity implements
 	private Context mContext;
 	private ListView mFavListView;
 	private AnimationListAdapter mFavListAdapter;
-	private VideoDB mVideoDB;
+	private AnimeTasteDB mAnimeTasteDB;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = this;
 		setContentView(R.layout.activity_fav);
-		mVideoDB = new VideoDB(mContext, VideoDB.NAME, null, VideoDB.VERSION);
+		mAnimeTasteDB = new AnimeTasteDB(mContext, AnimeTasteDB.NAME, null, AnimeTasteDB.VERSION);
 		mFavListView = (ListView) findViewById(R.id.videoList);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -46,8 +49,10 @@ public class FavoriteActivity extends ActionBarActivity implements
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			Cursor cursor = mVideoDB.getAllFav();
-			mFavListAdapter = AnimationListAdapter.build(mContext, cursor, false);
+            List<Animation> favorites = new Select().from(Animation.class).where("IsFavorite=?",1).execute();
+            ArrayList<Animation> favs = new ArrayList<Animation>();
+            favs.addAll(favorites);
+			mFavListAdapter = AnimationListAdapter.build(mContext, favs);
 			return null;
 		}
 
@@ -76,16 +81,9 @@ public class FavoriteActivity extends ActionBarActivity implements
 									@Override
 									public void onClick(DialogInterface dialog,
 											int which) {
-										if (mVideoDB.removeAllFavs() > 0) {
-											new LoadAsyncTask().execute();
-											Toast.makeText(mContext,
-													R.string.delete_success,
-													Toast.LENGTH_SHORT).show();
-										} else {
-											Toast.makeText(mContext,
-													R.string.delete_fail,
-													Toast.LENGTH_SHORT).show();
-										}
+                                        removeAllFavorites();
+                                        new LoadAsyncTask().execute();
+                                        Toast.makeText(mContext, R.string.delete_success,Toast.LENGTH_SHORT).show();
 									}
 								});
 				builder.create().show();
@@ -124,7 +122,7 @@ public class FavoriteActivity extends ActionBarActivity implements
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View item,
 			int position, long id) {
-		final Animation videoData = (Animation) mFavListAdapter
+		final Animation animation = (Animation) mFavListAdapter
 				.getItem(position);
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext)
 				.setTitle(R.string.delete_title)
@@ -134,7 +132,7 @@ public class FavoriteActivity extends ActionBarActivity implements
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						if (mVideoDB.removeFav(videoData) > 0) {
+						if (animation.removeFromFavorite() > 0) {
 							new LoadAsyncTask().execute();
 							Toast.makeText(mContext, R.string.delete_success,
 									Toast.LENGTH_SHORT).show();
@@ -147,4 +145,18 @@ public class FavoriteActivity extends ActionBarActivity implements
 		builder.create().show();
 		return false;
 	}
+
+    public void removeAllFavorites(){
+        ArrayList<Animation> animations = new ArrayList<Animation>();
+        List<Animation> list = new Select().from(Animation.class).where("IsFavorite=?", 1).execute();
+        animations.addAll(list);
+        ActiveAndroid.beginTransaction();
+        for (int i =0;i< animations.size();i++){
+            Animation animation = animations.get(i);
+            animation.IsFav = false;
+            animation.save();
+        }
+        ActiveAndroid.setTransactionSuccessful();
+        ActiveAndroid.endTransaction();
+    }
 }
