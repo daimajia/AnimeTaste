@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,7 +15,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
-import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Select;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.adapters.AnimationListAdapter;
@@ -78,9 +78,13 @@ public class FavoriteActivity extends ActionBarActivity implements
 									@Override
 									public void onClick(DialogInterface dialog,
 											int which) {
-                                        removeAllFavorites();
-                                        new LoadAsyncTask().execute();
-                                        Toast.makeText(mContext, R.string.delete_success,Toast.LENGTH_SHORT).show();
+                                        Animation.removeAllFavorite(new Animation.UpdateFinishCallback() {
+                                            @Override
+                                            public void onUpdateFinished(Animation.Method method,Message msg) {
+                                                new LoadAsyncTask().execute();
+                                                Toast.makeText(mContext, R.string.delete_success,Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
 									}
 								});
 				builder.create().show();
@@ -129,31 +133,17 @@ public class FavoriteActivity extends ActionBarActivity implements
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						if (animation.removeFromFavorite() > 0) {
-							new LoadAsyncTask().execute();
-							Toast.makeText(mContext, R.string.delete_success,
-									Toast.LENGTH_SHORT).show();
-						} else {
-							Toast.makeText(mContext, R.string.delete_fail,
-									Toast.LENGTH_SHORT).show();
-						}
+                        animation.removeFromFavorite(new Animation.UpdateFinishCallback() {
+                            @Override
+                            public void onUpdateFinished(Animation.Method method,Message msg) {
+                                new LoadAsyncTask().execute();
+                            }
+                        });
+                        Toast.makeText(mContext, R.string.delete_success,
+                                Toast.LENGTH_SHORT).show();
 					}
 				});
 		builder.create().show();
 		return false;
 	}
-
-    public void removeAllFavorites(){
-        ArrayList<Animation> animations = new ArrayList<Animation>();
-        List<Animation> list = new Select().from(Animation.class).where("IsFavorite=?", 1).execute();
-        animations.addAll(list);
-        ActiveAndroid.beginTransaction();
-        for (int i =0;i< animations.size();i++){
-            Animation animation = animations.get(i);
-            animation.IsFav = false;
-            animation.save();
-        }
-        ActiveAndroid.setTransactionSuccessful();
-        ActiveAndroid.endTransaction();
-    }
 }

@@ -300,9 +300,19 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 				});
 		mFavMenuItem = menu.findItem(R.id.action_fav);
 		mShareActionProvider.setShareIntent(getDefaultIntent());
-		if(mAnimation.isFavorite()){
-            mFavMenuItem.setIcon(R.drawable.ab_fav_active);
-        }
+        mAnimation.checkIsFavorite(new Animation.UpdateFinishCallback() {
+            @Override
+            public void onUpdateFinished(Animation.Method method, Message msg) {
+                if(msg.arg1 == 1){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mFavMenuItem.setIcon(R.drawable.ab_fav_active);
+                        }
+                    });
+                }
+            }
+        });
 		return true;
 	}
 
@@ -501,25 +511,23 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			return true;
 		case R.id.action_fav:
 			if (mAnimation.isFavorite()) {
-				if (mAnimation.removeFromFavorite() > 0) {
-					Toast.makeText(mContext, R.string.fav_del_success,
-							Toast.LENGTH_SHORT).show();
-					item.setIcon(R.drawable.ab_fav_normal);
-					mAnimation.setFav(false);
-				} else {
-					Toast.makeText(mContext, R.string.fav_del_fail,
-							Toast.LENGTH_SHORT).show();
-				}
+                mAnimation.removeFromFavorite(new Animation.UpdateFinishCallback() {
+                    @Override
+                    public void onUpdateFinished(Animation.Method method,Message msg) {
+                        Toast.makeText(mContext, R.string.fav_del_success,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+                item.setIcon(R.drawable.ab_fav_normal);
 			} else {
-				if (mAnimation.addToFavorite() > 0) {
-					Toast.makeText(mContext, R.string.fav_success,
-							Toast.LENGTH_SHORT).show();
-					item.setIcon(R.drawable.ab_fav_active);
-					mAnimation.setFav(true);
-				} else {
-					Toast.makeText(mContext, R.string.fav_fail,
-							Toast.LENGTH_SHORT).show();
-				}
+                mAnimation.addToFavorite(new Animation.UpdateFinishCallback() {
+                    @Override
+                    public void onUpdateFinished(Animation.Method method,Message msg) {
+                        Toast.makeText(mContext, R.string.fav_success,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+                item.setIcon(R.drawable.ab_fav_active);
 			}
 			return true;
 		default:

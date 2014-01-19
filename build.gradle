@@ -2,12 +2,13 @@ apply plugin: 'android'
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-    compile project(':android-support-v7-appcompat')
+    compile "com.android.support:appcompat-v7:18.0.+"
     compile project(':android-switch-backport')
     compile project(':gif-library')
     compile project(':MainLibs')

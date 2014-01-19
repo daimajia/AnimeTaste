@@ -16,7 +16,7 @@ public class WatchRecord extends Model{
         this.isWatched = isWatched;
     }
 
-    @Column(name="aid")
+    @Column(name="aid",unique = true,onUniqueConflict = Column.ConflictAction.ABORT)
     public int animationId;
 
     @Column(name="watched")

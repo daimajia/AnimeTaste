@@ -25,7 +25,6 @@ import com.viewpagerindicator.PageIndicator;
 import com.viewpagerindicator.UnderlinePageIndicator;
 import com.zhan_dui.adapters.AnimationListAdapter;
 import com.zhan_dui.adapters.RecommendAdapter;
-import com.zhan_dui.data.AnimeTasteDB;
 import com.zhan_dui.data.ApiConnector;
 import com.zhan_dui.modal.Advertise;
 import com.zhan_dui.modal.Animation;
@@ -233,7 +232,7 @@ public class StartActivity extends ActionBarActivity implements
         }else if(title.equals(getString(R.string.my_fav))){
 
         }else if(title.equals(getString(R.string.all))){
-            mDrawerLayout.closeDrawers();
+//            mDrawerLayout.closeDrawers();
         }
     }
 

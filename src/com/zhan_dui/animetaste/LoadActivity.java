@@ -14,7 +14,6 @@ import android.widget.Toast;
 import cn.sharesdk.framework.ShareSDK;
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Delete;
-import com.activeandroid.query.Select;
 import com.avos.avoscloud.Parse;
 import com.avos.avoscloud.ParseAnalytics;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -38,6 +37,7 @@ public class LoadActivity extends ActionBarActivity {
 		Parse.initialize(this,
 				"w43xht9daji0uut74pseeiibax8c2tnzxowmx9f81nvtpims",
 				"86q8251hrodk6wnf4znistay1mva9rm1xikvp1s9mhp5n7od");
+        ActiveAndroid.setLoggingEnabled(false);
 		ShareSDK.initSDK(mContext);
 		ParseAnalytics.trackAppOpened(getIntent());
 		if (getSupportActionBar() != null) {
@@ -119,17 +119,14 @@ public class LoadActivity extends ActionBarActivity {
                 ArrayList<Category> Categories = new ArrayList<Category>();
                 ArrayList<Advertise> Advertises = new ArrayList<Advertise>();
                 ArrayList<Animation> Recommends = new ArrayList<Animation>();
-                new Delete().from(Animation.class).where("IsFavorite=?",0).execute();
+                new Delete().from(Animation.class).where("IsFavorite='0'").execute();
                 new Delete().from(Category.class).execute();
                 new Delete().from(Advertise.class).execute();
                 ActiveAndroid.beginTransaction();
 
+
                 for(int i =0;i<Animations.size();i++){
-                    if(null == new Select().from(Animation.class).where("IsFavorite=? and AnimationId=?",1,Animations.get(i).AnimationId).executeSingle())
-                        Animations.get(i).save();
-                    else{
-                        Animations.get(i).setFav(true);
-                    }
+                    Animations.get(i).save();
                 }
                 for(int i = 0; i < category.length();i++){
                     Category cat = Category.build(category.getJSONObject(i));
@@ -167,6 +164,7 @@ public class LoadActivity extends ActionBarActivity {
             super.onPostExecute(result);
             if(mResult){
                 startActivity(mIntent);
+                finish();
             }else{
                 error();
             }

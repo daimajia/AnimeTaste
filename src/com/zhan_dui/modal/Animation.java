@@ -1,23 +1,24 @@
 package com.zhan_dui.modal;
 
-import android.os.Looper;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
+import android.os.*;
+import com.activeandroid.ActiveAndroid;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
+import com.activeandroid.query.Update;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @Table(name="Animations")
 public class Animation extends Model implements Parcelable {
 
-    @Column(name="AnimationId")
+    @Column(name ="AnimationId",unique = true,onUniqueConflict= Column.ConflictAction.IGNORE,onUniqueConflicts = Column.ConflictAction.IGNORE)
 	public  Integer AnimationId;
     @Column(name="Name")
 	public  String Name;
@@ -59,7 +60,7 @@ public class Animation extends Model implements Parcelable {
         return 0;
     }
 
-    public static final  Creator<Animation> CREATOR = new Creator<Animation>() {
+    public static final Creator<Animation> CREATOR = new Creator<Animation>() {
         @Override
         public Animation createFromParcel(Parcel parcel) {
             return new Animation(parcel);
@@ -71,13 +72,12 @@ public class Animation extends Model implements Parcelable {
         }
     };
 
-
-    public Animation(){
-        
-    }
-
+    /**
+     * for ActiveAndroid
+     */
+    public Animation(){}
     public Animation(Parcel in){
-        this(in.readInt(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readInt()==0,in.readInt()==0);
+        this(in.readInt(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readString(),in.readInt()==1,in.readInt()==1);
     }
 
     @Override
@@ -93,8 +93,8 @@ public class Animation extends Model implements Parcelable {
         parcel.writeString(UHD);
         parcel.writeString(HD);
         parcel.writeString(SD);
-        parcel.writeInt(IsFav?0:1);
-        parcel.writeInt(IsWatched?0:1);
+        parcel.writeInt(IsFav?1:0);
+        parcel.writeInt(IsWatched?1:0);
     }
 
 	private Animation(Integer animationID, String name, String videoUrl,
@@ -130,20 +130,96 @@ public class Animation extends Model implements Parcelable {
     public void setWatched(Boolean watched){
        IsWatched = watched;
     }
+    
+    private static class FavoriteHandler extends Handler{
+        private UpdateFinishCallback callback;
+        private Method method;
+        public FavoriteHandler(UpdateFinishCallback callback,Method method){
+            this.callback = callback;
+            this.method = method;
+        }
 
-	public void setFav(Boolean fav) {
-		IsFav = fav;
-	}
-
-    public Long addToFavorite(){
-        IsFav = true;
-
-        return save();
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            callback.onUpdateFinished(method,msg);
+        }
     }
 
-    public Long removeFromFavorite(){
+    public void addToFavorite(final UpdateFinishCallback callback){
+        IsFav = true;
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                boolean exist = new Select().from(Animation.class).where("AnimationId='" + AnimationId +"'").executeSingle() != null;
+                if(!exist)
+                    save();
+                else
+                    new com.activeandroid.query.Update(Animation.class).set("IsFavorite='1'").where("AnimationId='"+AnimationId+"'").execute();
+                Message msg = Message.obtain();
+                Looper.prepare();
+                msg.setTarget(new FavoriteHandler(callback,Method.ADD_FAVORITE));
+                msg.sendToTarget();
+                Looper.loop();
+            }
+        }.start();
+    }
+
+    public void removeFromFavorite(final UpdateFinishCallback callback){
         IsFav = false;
-        return save();
+        new  Thread(){
+            @Override
+            public void run() {
+                super.run();
+                new Update(Animation.class).set("IsFavorite='0'").where("AnimationId='"+AnimationId+"'").execute();
+                Message msg = Message.obtain();
+                Looper.prepare();
+                msg.setTarget(new FavoriteHandler(callback,Method.REMOVE_FAVORITE));
+                msg.sendToTarget();
+                Looper.loop();
+            }
+        }.start();
+    }
+
+    public static void removeAllFavorite(final UpdateFinishCallback callback){
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                List<Animation> list = new Select().from(Animation.class).where("IsFavorite=?", 1).execute();
+                Iterator<Animation> iterator = list.iterator();
+                ActiveAndroid.beginTransaction();
+                while(iterator.hasNext()){
+                    Animation animation = iterator.next();
+                    animation.IsFav = false;
+                    animation.save();
+                }
+                ActiveAndroid.setTransactionSuccessful();
+                ActiveAndroid.endTransaction();
+                Message msg = Message.obtain();
+                Looper.prepare();
+                msg.setTarget(new FavoriteHandler(callback,Method.REMOVE_ALL_FAVORITE));
+                msg.sendToTarget();
+                Looper.loop();
+            }
+        }.start();
+    }
+
+    public void checkIsFavorite(final UpdateFinishCallback callback){
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                boolean isFavorite = new Select().from(Animation.class).where("IsFavorite='1' and AnimationId='" + AnimationId +"'").executeSingle() != null;
+                Looper.prepare();
+                Message msg= Message.obtain();
+                msg.arg1 = isFavorite == true ? 1:0;
+                msg.setTarget(new FavoriteHandler(callback,Method.QUERY_FAVORITE));
+                msg.sendToTarget();
+                Looper.loop();
+            }
+        }.start();
     }
 
     public void recordWatch(){
@@ -175,7 +251,7 @@ public class Animation extends Model implements Parcelable {
         if(Looper.myLooper() == Looper.getMainLooper()){
             Throwable warn = new Throwable("Please do not execute Animation.build(JSONObject object) " +
                                            "in Main thread, it's bad performance and may block the ui thread");
-            Log.w("Animation Warning",warn);
+            throw new RuntimeException(warn);
         }
         
         int id = Integer.valueOf(getValue(object, "Id"));
@@ -191,7 +267,7 @@ public class Animation extends Model implements Parcelable {
         boolean isWatched = false;
         try {
             isWatched = new Select().from(WatchRecord.class).where("aid=?",id).executeSingle() != null;
-            isFav = new Select().from(Animation.class).where("AnimationId=? and IsFavorite=?",id,1).executeSingle() != null;
+            isFav = new Select().from(Animation.class).where("AnimationId='"+ id + "' AND IsFavorite='1'").executeSingle() != null;
             JSONObject videoSourceObject = object.getJSONObject("VideoSource");
             uhd = videoSourceObject.has("uhd") ? videoSourceObject.getString("uhd") : EMPTY;
             hd = videoSourceObject.has("hd") ? videoSourceObject.getString("hd") : EMPTY;
@@ -240,4 +316,13 @@ public class Animation extends Model implements Parcelable {
 		}
 		return NONE_VALUE;
 	}
+
+    public static enum Method{
+        ADD_FAVORITE,REMOVE_FAVORITE,REMOVE_ALL_FAVORITE,QUERY_FAVORITE
+    }
+
+
+    public interface UpdateFinishCallback{
+        public void onUpdateFinished(Method method,Message msg);
+    }
 }
