@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:background="@drawable/drawer_item_selector"
+              android:layout_height="50dp">
+
+	<TextView
+			android:layout_width="match_parent"
+			android:layout_height="50dp"
+			android:text="Hello"
+			android:paddingLeft="20dp"
+			android:textColor="@color/drawer_text"
+			android:id="@+id/category_name" android:gravity="center_vertical"/>
+</LinearLayout>

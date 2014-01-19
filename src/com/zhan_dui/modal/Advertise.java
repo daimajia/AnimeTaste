@@ -13,17 +13,19 @@ import org.json.JSONObject;
 @Table(name="Advertise")
 public class Advertise extends Model implements Parcelable{
     @Column(name="adid")
-    public final int Id;
+    public int Id;
     @Column(name="name")
-    public final String Name;
+    public String Name;
     @Column(name="device")
-    public final String Device;
+    public String Device;
     @Column(name="brief")
-    public final String Brief;
+    public String Brief;
     @Column(name="link")
-    public final String Link;
+    public String Link;
     @Column(name="detailpic")
-    public final String DetailPic;
+    public String DetailPic;
+
+    public Advertise(){}
 
     private Advertise(int id, String name, String device, String brief, String link, String detailPic) {
         Id = id;

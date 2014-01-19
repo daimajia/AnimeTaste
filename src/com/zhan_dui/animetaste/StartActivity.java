@@ -24,6 +24,7 @@ import com.umeng.update.UmengUpdateAgent;
 import com.viewpagerindicator.PageIndicator;
 import com.viewpagerindicator.UnderlinePageIndicator;
 import com.zhan_dui.adapters.AnimationListAdapter;
+import com.zhan_dui.adapters.CategoryListAdapter;
 import com.zhan_dui.adapters.RecommendAdapter;
 import com.zhan_dui.data.ApiConnector;
 import com.zhan_dui.modal.Advertise;
@@ -42,6 +43,7 @@ public class StartActivity extends ActionBarActivity implements
 
 	private ListView mVideoList;
     private ListView mDrawerList;
+    private ListView mCategoryList;
     private LinearLayout mDrawer;
 
     private DrawerLayout mDrawerLayout;
@@ -78,6 +80,8 @@ public class StartActivity extends ActionBarActivity implements
         mDrawer = (LinearLayout)findViewById(R.id.drawer);
 		mLayoutInflater = (LayoutInflater) this
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mCategoryList = (ListView)findViewById(R.id.category_list);
+
 		mVideoList.setOnScrollListener(this);
         mDrawer.setOnTouchListener(this);
 
@@ -126,6 +130,8 @@ public class StartActivity extends ActionBarActivity implements
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerList.setAdapter(mDrawerAapter);
         mDrawerList.setOnItemClickListener(this);
+
+
 
 		rateForUsOrCheckUpdate();
 	}
@@ -182,6 +188,9 @@ public class StartActivity extends ActionBarActivity implements
         mVideoAdapter = AnimationListAdapter.build(mContext, Animations);
         mVideoList.setAdapter(mVideoAdapter);
         mRecommendIndicator.setViewPager(mRecommendPager);
+
+        CategoryListAdapter categoryListAdapter = new CategoryListAdapter(mContext,Categories);
+        mCategoryList.setAdapter(categoryListAdapter);
     }
 
     private List<Map<String,Object>> getDrawerItems(){

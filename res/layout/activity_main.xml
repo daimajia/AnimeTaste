@@ -41,7 +41,7 @@
 				android:divider="@drawable/drawer_item_divider"
 				android:dividerHeight="2dp"
 				android:background="#303030"/>
-		<TextView android:textColor="@color/drawer_text" android:layout_margin="10dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/category"/>
+		<TextView android:textColor="@color/drawer_text" android:layout_margin="10dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/category" android:textSize="10sp"/>
 		<View android:layout_width="match_parent" android:layout_height="3dp" android:background="@color/drawer_divider"/>
 		<ListView
 				android:id="@+id/category_list"
@@ -51,7 +51,7 @@
 				android:choiceMode="singleChoice"
 				android:divider="@drawable/drawer_item_divider"
 				android:dividerHeight="2dp"
-				android:background="#303030" android:layout_marginBottom="20dp"/>
+				android:background="#303030"/>
 	</LinearLayout>
 
 </android.support.v4.widget.DrawerLayout>

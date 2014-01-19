@@ -16,11 +16,13 @@ import com.activeandroid.annotation.Table;
 @Table(name = "Categories")
 public class Category extends Model implements Parcelable {
     @Column(name="cid")
-    public final int cid;
+    public int cid;
     @Column(name="name")
-    public final String Name;
+    public String Name;
     @Column(name="count")
-    public final int Count;
+    public int Count;
+
+    public Category(){}
 
     public Category(int cid,String name,int count){
         this.cid = cid;

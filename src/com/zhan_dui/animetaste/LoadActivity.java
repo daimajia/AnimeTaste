@@ -9,11 +9,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.widget.Toast;
 import cn.sharesdk.framework.ShareSDK;
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Delete;
+import com.activeandroid.query.Select;
 import com.avos.avoscloud.Parse;
 import com.avos.avoscloud.ParseAnalytics;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -27,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class LoadActivity extends ActionBarActivity {
 	private Context mContext;
@@ -92,8 +93,27 @@ public class LoadActivity extends ActionBarActivity {
             @Override
             public void onFailure(Throwable throwable, String s) {
                 super.onFailure(throwable, s);
-                Log.e("error",s);
                 Toast.makeText(mContext,R.string.get_data_error,Toast.LENGTH_SHORT).show();
+                List<Animation> animations = new Select().from(Animation.class).orderBy("AnimationId desc").execute();
+                List<Category> categories = new Select().from(Category.class).orderBy("cid asc").execute();
+                List<Advertise> advertises = new Select().from(Advertise.class).orderBy("adid asc").execute();
+                List<Animation> recommends = new Select().from(Animation.class).orderBy("AnimationId desc").limit(5).execute();
+                ArrayList<Animation> Animations = new ArrayList<Animation>();
+                ArrayList<Category> Categories = new ArrayList<Category>();
+                ArrayList<Advertise> Advertises = new ArrayList<Advertise>();
+                ArrayList<Animation> Recommends = new ArrayList<Animation>();
+                Animations.addAll(animations);
+                Categories.addAll(categories);
+                Advertises.addAll(advertises);
+                Recommends.addAll(recommends);
+                Intent mIntent = new Intent(LoadActivity.this,
+                        StartActivity.class);
+                mIntent.putParcelableArrayListExtra("Animations",Animations);
+                mIntent.putParcelableArrayListExtra("Categories",Categories);
+                mIntent.putParcelableArrayListExtra("Advertises",Advertises);
+                mIntent.putParcelableArrayListExtra("Recommends",Recommends);
+                mIntent.putExtra("Success",true);
+                startActivity(mIntent);
             }
         });
     }
