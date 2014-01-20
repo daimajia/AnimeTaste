@@ -5,10 +5,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.widget.Toast;
 import cn.sharesdk.framework.ShareSDK;
 import com.activeandroid.ActiveAndroid;
@@ -35,9 +37,9 @@ public class LoadActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = this;
-		Parse.initialize(this,
-				"w43xht9daji0uut74pseeiibax8c2tnzxowmx9f81nvtpims",
-				"86q8251hrodk6wnf4znistay1mva9rm1xikvp1s9mhp5n7od");
+        Parse.initialize(this,
+                "w43xht9daji0uut74pseeiibax8c2tnzxowmx9f81nvtpims",
+                "86q8251hrodk6wnf4znistay1mva9rm1xikvp1s9mhp5n7od");
         ActiveAndroid.setLoggingEnabled(false);
 		ShareSDK.initSDK(mContext);
 		ParseAnalytics.trackAppOpened(getIntent());
@@ -79,43 +81,98 @@ public class LoadActivity extends ActionBarActivity {
 	};
 
     private void init(){
-        ApiConnector.instance().getInitData(20,5,2,new JsonHttpResponseHandler(){
-            @Override
-            public void onSuccess(int statusCode,JSONObject response) {
-                super.onSuccess(response);
-                if(statusCode == 200 && response.has("data")){
-                    new PrepareTask(response).execute();
-                }else{
+
+        if(getIntent().getAction().equals(Intent.ACTION_VIEW)){
+            Uri uri = getIntent().getData();
+            if(uri == null){
+                error();
+            }
+            String vid = uri.getQueryParameter("vid");
+            int animationId = Integer.valueOf(vid);
+            ApiConnector.instance().getDetail(animationId,new JsonHttpResponseHandler(){
+                @Override
+                public void onSuccess(int statusCode,final JSONObject response) {
+                    super.onSuccess(statusCode, response);
+                    try{
+                        if(statusCode == 200 && response.has("data") && response.getJSONObject("data").has("result") && response.getJSONObject("data").getBoolean("result") == true){
+                            final JSONObject anime = response.getJSONObject("data").getJSONObject("anime");
+                            new Thread(){
+                                @Override
+                                public void run() {
+                                    super.run();
+                                    MobclickAgent.onEvent(mContext,"yell");
+                                    final Intent intent = new Intent(mContext,PlayActivity.class);
+                                    Animation animation = Animation.build(anime);
+                                    intent.putExtra("Animation",animation);
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            startActivity(intent);
+                                            finish();
+                                        }
+                                    });
+                                }
+                            }.start();
+                        }else{
+                            error();
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        error();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, JSONArray jsonArray) {
+                    super.onFailure(throwable, jsonArray);
                     error();
                 }
-            }
 
-            @Override
-            public void onFailure(Throwable throwable, String s) {
-                super.onFailure(throwable, s);
-                Toast.makeText(mContext,R.string.get_data_error,Toast.LENGTH_SHORT).show();
-                List<Animation> animations = new Select().from(Animation.class).orderBy("AnimationId desc").execute();
-                List<Category> categories = new Select().from(Category.class).orderBy("cid asc").execute();
-                List<Advertise> advertises = new Select().from(Advertise.class).orderBy("adid asc").execute();
-                List<Animation> recommends = new Select().from(Animation.class).orderBy("AnimationId desc").limit(5).execute();
-                ArrayList<Animation> Animations = new ArrayList<Animation>();
-                ArrayList<Category> Categories = new ArrayList<Category>();
-                ArrayList<Advertise> Advertises = new ArrayList<Advertise>();
-                ArrayList<Animation> Recommends = new ArrayList<Animation>();
-                Animations.addAll(animations);
-                Categories.addAll(categories);
-                Advertises.addAll(advertises);
-                Recommends.addAll(recommends);
-                Intent mIntent = new Intent(LoadActivity.this,
-                        StartActivity.class);
-                mIntent.putParcelableArrayListExtra("Animations",Animations);
-                mIntent.putParcelableArrayListExtra("Categories",Categories);
-                mIntent.putParcelableArrayListExtra("Advertises",Advertises);
-                mIntent.putParcelableArrayListExtra("Recommends",Recommends);
-                mIntent.putExtra("Success",true);
-                startActivity(mIntent);
-            }
-        });
+                @Override
+                public void onFinish() {
+                    super.onFinish();
+                    Log.e("Faild","true");
+                }
+            });
+        }else{
+            ApiConnector.instance().getInitData(20,5,2,new JsonHttpResponseHandler(){
+                @Override
+                public void onSuccess(int statusCode,JSONObject response) {
+                    super.onSuccess(response);
+                    if(statusCode == 200 && response.has("data")){
+                        new PrepareTask(response).execute();
+                    }else{
+                        error();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, String s) {
+                    super.onFailure(throwable, s);
+                    Toast.makeText(mContext,R.string.get_data_error,Toast.LENGTH_SHORT).show();
+                    List<Animation> animations = new Select().from(Animation.class).orderBy("AnimationId desc").execute();
+                    List<Category> categories = new Select().from(Category.class).orderBy("cid asc").execute();
+                    List<Advertise> advertises = new Select().from(Advertise.class).orderBy("adid asc").execute();
+                    List<Animation> recommends = new Select().from(Animation.class).orderBy("AnimationId desc").limit(5).execute();
+                    ArrayList<Animation> Animations = new ArrayList<Animation>();
+                    ArrayList<Category> Categories = new ArrayList<Category>();
+                    ArrayList<Advertise> Advertises = new ArrayList<Advertise>();
+                    ArrayList<Animation> Recommends = new ArrayList<Animation>();
+                    Animations.addAll(animations);
+                    Categories.addAll(categories);
+                    Advertises.addAll(advertises);
+                    Recommends.addAll(recommends);
+                    Intent mIntent = new Intent(LoadActivity.this,
+                            StartActivity.class);
+                    mIntent.putParcelableArrayListExtra("Animations",Animations);
+                    mIntent.putParcelableArrayListExtra("Categories",Categories);
+                    mIntent.putParcelableArrayListExtra("Advertises",Advertises);
+                    mIntent.putParcelableArrayListExtra("Recommends",Recommends);
+                    mIntent.putExtra("Success",true);
+                    startActivity(mIntent);
+                }
+            });
+        }
     }
 
     private class PrepareTask extends AsyncTask<Void,Void,Boolean>{

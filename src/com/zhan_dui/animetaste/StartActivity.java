@@ -111,9 +111,10 @@ public class StartActivity extends ActionBarActivity implements
 
 		if (getIntent().hasExtra("Success")) {
 			init(getIntent());
-		} else {
-			init();
-		}
+		} else{
+            Toast.makeText(mContext,"Init failed",Toast.LENGTH_SHORT).show();
+            finish();
+        }
         mDrawerAapter = new SimpleAdapter(this,getDrawerItems(),R.layout.drawer_item,new String[]{"img","title"},new int[]{R.id.item_icon,R.id.item_name});
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this,mDrawerLayout,R.drawable.ic_drawer,R.string.app_name,R.string.app_name){
@@ -130,8 +131,6 @@ public class StartActivity extends ActionBarActivity implements
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerList.setAdapter(mDrawerAapter);
         mDrawerList.setOnItemClickListener(this);
-
-
 
 		rateForUsOrCheckUpdate();
 	}
@@ -166,16 +165,6 @@ public class StartActivity extends ActionBarActivity implements
 		}else{
             UmengUpdateAgent.update(this);
         }
-	}
-
-	public void init() {
-//		Cursor cursor = mAnimeTasteDB.getAnimations(mDefaultPrepareCount);
-//		mRecommendAdapter = new RecommendAdapter(getSupportFragmentManager(),
-//				cursor, 4);
-//		mRecommendPager.setAdapter(mRecommendAdapter);
-//		mVideoAdapter = AnimationListAdapter.build(mContext, cursor, true);
-//		mVideoList.setAdapter(mVideoAdapter);
-//		mRecommendIndicator.setViewPager(mRecommendPager);
 	}
 
     public void init(Intent intent){
@@ -241,7 +230,7 @@ public class StartActivity extends ActionBarActivity implements
         }else if(title.equals(getString(R.string.my_fav))){
 
         }else if(title.equals(getString(R.string.all))){
-//            mDrawerLayout.closeDrawers();
+
         }
     }
 

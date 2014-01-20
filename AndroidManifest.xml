@@ -29,6 +29,7 @@
 	    <meta-data android:name="AA_DB_VERSION" android:value="1"></meta-data>
 
 
+
         <!-- ShareSDK开始 -->
         <activity
             android:name="cn.sharesdk.framework.ShareSDKUIShell"
@@ -88,9 +89,18 @@
         <activity
             android:name="com.zhan_dui.animetaste.LoadActivity"
             android:screenOrientation="portrait" >
+
+	        <!-- 豌豆荚 -->
+	        <intent-filter>
+		        <action android:name="android.intent.action.VIEW"></action>
+		        <category android:name="android.intent.category.DEFAULT"></category>
+		        <category android:name="android.intent.category.BROWSABLE"></category>
+		        <data android:scheme="animetaste" android:host="play"/>
+	        </intent-filter>
+	        <!-- 豌豆荚 -->
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
