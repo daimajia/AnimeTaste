@@ -32,3 +32,9 @@ build/
 *.ipr
 *.iws
 .idea/
+
+#gradle
+.gradle/
+gradle/
+gradlew
+gradlew.bat

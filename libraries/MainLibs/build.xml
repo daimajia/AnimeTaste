@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="MainLibs" default="release">
+	<property environment="env" />
+    <property name="sdk.dir" value="${env.ANDROID_HOME}"/>
+    <loadproperties srcFile="project.properties" />
+    <import file="${sdk.dir}/tools/ant/build.xml" />
+</project>

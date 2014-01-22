@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="weibo_oauth_regiseter">应用授权</string>
+    <string name="website">http://www.shareSDK.cn</string>
+    <string name="weibo_upload_content">分享图片</string>
+    <string name="wechat_client_inavailable">目前您的微信版本过低或未安装微信，需要安装微信才能使用</string>
+    <string name="google_plus_client_inavailable">Google+ 版本过低或者没有安装，需要升级或安装Google+才能使用！</string>
+    <string name="qq_client_inavailable">QQ 版本过低或者没有安装，需要升级或安装QQ才能使用！</string>
+    <string name="pinterest_client_inavailable">Pinterest版本过低或者没有安装，需要升级或安装Pinterest才能使用！</string>
+    <string name="instagram_client_inavailable">Instagram版本过低或者没有安装，需要升级或安装Instagram才能使用！</string>
+    
+	<string name="sinaweibo">新浪微博</string>
+	<string name="tencentweibo">腾讯微博</string>
+	<string name="qzone">QQ空间</string>
+	<string name="wechat">微信好友</string>
+	<string name="wechatmoments">微信朋友圈</string>
+	<string name="facebook">Facebook</string>
+	<string name="twitter">Twitter</string>
+	<string name="renren">人人网</string>
+	<string name="kaixin">开心网</string>
+	<string name="email">邮件</string>
+	<string name="shortmessage">信息</string>
+	<string name="sohumicroblog">搜狐微博</string>
+	<string name="sohusuishenkan">搜狐随身看</string>
+	<string name="neteasemicroblog">网易微博</string>
+	<string name="douban">豆瓣</string>
+	<string name="youdao">有道云笔记</string>
+	<string name="evernote">印象笔记</string>
+	<string name="linkedin">Linked In</string>
+	<string name="googleplus">Google+</string>
+	<string name="foursquare">FourSquare</string>
+	<string name="qq">QQ</string>
+	<string name="pinterest">Pinterest</string>
+	<string name="flickr">Flickr</string>
+	<string name="tumblr">Tumblr</string>
+	<string name="dropbox">Dropbox</string>
+	<string name="vkontakte">VK</string>
+	<string name="instagram">Instagram</string>
+</resources>

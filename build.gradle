@@ -1,3 +1,14 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.7.+'
+    }
+}
+
+
 apply plugin: 'android'
 
 repositories {
@@ -8,45 +19,33 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-    compile "com.android.support:appcompat-v7:18.0.+"
-    compile project(':android-switch-backport')
-    compile project(':gif-library')
-    compile project(':MainLibs')
-    compile project(':OneKeyShare')
-    compile project(':ViewPagerIndicator')
+    compile 'com.android.support:support-v4:19.0.+'
+    compile 'com.android.support:appcompat-v7:+'
+    compile project(':libraries:ViewPagerIndicator')
+    compile project(':libraries:gif-library')
+    compile project(':libraries:android-switch-backport')
+    compile project(':libraries:MainLibs')
+    compile project(':libraries:OneKeyShare')
+    compile project(':libraries:supertoasts')
 }
 
 
 
 
 android {
-    compileSdkVersion 18
-    buildToolsVersion "18.1.1"
-
-    sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            resources.srcDirs = ['src']
-            aidl.srcDirs = ['src']
-            renderscript.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
-        }
-
-        // Move the tests to tests/java, tests/res, etc...
-        instrumentTest.setRoot('tests')
-
-        // Move the build types to build-types/<type>
-        // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
-        // This moves them out of them default location under src/<type>/... which would
-        // conflict with src/ being used by the main source set.
-        // Adding new build types or product flavors should be accompanied
-        // by a similar customization.
-        debug.setRoot('build-types/debug')
-        release.setRoot('build-types/release')
+    compileSdkVersion 19
+    buildToolsVersion '19.0.1'
+    
+    lintOptions {  
+          abortOnError false
     }
-
+    sourceSets {
+        main{
+            assets {
+                srcDir 'assets'
+            }
+        }
+    }
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'
