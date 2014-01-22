@@ -23,10 +23,7 @@ AnimeTaste For Android，为全球动画爱好者所开发。
 
 欢迎任何方式的与AnimeTaste的合作。
 
-
-### 如何编译 ###
-
-Step-1: 解决所有依赖
+### 感谢以下库作者和组织
 
 *	[ShareSDK for Android](http://sharesdk.cn/) 社交关注。
 *	[Picasso](https://github.com/square/picasso) 图片缓存
@@ -34,15 +31,30 @@ Step-1: 解决所有依赖
 *	[Android-Switch-Backport](https://github.com/BoD/android-switch-backport) Switch的兼容库
 *	[Gif-Movie-View](https://github.com/sbakhtiarov/gif-movie-view) Gif动画播放
 *	[ViewPagerIndicator](https://github.com/JakeWharton/Android-ViewPagerIndicator) 滑动画廊
+*	[SuperToasts](https://github.com/JohnPersano/SuperToasts) 扩展的Toasts弹出框
 *	Android-Support-v7-appcompat Android ActionBar 兼容库
 
-	
-Step-2:
+-------------------
 
-尝试编译，如果出现错误或者有任何问题，请放轻松[联系我](mailto:daimajia@gmail.com)。
+### 如何编译 ###
 
-如果你足够懒怕麻烦，那么可以试试[这个仓储](https://bitbucket.org/daimajia/animetaste-fullpackage)，他包含了所有需要的库。
+Step-0:
 
+确保安装了Android SDK所有版本（最好安装齐所有SDK版本）
+
+
+Step-1: 
+
+**安装[Gradle 1.9](http://www.gradle.org/downloads)(请注意：版本很重要，1.9)** 
+
+Step-2: 
+
+**在根目录运行`Gradle build` 稍等片刻即可。**
+
+----------------
+
+
+如果出现错误或者有任何问题，请放轻松[联系我](mailto:daimajia@gmail.com)。
 
 
 ###关于我：
