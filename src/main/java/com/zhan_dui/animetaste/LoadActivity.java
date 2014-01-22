@@ -275,27 +275,28 @@ public class LoadActivity extends ActionBarActivity {
      * 从历史版本的数据库中迁移数据
      */
     private void updateFromOldVersion(){
-        Toast.makeText(mContext,"迁移数据中...",Toast.LENGTH_SHORT).show();
-        boolean updated = PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("updated",false);
-        if(updated){
+
+        if(PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("updated",false)){
             return;
         }
-        AnimeTasteDB db = new AnimeTasteDB(mContext, AnimeTasteDB.NAME, null, AnimeTasteDB.VERSION);
-        Cursor cursor =  db.getReadableDatabase().query(true,"Video",null,"isFav=?",new String[]{String.valueOf(true)},null,null,null,null);
-        while(cursor.moveToNext()){
-            Animation animation = Animation.build(cursor);
-            animation.save();
-        }
-        cursor.close();
-        db.close();
-        Cursor watchCursor = db.getReadableDatabase().query(true,"Watched",null,null,null,null,null,null,null);
-        while(watchCursor.moveToNext()){
-            WatchRecord record = new WatchRecord(watchCursor.getInt(watchCursor.getColumnIndex("vid")),true);
-            record.save();
-        }
-        cursor.close();
-        db.close();
-        Toast.makeText(mContext,"迁移完成",Toast.LENGTH_SHORT).show();
-    }
 
+        if(mContext.getDatabasePath(AnimeTasteDB.NAME).exists()){
+            AnimeTasteDB db = new AnimeTasteDB(mContext, AnimeTasteDB.NAME, null, AnimeTasteDB.VERSION);
+            Cursor cursor =  db.getReadableDatabase().query(true,"Video",null,"isFav=?",new String[]{String.valueOf(true)},null,null,null,null);
+            while(cursor.moveToNext()){
+                Animation animation = Animation.build(cursor);
+                animation.save();
+            }
+            cursor.close();
+            db.close();
+            Cursor watchCursor = db.getReadableDatabase().query(true,"Watched",null,null,null,null,null,null,null);
+            while(watchCursor.moveToNext()){
+                WatchRecord record = new WatchRecord(watchCursor.getInt(watchCursor.getColumnIndex("vid")),true);
+                record.save();
+            }
+            cursor.close();
+            db.close();
+        }
+        PreferenceManager.getDefaultSharedPreferences(mContext).edit().putBoolean("updated",true).commit();
+    }
 }

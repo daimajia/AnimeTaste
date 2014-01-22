@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -82,7 +83,6 @@ public class StartActivity extends ActionBarActivity implements
 				.getDefaultSharedPreferences(mContext);
 		setContentView(R.layout.activity_main);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
 		mVideoList = (ListView) findViewById(R.id.videoList);
@@ -149,11 +149,17 @@ public class StartActivity extends ActionBarActivity implements
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerList.setAdapter(mDrawerAapter);
         mDrawerList.setOnItemClickListener(this);
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		rateForUsOrCheckUpdate();
 	}
 
-	public void rateForUsOrCheckUpdate() {
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
+    }
+
+    public void rateForUsOrCheckUpdate() {
 		if (mSharedPreferences.getInt("playcount", 0) > 10
 				&& mSharedPreferences.getBoolean("sharedApp", false) == false) {
 			AlertDialog.Builder builder = new Builder(mContext);
@@ -330,6 +336,14 @@ public class StartActivity extends ActionBarActivity implements
 			startActivity(intent);
 			return true;
 		}
+        if(item.getItemId() == android.R.id.home){
+            if(mDrawerLayout.isDrawerOpen(mDrawerLayout.getChildAt(1)))
+                mDrawerLayout.closeDrawers();
+            else{
+                mDrawerLayout.openDrawer(mDrawerLayout.getChildAt(1));
+            }
+            return true;
+        }
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -389,4 +403,9 @@ public class StartActivity extends ActionBarActivity implements
         }
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
 }
