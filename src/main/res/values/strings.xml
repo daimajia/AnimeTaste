@@ -91,4 +91,11 @@
 	<string name="category">分类浏览</string>
 	<!-- Drawer -->
 
+	<!-- Load -->
+	<string name="init_failed">初始化失败</string>
+	<!-- Load -->
+	<!-- Video -->
+	<string name="end">到头了</string>
+	<!-- Video -->
+
 </resources>

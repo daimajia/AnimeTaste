@@ -28,6 +28,11 @@ public class AnimationListAdapter extends BaseAdapter {
 	private final int mWatchedTitleColor;
 	private final int mUnWatchedTitleColor;
 
+    public void removeAllData(){
+        mAnimations.clear();
+        notifyDataSetChanged();
+    }
+
 	private AnimationListAdapter(Context context,
                                  ArrayList<Animation> animations) {
 		mRobotoTitle = Typeface.createFromAsset(context.getAssets(),

@@ -1,13 +1,5 @@
 package com.zhan_dui.animetaste;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
@@ -26,19 +18,24 @@ import android.view.*;
 import android.view.View.OnTouchListener;
 import android.widget.*;
 import android.widget.AbsListView.OnScrollListener;
-
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.update.UmengUpdateAgent;
 import com.viewpagerindicator.PageIndicator;
 import com.viewpagerindicator.UnderlinePageIndicator;
 import com.zhan_dui.adapters.AnimationListAdapter;
-import com.zhan_dui.adapters.CategoryListAdapter;
 import com.zhan_dui.adapters.RecommendAdapter;
 import com.zhan_dui.data.ApiConnector;
 import com.zhan_dui.modal.Advertise;
 import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Category;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class StartActivity extends ActionBarActivity implements
 		OnScrollListener,AdapterView.OnItemClickListener,OnTouchListener {
@@ -54,6 +51,7 @@ public class StartActivity extends ActionBarActivity implements
 
 	private AnimationListAdapter mVideoAdapter;
 	private Context mContext;
+
 	private int mCurrentPage = 3;
 	private Boolean mUpdating = false;
 
@@ -62,6 +60,16 @@ public class StartActivity extends ActionBarActivity implements
 	private RecommendAdapter mRecommendAdapter;
 
 	private LayoutInflater mLayoutInflater;
+
+    private ApiConnector.RequestType mPreviousType;
+    private ApiConnector.RequestType mType = ApiConnector.RequestType.ALL;
+
+    private final int RandomCount = 10;
+    private final int CategoryCount =10;
+    private int mPreviousCategoryId;
+    private int mCategoryId;
+
+    private boolean mIsEnd;
 
 	private SharedPreferences mSharedPreferences;
 
@@ -114,7 +122,7 @@ public class StartActivity extends ActionBarActivity implements
 		if (getIntent().hasExtra("Success")) {
 			init(getIntent());
 		} else{
-            Toast.makeText(mContext,"Init failed",Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext,R.string.init_failed,Toast.LENGTH_SHORT).show();
             finish();
         }
         mDrawerAapter = new SimpleAdapter(this,getDrawerItems(),R.layout.drawer_item,new String[]{"img","title"},new int[]{R.id.item_icon,R.id.item_name});
@@ -123,11 +131,19 @@ public class StartActivity extends ActionBarActivity implements
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
+                if(mPreviousType != mType || mPreviousCategoryId != mCategoryId){
+                    mCurrentPage = 1;
+                    mIsEnd = false;
+                    mVideoAdapter.removeAllData();
+                    triggerApiConnector();
+                }
             }
 
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
+                mPreviousType = mType;
+                mPreviousCategoryId = mCategoryId;
             }
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
@@ -207,14 +223,27 @@ public class StartActivity extends ActionBarActivity implements
 		return true;
 	}
 
+    public void triggerApiConnector(){
+        switch (mType){
+            case ALL:
+                ApiConnector.instance().getList(mCurrentPage++,new LoadMoreJSONListener());
+                break;
+            case RANDOM:
+                ApiConnector.instance().getRandom(RandomCount,new LoadMoreJSONListener());
+                break;
+            case CATEGORY:
+                ApiConnector.instance().getCategory(mCategoryId,mCurrentPage++,CategoryCount,new LoadMoreJSONListener());
+            default:
+        }
+    }
+
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
 		if (mUpdating == false && totalItemCount != 0
-				&& view.getLastVisiblePosition() == totalItemCount - 1) {
+				&& view.getLastVisiblePosition() == totalItemCount - 1 && !mIsEnd) {
 			mUpdating = true;
-			ApiConnector.instance().getList(mCurrentPage++,
-					new LoadMoreJSONListener());
+            triggerApiConnector();
 		}
 
 	}
@@ -228,12 +257,14 @@ public class StartActivity extends ActionBarActivity implements
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         String title = ((TextView)view.findViewById(R.id.item_name)).getText().toString();
         if(title.equals(getString(R.string.guess))){
-
+            mType = ApiConnector.RequestType.RANDOM;
         }else if(title.equals(getString(R.string.my_fav))){
-
+            Intent intent = new Intent(mContext,FavoriteActivity.class);
+            startActivity(intent);
         }else if(title.equals(getString(R.string.all))){
-
+            mType = ApiConnector.RequestType.ALL;
         }
+        mDrawerLayout.closeDrawers();
     }
 
     @Override
@@ -254,8 +285,12 @@ public class StartActivity extends ActionBarActivity implements
 			super.onSuccess(statusCode, response);
 			if (statusCode == 200 && response.has("data")) {
 				try {
-					mVideoAdapter.addAnimationsFromJsonArray(response
-							.getJSONObject("data").getJSONObject("list").getJSONArray("anime"));
+                    if(response.getJSONObject("data").getJSONObject("list").getJSONArray("anime").isNull(1)){
+                        mIsEnd = true;
+                        Toast.makeText(mContext,R.string.end,Toast.LENGTH_LONG).show();
+                    }else{
+					    mVideoAdapter.addAnimationsFromJsonArray(response.getJSONObject("data").getJSONObject("list").getJSONArray("anime"));
+                    }
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -309,5 +344,49 @@ public class StartActivity extends ActionBarActivity implements
 		super.onPause();
 		MobclickAgent.onPause(mContext);
 	}
+
+    protected class CategoryListAdapter extends BaseAdapter{
+
+        private ArrayList<Category> mCategories;
+        private LayoutInflater mInflater;
+
+        public CategoryListAdapter(Context context, ArrayList<Category> categories){
+            mCategories = categories;
+            mInflater = LayoutInflater.from(context);
+        }
+
+        @Override
+        public int getCount() {
+            return mCategories.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int i, View convertView, ViewGroup viewGroup) {
+            convertView = mInflater.inflate(R.layout.category_item,null);
+            TextView name = (TextView)convertView.findViewById(R.id.category_name);
+            final int id = mCategories.get(i).cid;
+            name.setText(mCategories.get(i).Name);
+            convertView.setTag(mCategories.get(i));
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mType = ApiConnector.RequestType.CATEGORY;
+                    mCategoryId = id;
+                    mDrawerLayout.closeDrawers();
+                }
+            });
+            return convertView;
+        }
+    }
 
 }

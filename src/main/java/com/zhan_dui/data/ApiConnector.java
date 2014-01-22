@@ -1,12 +1,12 @@
 package com.zhan_dui.data;
 
-import java.util.TreeMap;
-
 import android.annotation.SuppressLint;
-
+import android.util.Log;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.zhan_dui.utils.ApiUtils;
+
+import java.util.TreeMap;
 
 @SuppressLint("DefaultLocale")
 public class ApiConnector {
@@ -22,9 +22,13 @@ public class ApiConnector {
     private static final String API_KEY = "android";
 	private static final String API_SECRET = "7763079ba6abf342a99ab5a1dfa87ba8";
 
-	private ApiConnector() {
 
-	}
+    public static enum RequestType {
+        INIT,ALL,RANDOM,DETAIL,CATEGORY
+    }
+
+    private ApiConnector() {
+	};
 
 	public static ApiConnector instance() {
 		if (mInstance == null) {
@@ -98,6 +102,7 @@ public class ApiConnector {
         params.put("limit",String.valueOf(count));
         String access_token = ApiUtils.getAccessToken(params,API_SECRET);
         String request = String.format(CATEGORY_REQUEST_URL,API_KEY,timeStamp,page,categoryId,count,access_token);
-        get(request,handler);
+        Log.e("request",request);
+        get(request, handler);
     }
 }
