@@ -6,10 +6,5 @@
         android:icon="@drawable/mediacontroller_play_button"
         android:title="@string/action_settings">
     </item>
-    <item
-        android:id="@+id/action_fav"
-        android:icon="@drawable/ab_fav_normal"
-        menu:showAsAction="always">
-    </item>
 
 </menu>

@@ -30,13 +30,11 @@ import com.zhan_dui.data.ApiConnector;
 import com.zhan_dui.modal.Advertise;
 import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Category;
+import com.zhan_dui.utils.ViewUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class StartActivity extends ActionBarActivity implements
 		OnScrollListener,AdapterView.OnItemClickListener,OnTouchListener {
@@ -62,7 +60,7 @@ public class StartActivity extends ActionBarActivity implements
 
 	private LayoutInflater mLayoutInflater;
 
-    private ApiConnector.RequestType mPreviousType;
+    private ApiConnector.RequestType mPreviousType = ApiConnector.RequestType.ALL;
     private ApiConnector.RequestType mType = ApiConnector.RequestType.ALL;
 
     private final int RandomCount = 10;
@@ -149,8 +147,10 @@ public class StartActivity extends ActionBarActivity implements
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerList.setAdapter(mDrawerAapter);
         mDrawerList.setOnItemClickListener(this);
+        ViewUtils.setListViewHeightBasedOnChildren(mDrawerList);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		rateForUsOrCheckUpdate();
+        showWhatsNew();
 	}
 
     @Override
@@ -186,6 +186,7 @@ public class StartActivity extends ActionBarActivity implements
 			builder.setNegativeButton(R.string.rate_share_sorry, null);
 			builder.show();
 			mSharedPreferences.edit().putBoolean("sharedApp", true).commit();
+
 		}else{
             UmengUpdateAgent.update(this);
         }
@@ -204,6 +205,8 @@ public class StartActivity extends ActionBarActivity implements
 
         CategoryListAdapter categoryListAdapter = new CategoryListAdapter(mContext,Categories);
         mCategoryList.setAdapter(categoryListAdapter);
+        ViewUtils.setListViewHeightBasedOnChildren(mCategoryList);
+
     }
 
     private List<Map<String,Object>> getDrawerItems(){
@@ -214,7 +217,7 @@ public class StartActivity extends ActionBarActivity implements
         list.add(map);
         map = new HashMap<String, Object>();
         map.put("img",R.drawable.drawer_all);
-        map.put("title",getString(R.string.all));
+        map.put("title",getString(R.string.latest));
         list.add(map);
         map = new HashMap<String, Object>();
         map.put("img",R.drawable.drawer_heart);
@@ -267,7 +270,7 @@ public class StartActivity extends ActionBarActivity implements
         }else if(title.equals(getString(R.string.my_fav))){
             Intent intent = new Intent(mContext,FavoriteActivity.class);
             startActivity(intent);
-        }else if(title.equals(getString(R.string.all))){
+        }else if(title.equals(getString(R.string.latest))){
             mType = ApiConnector.RequestType.ALL;
         }
         mDrawerLayout.closeDrawers();
@@ -328,11 +331,6 @@ public class StartActivity extends ActionBarActivity implements
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.action_setting) {
 			Intent intent = new Intent(mContext, SettingActivity.class);
-			startActivity(intent);
-			return true;
-		}
-		if (item.getItemId() == R.id.action_fav) {
-			Intent intent = new Intent(mContext, FavoriteActivity.class);
 			startActivity(intent);
 			return true;
 		}
@@ -407,5 +405,26 @@ public class StartActivity extends ActionBarActivity implements
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+
+    public void showWhatsNew(){
+        boolean showed = mSharedPreferences.getBoolean("showed15",false);
+        if(!showed){
+            Toast.makeText(mContext,R.string.intro_drawer,Toast.LENGTH_SHORT).show();
+            mDrawerLayout.openDrawer(mDrawerLayout.getChildAt(1));
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                   runOnUiThread(new Runnable() {
+                       @Override
+                       public void run() {
+                           mDrawerLayout.closeDrawers();
+                       }
+                   });
+                   mSharedPreferences.edit().putBoolean("showed15",true).commit();
+                }
+            },3000);
+        }
     }
 }

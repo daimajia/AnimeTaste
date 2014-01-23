@@ -114,7 +114,10 @@
         </activity>
 	    <activity
 			android:name="com.zhan_dui.animetaste.AdvertiseActivity"
+			android:uiOptions="splitActionBarWhenNarrow"
 			android:screenOrientation="portrait">
+		    <meta-data android:name="android.support.UI_OPTIONS"
+		               android:value="splitActionBarWhenNarrow" />
 	    </activity>
     </application>
 

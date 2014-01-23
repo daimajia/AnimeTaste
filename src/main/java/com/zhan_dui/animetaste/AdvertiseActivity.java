@@ -1,7 +1,10 @@
 package com.zhan_dui.animetaste;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -49,6 +52,23 @@ public class AdvertiseActivity extends ActionBarActivity {
         if(item.getItemId() == android.R.id.home){
             finish();
             return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.advertise,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_open_in_browser:
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mAdvertise.Link));
+                startActivity(browserIntent);
+                return true;
         }
         return super.onContextItemSelected(item);
     }

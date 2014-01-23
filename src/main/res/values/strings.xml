@@ -86,7 +86,7 @@
 
 	<!-- Drawer -->
 	<string name="guess">猜你喜欢</string>
-	<string name="all">全部视频</string>
+	<string name="latest">最新视频</string>
 	<string name="my_fav">我的收藏</string>
 	<string name="category">分类浏览</string>
 	<!-- Drawer -->
@@ -97,5 +97,13 @@
 	<!-- Video -->
 	<string name="end">到头了</string>
 	<!-- Video -->
+
+	<!-- Ad -->
+	<string name="open_in_browser">浏览器打开</string>
+	<!-- Ad -->
+
+	<!-- What's new-->
+	<string name="intro_drawer">这里有个小抽屉喔~ :)</string>
+	<!-- What's new-->
 
 </resources>
