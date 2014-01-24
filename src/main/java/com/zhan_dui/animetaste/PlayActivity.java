@@ -32,6 +32,7 @@ import com.baidu.cyberplayer.core.BVideoView.OnCompletionListener;
 import com.baidu.cyberplayer.core.BVideoView.OnErrorListener;
 import com.baidu.cyberplayer.core.BVideoView.OnPreparedListener;
 import com.basv.gifmoviewview.widget.GifMovieView;
+import com.github.johnpersano.supertoasts.SuperToast;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.LoadedFrom;
@@ -799,6 +800,16 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		}
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        if(Build.MODEL.equals("M040")){
+            if(!mSharedPreferences.getBoolean("Meizu",false)){
+                SuperToast superToast = new SuperToast(this);
+                superToast.setDuration(12000);
+                superToast.setText("魅族某些版本固件可能存在兼容性问题，建议您升级到最新固件");
+                superToast.setIconResource(SuperToast.Icon.Dark.INFO, SuperToast.IconPosition.LEFT);
+                superToast.show();
+                mSharedPreferences.edit().putBoolean("Meizu",true).commit();
+            }
+        }
         getSupportActionBar().hide();
         RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
 				Screen.getScreenWidth(getWindowManager()),
