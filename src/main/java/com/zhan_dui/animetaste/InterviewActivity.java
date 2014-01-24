@@ -32,6 +32,9 @@ public class InterviewActivity extends ActionBarActivity{
         setContentView(R.layout.activity_interview);
         getSupportActionBar().setTitle(getString(R.string.interview));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mSuperToast  = new SuperActivityToast(mContext, SuperToast.Type.PROGRESS_HORIZONTAL);
+        mSuperToast.setIndeterminate(true);
+        mSuperToast.setText(getString(R.string.web_loading));
         mWebView =(WebView)findViewById(R.id.webview_iterview);
         mWebClient = new InterviewClient();
         mWebView.setWebViewClient(mWebClient);
@@ -56,9 +59,7 @@ public class InterviewActivity extends ActionBarActivity{
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
-            mSuperToast  = new SuperActivityToast(mContext,SuperToast.Type.PROGRESS_HORIZONTAL);
-            mSuperToast.setIndeterminate(true);
-            mSuperToast.setText(getString(R.string.web_loading));
+
             mSuperToast.show();
         }
 
