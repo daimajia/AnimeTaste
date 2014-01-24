@@ -15,6 +15,7 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.*;
 import android.view.View.OnTouchListener;
 import android.widget.*;
@@ -31,6 +32,7 @@ import com.zhan_dui.modal.Advertise;
 import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Category;
 import com.zhan_dui.utils.ViewUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -69,6 +71,8 @@ public class StartActivity extends ActionBarActivity implements
     private int mCategoryId;
 
     private boolean mIsEnd;
+
+    private ArrayList<Advertise> mAdvertises;
 
 	private SharedPreferences mSharedPreferences;
 
@@ -195,14 +199,13 @@ public class StartActivity extends ActionBarActivity implements
     public void init(Intent intent){
         ArrayList<Animation> Animations = intent.getParcelableArrayListExtra("Animations");
         ArrayList<Category> Categories = intent.getParcelableArrayListExtra("Categories");
-        ArrayList<Advertise> Advertises = intent.getParcelableArrayListExtra("Advertises");
+        mAdvertises = intent.getParcelableArrayListExtra("Advertises");
         ArrayList<Animation> Recommends = intent.getParcelableArrayListExtra("Recommends");
-        mRecommendAdapter = new RecommendAdapter(getSupportFragmentManager(),Advertises,Recommends);
+        mRecommendAdapter = new RecommendAdapter(mContext,mAdvertises,Recommends);
         mRecommendPager.setAdapter(mRecommendAdapter);
+        mRecommendIndicator.setViewPager(mRecommendPager);
         mVideoAdapter = AnimationListAdapter.build(mContext, Animations);
         mVideoList.setAdapter(mVideoAdapter);
-        mRecommendIndicator.setViewPager(mRecommendPager);
-
         CategoryListAdapter categoryListAdapter = new CategoryListAdapter(mContext,Categories);
         mCategoryList.setAdapter(categoryListAdapter);
         ViewUtils.setListViewHeightBasedOnChildren(mCategoryList);
@@ -233,6 +236,18 @@ public class StartActivity extends ActionBarActivity implements
 	}
 
     public void triggerApiConnector(){
+        if(mCurrentPage == 1){
+            switch (mType){
+                case ALL:
+                    ApiConnector.instance().getALLRecommend(4,new LoadRecomendListener());
+                    break;
+                case CATEGORY:
+                    Log.e("category id:",mCategoryId+"");
+                    ApiConnector.instance().getCategoryRecommend(mCategoryId,4,new LoadRecomendListener());
+                    break;
+                default:
+            }
+        }
         switch (mType){
             case ALL:
                 ApiConnector.instance().getList(mCurrentPage++,new LoadMoreJSONListener());
@@ -279,6 +294,43 @@ public class StartActivity extends ActionBarActivity implements
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
         return true;
+    }
+
+    private class LoadRecomendListener extends JsonHttpResponseHandler{
+        @Override
+        public void onSuccess(final JSONObject response) {
+            super.onSuccess(response);
+                new Thread(){
+                    @Override
+                    public void run() {
+                        super.run();
+                        try{
+                            JSONArray animes = response.getJSONObject("data").getJSONObject("list").getJSONArray("anime");
+                            final ArrayList<Animation> Recommends = Animation.build(animes);
+                            if(mType == ApiConnector.RequestType.ALL)
+                                mRecommendAdapter = new RecommendAdapter(mContext,mAdvertises,Recommends);
+                            else
+                                mRecommendAdapter = new RecommendAdapter(mContext,null,Recommends);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mRecommendPager.setAdapter(mRecommendAdapter);
+                                    mRecommendIndicator.setViewPager(mRecommendPager);
+                                }
+                            });
+                        }catch (Exception e){
+                            e.printStackTrace();
+                            Toast.makeText(mContext,R.string.load_recommends_error,Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }.start();
+        }
+
+        @Override
+        public void onFailure(Throwable throwable) {
+            super.onFailure(throwable);
+            Toast.makeText(mContext,R.string.get_data_error,Toast.LENGTH_SHORT).show();
+        }
     }
 
     private class LoadMoreJSONListener extends JsonHttpResponseHandler {

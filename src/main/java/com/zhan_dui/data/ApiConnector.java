@@ -102,7 +102,34 @@ public class ApiConnector {
         params.put("limit",String.valueOf(count));
         String access_token = ApiUtils.getAccessToken(params,API_SECRET);
         String request = String.format(CATEGORY_REQUEST_URL,API_KEY,timeStamp,page,categoryId,count,access_token);
-        Log.e("request",request);
         get(request, handler);
+    }
+
+    private static final String RECOMMEND_ALL_REQUEST = "http://i.animetaste.net/api/animelist_v4/?api_key=%s&timestamp=%d&feature=1&limit=%d&access_token=%s";
+    private static final String RECOMMEND_CATEGORY_REQUEST = "http://i.animetaste.net/api/animelist_v4/?api_key=%s&timestamp=%d&category=%d&feature=1&limit=%d&access_token=%s";
+
+    public void getALLRecommend(int count,JsonHttpResponseHandler handler){
+        long timestamp = System.currentTimeMillis()/1000L;
+        TreeMap<String,String> params = new TreeMap<String, String>();
+        params.put("api_key",API_KEY);
+        params.put("timestamp",String.valueOf(timestamp));
+        params.put("limit",String.valueOf(count));
+        params.put("feature",String.valueOf(1));
+        String access_token = ApiUtils.getAccessToken(params,API_SECRET);
+        String request = String.format(RECOMMEND_ALL_REQUEST,API_KEY,timestamp,count,access_token);
+        get(request,handler);
+    }
+
+    public void getCategoryRecommend(int categoryId,int count,JsonHttpResponseHandler handler){
+        long timestamp = System.currentTimeMillis()/1000L;
+        TreeMap<String,String> params = new TreeMap<String, String>();
+        params.put("api_key",API_KEY);
+        params.put("timestamp",String.valueOf(timestamp));
+        params.put("limit",String.valueOf(count));
+        params.put("feature",String.valueOf(1));
+        params.put("category",String.valueOf(categoryId));
+        String access_token = ApiUtils.getAccessToken(params,API_SECRET);
+        String request = String.format(RECOMMEND_CATEGORY_REQUEST,API_KEY,timestamp,categoryId,count,access_token);
+        get(request,handler);
     }
 }

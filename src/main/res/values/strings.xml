@@ -43,6 +43,8 @@
     <string name="fav_del_fail">删除失败</string>
     <string name="recommend">相关推荐</string>
 
+	<string name="load_recommends_error">加载推荐失败</string>
+
     <!-- Player -->
     <string name="play_error">对不起，视频暂时没法播放</string>
     <!-- Player -->

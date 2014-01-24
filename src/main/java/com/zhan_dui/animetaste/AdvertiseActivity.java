@@ -8,7 +8,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.modal.Advertise;
 
@@ -49,11 +48,16 @@ public class AdvertiseActivity extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == android.R.id.home){
-            finish();
-            return true;
+        switch (item.getItemId()){
+            case R.id.action_open_in_browser:
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mAdvertise.Link));
+                startActivity(browserIntent);
+                return true;
+            case android.R.id.home:
+                finish();
+                return true;
         }
-        return super.onContextItemSelected(item);
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -62,14 +66,4 @@ public class AdvertiseActivity extends ActionBarActivity {
         return true;
     }
 
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.action_open_in_browser:
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mAdvertise.Link));
-                startActivity(browserIntent);
-                return true;
-        }
-        return super.onContextItemSelected(item);
-    }
 }
