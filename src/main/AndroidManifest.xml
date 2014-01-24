@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.zhan_dui.animetaste"
     android:versionCode="15"
-    android:versionName="1.2.6" >
+    android:versionName="1.3.0" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -119,6 +119,7 @@
 		    <meta-data android:name="android.support.UI_OPTIONS"
 		               android:value="splitActionBarWhenNarrow" />
 	    </activity>
+	    <activity android:name="com.zhan_dui.animetaste.InterviewActivity" android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

@@ -15,7 +15,6 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.*;
 import android.view.View.OnTouchListener;
 import android.widget.*;
@@ -226,6 +225,10 @@ public class StartActivity extends ActionBarActivity implements
         map.put("img",R.drawable.drawer_heart);
         map.put("title",getString(R.string.my_fav));
         list.add(map);
+        map = new HashMap<String, Object>();
+        map.put("img",R.drawable.drawer_chat);
+        map.put("title",getString(R.string.interview));
+        list.add(map);
         return list;
     }
 
@@ -235,6 +238,7 @@ public class StartActivity extends ActionBarActivity implements
 		return true;
 	}
 
+
     public void triggerApiConnector(){
         if(mCurrentPage == 1){
             switch (mType){
@@ -242,7 +246,6 @@ public class StartActivity extends ActionBarActivity implements
                     ApiConnector.instance().getALLRecommend(4,new LoadRecomendListener());
                     break;
                 case CATEGORY:
-                    Log.e("category id:",mCategoryId+"");
                     ApiConnector.instance().getCategoryRecommend(mCategoryId,4,new LoadRecomendListener());
                     break;
                 default:
@@ -287,6 +290,9 @@ public class StartActivity extends ActionBarActivity implements
             startActivity(intent);
         }else if(title.equals(getString(R.string.latest))){
             mType = ApiConnector.RequestType.ALL;
+        }else if(title.equals(getString(R.string.interview))){
+            Intent intent = new Intent(mContext,InterviewActivity.class);
+            startActivity(intent);
         }
         mDrawerLayout.closeDrawers();
     }
