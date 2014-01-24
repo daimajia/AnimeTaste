@@ -796,17 +796,18 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		if (Build.VERSION.SDK_INT >= 9) {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
 		} else {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		}
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		getSupportActionBar().hide();
-		RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
+        getSupportActionBar().hide();
+        RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
 				Screen.getScreenWidth(getWindowManager()),
 				Screen.getScreenHeight(getWindowManager()));
 		mHeaderWrpper.setLayoutParams(param);
 		mVV.setLayoutParams(param);
 		mZoomButton.setBackgroundResource(R.drawable.screensize_zoomin_button);
 		mCurrentScape = OrientationHelper.LANDSCAPE;
+
 	}
 
 	private void setMinSize() {

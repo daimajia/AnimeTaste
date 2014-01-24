@@ -195,7 +195,11 @@ public class LoadActivity extends ActionBarActivity {
                 JSONObject list = mSetupResponse.getJSONObject("data").getJSONObject("list");
                 JSONArray animations = list.getJSONArray("anime");
                 JSONArray category = list.getJSONArray("category");
-                JSONArray advert = list.getJSONArray("advert");
+                JSONArray advert = null;
+
+                if(list.has("advert"))
+                    advert = list.getJSONArray("advert");
+
                 JSONArray feature = list.getJSONArray("recommend");
                 ArrayList<Animation> Animations = Animation.build(animations);
                 ArrayList<Category> Categories = new ArrayList<Category>();
@@ -215,11 +219,15 @@ public class LoadActivity extends ActionBarActivity {
                     Categories.add(cat);
                     cat.save();
                 }
-                for(int i = 0; i < advert.length();i++){
-                    Advertise ad = Advertise.build(advert.getJSONObject(i));
-                    Advertises.add(ad);
-                    ad.save();
+
+                if(advert!=null){
+                    for(int i = 0; i < advert.length();i++){
+                        Advertise ad = Advertise.build(advert.getJSONObject(i));
+                        Advertises.add(ad);
+                        ad.save();
+                    }
                 }
+
                 for(int i = 0; i< feature.length();i++){
                     Recommends.add(Animation.build(feature.getJSONObject(i)));
                 }
