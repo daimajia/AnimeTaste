@@ -32,6 +32,7 @@ AnimeTaste For Android，为全球动画爱好者所开发。
 *	[Gif-Movie-View](https://github.com/sbakhtiarov/gif-movie-view) Gif动画播放
 *	[ViewPagerIndicator](https://github.com/JakeWharton/Android-ViewPagerIndicator) 滑动画廊
 *	[SuperToasts](https://github.com/JohnPersano/SuperToasts) 扩展的Toasts弹出框
+*	[SwipeBackLayout](https://github.com/Issacw0ng/SwipeBackLayout) 滑动退出
 *	Android-Support-v7-appcompat Android ActionBar 兼容库
 
 -------------------
