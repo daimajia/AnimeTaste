@@ -1,9 +1,5 @@
 package com.zhan_dui.animetaste;
 
-import java.util.HashMap;
-
-import org.jraf.android.backport.switchwidget.Switch;
-
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -13,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,10 +20,14 @@ import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.sina.weibo.SinaWeibo;
 import cn.sharesdk.tencent.qzone.QZone;
-
 import com.umeng.analytics.MobclickAgent;
+import com.zhan_dui.utils.SwipeBackAppCompatActivity;
+import me.imid.swipebacklayout.lib.SwipeBackLayout;
+import org.jraf.android.backport.switchwidget.Switch;
 
-public class SettingActivity extends ActionBarActivity implements
+import java.util.HashMap;
+
+public class SettingActivity extends SwipeBackAppCompatActivity implements
 		OnClickListener, OnCheckedChangeListener, PlatformActionListener {
 	private View mRecommand;
 	private View mSuggestion;
@@ -78,6 +77,7 @@ public class SettingActivity extends ActionBarActivity implements
 		mSwitchOnlyWifi.setChecked(mSharedPreferences.getBoolean("only_wifi",
 				true));
 		mSwitchUseHD.setChecked(mSharedPreferences.getBoolean("use_hd", true));
+        getSwipeBackLayout().setEdgeTrackingEnabled(SwipeBackLayout.EDGE_LEFT);
 	}
 
 	@Override

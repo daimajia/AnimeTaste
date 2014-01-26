@@ -20,6 +20,7 @@
     <!-- Application theme. -->
     <style name="AppTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <item name="switchStyle">@style/Widget.Holo.Light.CompoundButton.Switch</item>
+	    <item name="android:windowIsTranslucent">true</item>
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 

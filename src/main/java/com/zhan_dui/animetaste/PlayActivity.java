@@ -14,7 +14,6 @@ import android.net.Uri;
 import android.os.*;
 import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
 import android.text.InputFilter;
 import android.view.*;
 import android.view.View.OnClickListener;
@@ -46,6 +45,8 @@ import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Comment;
 import com.zhan_dui.utils.OrientationHelper;
 import com.zhan_dui.utils.Screen;
+import com.zhan_dui.utils.SwipeBackAppCompatActivity;
+import me.imid.swipebacklayout.lib.SwipeBackLayout;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,7 +58,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
-public class PlayActivity extends ActionBarActivity implements OnClickListener,
+public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickListener,
 		Target, OnPreparedListener, OnCompletionListener, OnErrorListener,
 		OnTouchListener {
 
@@ -174,6 +175,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
         mAnimation.recordWatch();
 		ApiConnector.instance().getRandom(5, mRandomHandler);
 		new CommentsTask().execute();
+        getSwipeBackLayout().setEdgeTrackingEnabled(SwipeBackLayout.EDGE_LEFT);
 	}
 
 	@Override

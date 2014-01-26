@@ -268,7 +268,7 @@ public class StartActivity extends ActionBarActivity implements
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
 		if (mUpdating == false && totalItemCount != 0
-				&& view.getLastVisiblePosition() == totalItemCount - 1 && !mIsEnd) {
+				&& view.getLastVisiblePosition() == totalItemCount - 1 && !mIsEnd ) {
 			mUpdating = true;
             triggerApiConnector();
 		}
