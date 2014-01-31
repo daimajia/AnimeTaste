@@ -59,6 +59,7 @@ public class AnimationListAdapter extends BaseAdapter {
 
         private JSONArray animationsJsonArray;
         private ArrayList<Animation> animationsArrayList;
+        private ArrayList<Animation> newAnimations;
 
         public AddNewAnimationTask(JSONArray animations){
             animationsJsonArray = animations;
@@ -70,14 +71,10 @@ public class AnimationListAdapter extends BaseAdapter {
 
         @Override
         protected Void doInBackground(Void... voids) {
-            ArrayList<Animation> newAnimations = new ArrayList<Animation>();
             if(animationsJsonArray!=null){
                 newAnimations = Animation.build(animationsJsonArray);
             }else if(animationsArrayList != null){
                 newAnimations = animationsArrayList;
-            }
-            for(int i=0;i<newAnimations.size();i++){
-                mAnimations.add(newAnimations.get(i));
             }
             return null;
         }
@@ -85,6 +82,7 @@ public class AnimationListAdapter extends BaseAdapter {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+            mAnimations.addAll(newAnimations);
             notifyDataSetChanged();
         }
     }
@@ -156,7 +154,6 @@ public class AnimationListAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View view) {
-
             mAnimation.setWatched(true);
             notifyDataSetChanged();
             Intent intent = new Intent(mContext, PlayActivity.class);

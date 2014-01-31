@@ -11,7 +11,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.widget.Toast;
 import cn.sharesdk.framework.ShareSDK;
 import com.activeandroid.ActiveAndroid;
@@ -134,7 +133,6 @@ public class LoadActivity extends ActionBarActivity {
                 @Override
                 public void onFinish() {
                     super.onFinish();
-                    Log.e("Faild","true");
                 }
             });
         }else{
@@ -230,7 +228,6 @@ public class LoadActivity extends ActionBarActivity {
                 for(int i = 0; i< feature.length();i++){
                     Recommends.add(Animation.build(feature.getJSONObject(i)));
                 }
-                ActiveAndroid.setTransactionSuccessful();
                 mIntent = new Intent(LoadActivity.this,
                         StartActivity.class);
                 mIntent.putParcelableArrayListExtra("Animations",Animations);
@@ -243,6 +240,7 @@ public class LoadActivity extends ActionBarActivity {
                 e.printStackTrace();
                 mResult = false;
             }finally {
+                ActiveAndroid.setTransactionSuccessful();
                 ActiveAndroid.endTransaction();
                 return mResult;
             }

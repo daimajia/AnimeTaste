@@ -64,7 +64,7 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 
 	private TextView mTitleTextView;
 	private TextView mContentTextView;
-	private TextView mAutherTextView;
+	private TextView mAuthorTextView;
 	private android.support.v7.widget.ShareActionProvider mShareActionProvider;
 	private ImageView mDetailImageView;
 	private ImageButton mPrePlayButton;
@@ -150,7 +150,7 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 		mContentTextView = (TextView) findViewById(R.id.content);
 		mDetailImageView = (ImageView) findViewById(R.id.detailPic);
 		mVideoAction = (View) findViewById(R.id.VideoAction);
-		mAutherTextView = (TextView) findViewById(R.id.author);
+		mAuthorTextView = (TextView) findViewById(R.id.author);
 		mPrePlayButton = (ImageButton) findViewById(R.id.pre_play_button);
 		mLoadingGif = (GifMovieView) findViewById(R.id.loading_gif);
 		mComments = (LinearLayout) findViewById(R.id.comments);
@@ -757,10 +757,10 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 
 	private void initContent() {
 		mTitleTextView.setTypeface(mRobotoBold);
-		mAutherTextView.setTypeface(mRobotoThin);
+		mAuthorTextView.setTypeface(mRobotoThin);
 		mTitleTextView.setText(mAnimation.Name);
 		mContentTextView.setText(mAnimation.Brief);
-		mAutherTextView.setText(mAnimation.Author + " · " + mAnimation.Year);
+		mAuthorTextView.setText(mAnimation.Author + " · " + mAnimation.Year);
 		mPrePlayButton.setOnClickListener(this);
 		mViewHolder.setOnTouchListener(this);
 		mCommentEditText.setOnClickListener(this);

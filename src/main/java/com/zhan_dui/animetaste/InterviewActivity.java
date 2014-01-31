@@ -39,6 +39,7 @@ public class InterviewActivity extends SwipeBackAppCompatActivity{
         mWebView =(WebView)findViewById(R.id.webview_iterview);
         mWebClient = new InterviewClient();
         mWebView.setWebViewClient(mWebClient);
+        mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.setWebChromeClient(new WebChromeClient(){
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
