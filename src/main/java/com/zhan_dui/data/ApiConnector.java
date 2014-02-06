@@ -102,6 +102,7 @@ public class ApiConnector {
         params.put("limit",String.valueOf(count));
         String access_token = ApiUtils.getAccessToken(params,API_SECRET);
         String request = String.format(CATEGORY_REQUEST_URL,API_KEY,timeStamp,page,categoryId,count,access_token);
+        Log.e("request",request);
         get(request, handler);
     }
 

@@ -98,11 +98,11 @@
 		        <data android:scheme="animetaste" android:host="play"/>
 	        </intent-filter>
 	        <!-- 豌豆荚 -->
+	        <intent-filter>
+		        <action android:name="android.intent.action.MAIN" />
+		        <category android:name="android.intent.category.LAUNCHER" />
+	        </intent-filter>
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name="com.zhan_dui.animetaste.SettingActivity"

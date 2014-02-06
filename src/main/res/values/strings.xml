@@ -96,6 +96,7 @@
 	<!-- Load -->
 	<string name="init_failed">初始化失败</string>
 	<string name="web_loading">正在加载中...</string>
+	<string name="init_loading">努力加载中</string>
 	<!-- Load -->
 	<!-- Video -->
 	<string name="end">到头了</string>

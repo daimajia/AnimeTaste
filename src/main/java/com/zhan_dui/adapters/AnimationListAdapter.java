@@ -17,9 +17,10 @@ import com.zhan_dui.animetaste.R;
 import com.zhan_dui.modal.Animation;
 import org.json.JSONArray;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class AnimationListAdapter extends BaseAdapter {
+public class AnimationListAdapter extends BaseAdapter implements Serializable{
 	private Context mContext;
 	private LayoutInflater mLayoutInflater;
 	private final Typeface mRobotoTitle;
@@ -28,11 +29,6 @@ public class AnimationListAdapter extends BaseAdapter {
 	private final int mWatchedTitleColor;
 	private final int mUnWatchedTitleColor;
 
-    public void removeAllData(){
-        mAnimations.clear();
-        notifyDataSetChanged();
-    }
-
 	private AnimationListAdapter(Context context,
                                  ArrayList<Animation> animations) {
 		mRobotoTitle = Typeface.createFromAsset(context.getAssets(),
@@ -40,6 +36,9 @@ public class AnimationListAdapter extends BaseAdapter {
 		mContext = context;
 		mLayoutInflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        if(animations == null){
+            animations = new ArrayList<Animation>();
+        }
 		mAnimations = animations;
 		mUnWatchedTitleColor = mContext.getResources().getColor(
 				R.color.title_unwatched);
@@ -47,12 +46,20 @@ public class AnimationListAdapter extends BaseAdapter {
 				R.color.title_watched);
 	}
 
+    public ArrayList<Animation> getAnimationData(){
+        return mAnimations;
+    }
+
     public static AnimationListAdapter build(Context context,ArrayList<Animation> animations){
         return new AnimationListAdapter(context,animations);
     }
 
     public void addAnimationsFromJsonArray(final JSONArray animationsJsonArray){
         new AddNewAnimationTask(animationsJsonArray).execute();
+    }
+
+    public void addAnimationsFromArrayList(ArrayList<Animation> animations){
+        mAnimations.addAll(animations);
     }
 
     private class AddNewAnimationTask extends AsyncTask<Void,Void,Void>{

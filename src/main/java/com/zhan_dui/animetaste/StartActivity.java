@@ -8,70 +8,42 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.PointF;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.view.*;
-import android.view.View.OnTouchListener;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.*;
-import android.widget.AbsListView.OnScrollListener;
-import com.loopj.android.http.JsonHttpResponseHandler;
+import com.astuetz.PagerSlidingTabStrip;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.update.UmengUpdateAgent;
-import com.viewpagerindicator.PageIndicator;
-import com.viewpagerindicator.UnderlinePageIndicator;
-import com.zhan_dui.adapters.AnimationListAdapter;
-import com.zhan_dui.adapters.RecommendAdapter;
-import com.zhan_dui.data.ApiConnector;
-import com.zhan_dui.modal.Advertise;
-import com.zhan_dui.modal.Animation;
+import com.zhan_dui.adapters.CategoryAdapter;
 import com.zhan_dui.modal.Category;
 import com.zhan_dui.utils.ViewUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.*;
 
-public class StartActivity extends ActionBarActivity implements
-		OnScrollListener,AdapterView.OnItemClickListener,OnTouchListener {
+public class StartActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
 
-	private ListView mVideoList;
     private ListView mDrawerList;
-    private ListView mCategoryList;
     private LinearLayout mDrawer;
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private SimpleAdapter mDrawerAapter;
 
-	private AnimationListAdapter mVideoAdapter;
 	private Context mContext;
-
-	private int mCurrentPage = 3;
-	private Boolean mUpdating = false;
-
-	private ViewPager mRecommendPager;
-	private PageIndicator mRecommendIndicator;
-	private RecommendAdapter mRecommendAdapter;
 
 	private LayoutInflater mLayoutInflater;
 
-    private ApiConnector.RequestType mPreviousType = ApiConnector.RequestType.ALL;
-    private ApiConnector.RequestType mType = ApiConnector.RequestType.ALL;
-
-    private final int RandomCount = 10;
-    private final int CategoryCount =10;
-    private int mPreviousCategoryId;
-    private int mCategoryId;
-
-    private boolean mIsEnd;
-
-    private ArrayList<Advertise> mAdvertises;
+    private CategoryAdapter mCategoryAdapter;
+    private PagerSlidingTabStrip mTabs;
+    private ViewPager mPager;
 
 	private SharedPreferences mSharedPreferences;
 
@@ -86,39 +58,13 @@ public class StartActivity extends ActionBarActivity implements
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-		mVideoList = (ListView) findViewById(R.id.videoList);
         mDrawerList = (ListView)findViewById(R.id.function_list);
         mDrawer = (LinearLayout)findViewById(R.id.drawer);
 		mLayoutInflater = (LayoutInflater) this
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mCategoryList = (ListView)findViewById(R.id.category_list);
 
-		mVideoList.setOnScrollListener(this);
-        mDrawer.setOnTouchListener(this);
-
-		View headerView = mLayoutInflater.inflate(R.layout.gallery_item, null,
-				false);
-		mVideoList.addHeaderView(headerView);
-		mRecommendPager = (ViewPager) headerView.findViewById(R.id.pager);
-		mRecommendPager.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                PointF downP = new PointF();
-                PointF curP = new PointF();
-                int act = event.getAction();
-                if (act == MotionEvent.ACTION_DOWN
-                        || act == MotionEvent.ACTION_MOVE
-                        || act == MotionEvent.ACTION_UP) {
-                    ((ViewGroup) v).requestDisallowInterceptTouchEvent(true);
-                    if (downP.x == curP.x && downP.y == curP.y) {
-                        return false;
-                    }
-                }
-                return false;
-            }
-        });
-		mRecommendIndicator = (UnderlinePageIndicator) headerView
-				.findViewById(R.id.indicator);
+        mTabs = (PagerSlidingTabStrip)findViewById(R.id.tabs);
+        mPager = (ViewPager)findViewById(R.id.pager);
 
 		if (getIntent().hasExtra("Success")) {
 			init(getIntent());
@@ -132,19 +78,11 @@ public class StartActivity extends ActionBarActivity implements
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
-                if(mPreviousType != mType || mPreviousCategoryId != mCategoryId){
-                    mCurrentPage = 1;
-                    mIsEnd = false;
-                    mVideoAdapter.removeAllData();
-                    triggerApiConnector();
-                }
             }
 
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                mPreviousType = mType;
-                mPreviousCategoryId = mCategoryId;
             }
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
@@ -196,19 +134,10 @@ public class StartActivity extends ActionBarActivity implements
 	}
 
     public void init(Intent intent){
-        ArrayList<Animation> Animations = intent.getParcelableArrayListExtra("Animations");
         ArrayList<Category> Categories = intent.getParcelableArrayListExtra("Categories");
-        mAdvertises = intent.getParcelableArrayListExtra("Advertises");
-        ArrayList<Animation> Recommends = intent.getParcelableArrayListExtra("Recommends");
-        mRecommendAdapter = new RecommendAdapter(mContext,mAdvertises,Recommends);
-        mRecommendPager.setAdapter(mRecommendAdapter);
-        mRecommendIndicator.setViewPager(mRecommendPager);
-        mVideoAdapter = AnimationListAdapter.build(mContext, Animations);
-        mVideoList.setAdapter(mVideoAdapter);
-        CategoryListAdapter categoryListAdapter = new CategoryListAdapter(mContext,Categories);
-        mCategoryList.setAdapter(categoryListAdapter);
-        ViewUtils.setListViewHeightBasedOnChildren(mCategoryList);
-
+        mCategoryAdapter = new CategoryAdapter(Categories,getSupportFragmentManager());
+        mPager.setAdapter(mCategoryAdapter);
+        mTabs.setViewPager(mPager);
     }
 
     private List<Map<String,Object>> getDrawerItems(){
@@ -238,152 +167,20 @@ public class StartActivity extends ActionBarActivity implements
 		return true;
 	}
 
-
-    public void triggerApiConnector(){
-        if(mCurrentPage == 1){
-            switch (mType){
-                case ALL:
-                    ApiConnector.instance().getALLRecommend(4,new LoadRecomendListener());
-                    break;
-                case CATEGORY:
-                    ApiConnector.instance().getCategoryRecommend(mCategoryId,4,new LoadRecomendListener());
-                    break;
-                default:
-            }
-        }
-        switch (mType){
-            case ALL:
-                ApiConnector.instance().getList(mCurrentPage++,new LoadMoreJSONListener());
-                break;
-            case RANDOM:
-                ApiConnector.instance().getRandom(RandomCount,new LoadMoreJSONListener());
-                break;
-            case CATEGORY:
-                ApiConnector.instance().getCategory(mCategoryId,mCurrentPage++,CategoryCount,new LoadMoreJSONListener());
-            default:
-        }
-    }
-
-	@Override
-	public void onScroll(AbsListView view, int firstVisibleItem,
-			int visibleItemCount, int totalItemCount) {
-		if (mUpdating == false && totalItemCount != 0
-				&& view.getLastVisiblePosition() == totalItemCount - 1 && !mIsEnd ) {
-			mUpdating = true;
-            triggerApiConnector();
-		}
-
-	}
-
-	@Override
-	public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-	}
-
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         String title = ((TextView)view.findViewById(R.id.item_name)).getText().toString();
         if(title.equals(getString(R.string.guess))){
-            mType = ApiConnector.RequestType.RANDOM;
         }else if(title.equals(getString(R.string.my_fav))){
             Intent intent = new Intent(mContext,FavoriteActivity.class);
             startActivity(intent);
         }else if(title.equals(getString(R.string.latest))){
-            mType = ApiConnector.RequestType.ALL;
         }else if(title.equals(getString(R.string.interview))){
             Intent intent = new Intent(mContext,InterviewActivity.class);
             startActivity(intent);
         }
         mDrawerLayout.closeDrawers();
     }
-
-    @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
-        return true;
-    }
-
-    private class LoadRecomendListener extends JsonHttpResponseHandler{
-        @Override
-        public void onSuccess(final JSONObject response) {
-            super.onSuccess(response);
-                new Thread(){
-                    @Override
-                    public void run() {
-                        super.run();
-                        try{
-                            JSONArray animes = response.getJSONObject("data").getJSONObject("list").getJSONArray("anime");
-                            final ArrayList<Animation> Recommends = Animation.build(animes);
-                            if(mType == ApiConnector.RequestType.ALL)
-                                mRecommendAdapter = new RecommendAdapter(mContext,mAdvertises,Recommends);
-                            else
-                                mRecommendAdapter = new RecommendAdapter(mContext,null,Recommends);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mRecommendPager.setAdapter(mRecommendAdapter);
-                                    mRecommendIndicator.setViewPager(mRecommendPager);
-                                }
-                            });
-                        }catch (Exception e){
-                            e.printStackTrace();
-                            Toast.makeText(mContext,R.string.load_recommends_error,Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }.start();
-        }
-
-        @Override
-        public void onFailure(Throwable throwable) {
-            super.onFailure(throwable);
-            Toast.makeText(mContext,R.string.get_data_error,Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private class LoadMoreJSONListener extends JsonHttpResponseHandler {
-
-		private View mFooterView;
-
-		public LoadMoreJSONListener() {
-			mUpdating = true;
-		}
-
-		@Override
-		public void onSuccess(int statusCode, JSONObject response) {
-			super.onSuccess(statusCode, response);
-			if (statusCode == 200 && response.has("data")) {
-				try {
-                    if(response.getJSONObject("data").getJSONObject("list").getJSONArray("anime").isNull(1)){
-                        mIsEnd = true;
-                        Toast.makeText(mContext,R.string.end,Toast.LENGTH_LONG).show();
-                    }else{
-					    mVideoAdapter.addAnimationsFromJsonArray(response.getJSONObject("data").getJSONObject("list").getJSONArray("anime"));
-                    }
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-
-		@Override
-		public void onFailure(Throwable error, String content) {
-			super.onFailure(error, content);
-			mCurrentPage--;
-		}
-
-		@Override
-		public void onStart() {
-			super.onStart();
-			mFooterView = mLayoutInflater.inflate(R.layout.load_item, null);
-			mVideoList.addFooterView(mFooterView);
-		}
-
-		@Override
-		public void onFinish() {
-			super.onFinish();
-			mUpdating = false;
-			mVideoList.removeFooterView(mFooterView);
-		}
-	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -414,50 +211,6 @@ public class StartActivity extends ActionBarActivity implements
 		super.onPause();
 		MobclickAgent.onPause(mContext);
 	}
-
-    protected class CategoryListAdapter extends BaseAdapter{
-
-        private ArrayList<Category> mCategories;
-        private LayoutInflater mInflater;
-
-        public CategoryListAdapter(Context context, ArrayList<Category> categories){
-            mCategories = categories;
-            mInflater = LayoutInflater.from(context);
-        }
-
-        @Override
-        public int getCount() {
-            return mCategories.size();
-        }
-
-        @Override
-        public Object getItem(int i) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int i) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int i, View convertView, ViewGroup viewGroup) {
-            convertView = mInflater.inflate(R.layout.category_item,null);
-            TextView name = (TextView)convertView.findViewById(R.id.category_name);
-            final int id = mCategories.get(i).cid;
-            name.setText(mCategories.get(i).Name);
-            convertView.setTag(mCategories.get(i));
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mType = ApiConnector.RequestType.CATEGORY;
-                    mCategoryId = id;
-                    mDrawerLayout.closeDrawers();
-                }
-            });
-            return convertView;
-        }
-    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {

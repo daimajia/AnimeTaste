@@ -8,8 +8,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.*;
 import android.preference.PreferenceManager;
@@ -34,7 +34,6 @@ import com.basv.gifmoviewview.widget.GifMovieView;
 import com.github.johnpersano.supertoasts.SuperToast;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.Target;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.auth.SocialPlatform;
@@ -58,8 +57,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
-public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickListener,
-		Target, OnPreparedListener, OnCompletionListener, OnErrorListener,
+public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickListener,Target,
+		 OnPreparedListener, OnCompletionListener, OnErrorListener,
 		OnTouchListener {
 
 	private TextView mTitleTextView;
@@ -535,40 +534,45 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	public void onBitmapFailed() {
-		if (mShareActionProvider != null) {
-			mShareActionProvider.setShareIntent(getDefaultIntent());
-		}
-	}
+    @Override
+    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
+        mDetailImageView.setImageBitmap(bitmap);
+        mDetailPicture = bitmap;
+        mLoadingGif.setVisibility(View.INVISIBLE);
+        mPrePlayButton.setVisibility(View.VISIBLE);
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        mDetailPicture.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        File dir = new File(Environment.getExternalStorageDirectory()
+                + File.separator + mDir);
+        if (dir.exists() == false || dir.isDirectory() == false)
+            dir.mkdir();
 
-	@Override
-	public void onBitmapLoaded(Bitmap bitmap, LoadedFrom arg1) {
-		mDetailImageView.setImageBitmap(bitmap);
-		mDetailPicture = bitmap;
-		mLoadingGif.setVisibility(View.INVISIBLE);
-		mPrePlayButton.setVisibility(View.VISIBLE);
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		mDetailPicture.compress(CompressFormat.JPEG, 100, bytes);
-		File dir = new File(Environment.getExternalStorageDirectory()
-				+ File.separator + mDir);
-		if (dir.exists() == false || dir.isDirectory() == false)
-			dir.mkdir();
+        File file = new File(Environment.getExternalStorageDirectory()
+                + File.separator + mDir + File.separator + mShareName);
+        try {
+            file.createNewFile();
+            FileOutputStream fo = new FileOutputStream(file);
+            fo.write(bytes.toByteArray());
+            fo.close();
+            if (mShareActionProvider != null) {
+                mShareActionProvider.setShareIntent(getDefaultIntent());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-		File file = new File(Environment.getExternalStorageDirectory()
-				+ File.separator + mDir + File.separator + mShareName);
-		try {
-			file.createNewFile();
-			FileOutputStream fo = new FileOutputStream(file);
-			fo.write(bytes.toByteArray());
-			fo.close();
-			if (mShareActionProvider != null) {
-				mShareActionProvider.setShareIntent(getDefaultIntent());
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+    @Override
+    public void onBitmapFailed(Drawable drawable) {
+        if (mShareActionProvider != null) {
+            mShareActionProvider.setShareIntent(getDefaultIntent());
+        }
+    }
+
+    @Override
+    public void onPrepareLoad(Drawable drawable) {
+
+    }
 
 	private class CommentsTask extends AsyncTask<Void, LinearLayout, Void> {
 
@@ -768,7 +772,7 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 			getShareFile().delete();
 		}
 		Picasso.with(mContext).load(mAnimation.DetailPic)
-				.placeholder(R.drawable.big_bg).into(this);
+				.placeholder(R.drawable.big_bg).error(R.drawable.big_bg).into(this);
 	}
 
 	private void startPlay(int from) {

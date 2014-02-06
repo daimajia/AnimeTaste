@@ -18,6 +18,7 @@
 <!-- A DrawerLayout is intended to be used as the top-level content view using match_parent for both width and height to consume the full space available. -->
 <android.support.v4.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -25,27 +26,30 @@
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
-	    <ListView
-			    android:background="@color/backgroundColor"
-			    android:id="@+id/videoList"
-			    android:layout_width="match_parent"
-			    android:layout_height="match_parent"
-			    android:fastScrollEnabled="true" />
+	    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
+		    <com.astuetz.PagerSlidingTabStrip
+				    android:id="@+id/tabs"
+				    android:layout_width="match_parent"
+				    app:pstsIndicatorColor="#4B9AEB"
+				    app:pstsDividerColor="#ff222222"
+				    app:pstsUnderlineHeight="0dp"
+				    android:background="#222222"
+				    android:textColor="#ffffff"
+				    android:textStyle="bold"
+				    android:layout_height="48dip" />
+
+		    <android.support.v4.view.ViewPager
+				    android:id="@+id/pager"
+				    android:layout_width="match_parent"
+				    android:layout_height="match_parent"
+				    />
+	    </LinearLayout>
 	</FrameLayout>
 		<LinearLayout android:id="@+id/drawer" android:orientation="vertical" android:layout_width="@dimen/drawer_width" android:layout_gravity="start" android:layout_height="match_parent" android:background="#303030">
 			<ScrollView android:layout_width="@dimen/drawer_width" android:layout_height="match_parent">
 				<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
 					<ListView
 							android:id="@+id/function_list"
-							android:layout_width="match_parent"
-							android:layout_height="wrap_content"
-							android:divider="@drawable/drawer_item_divider"
-							android:dividerHeight="2dp"
-							android:background="#303030"/>
-					<TextView android:textColor="@color/drawer_text" android:layout_margin="10dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/category" android:textSize="10sp"/>
-					<View android:layout_width="match_parent" android:layout_height="3dp" android:background="@color/drawer_divider"/>
-					<ListView
-							android:id="@+id/category_list"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:divider="@drawable/drawer_item_divider"

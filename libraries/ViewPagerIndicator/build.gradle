@@ -5,11 +5,11 @@ repositories {
 }
 
 dependencies {
-  compile 'com.android.support:support-v4:19.0.+'
+  compile 'com.android.support:support-v4:+'
 }
 
 android {
-  compileSdkVersion 14
+  compileSdkVersion 16
   buildToolsVersion '17.0.0'
 
   sourceSets {
