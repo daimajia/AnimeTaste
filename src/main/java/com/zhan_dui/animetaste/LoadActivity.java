@@ -136,7 +136,7 @@ public class LoadActivity extends ActionBarActivity {
                 }
             });
         }else{
-            ApiConnector.instance().getInitData(20,5,2,new JsonHttpResponseHandler(){
+            ApiConnector.instance().getInitData(1,1,1,new JsonHttpResponseHandler(){
                 @Override
                 public void onSuccess(int statusCode,JSONObject response) {
                     super.onSuccess(response);

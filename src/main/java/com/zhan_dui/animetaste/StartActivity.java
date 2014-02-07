@@ -31,7 +31,6 @@ import java.util.*;
 public class StartActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
 
     private ListView mDrawerList;
-    private LinearLayout mDrawer;
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -59,7 +58,6 @@ public class StartActivity extends ActionBarActivity implements AdapterView.OnIt
         getSupportActionBar().setHomeButtonEnabled(true);
 
         mDrawerList = (ListView)findViewById(R.id.function_list);
-        mDrawer = (LinearLayout)findViewById(R.id.drawer);
 		mLayoutInflater = (LayoutInflater) this
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -147,10 +145,6 @@ public class StartActivity extends ActionBarActivity implements AdapterView.OnIt
         map.put("title",getString(R.string.guess));
         list.add(map);
         map = new HashMap<String, Object>();
-        map.put("img",R.drawable.drawer_all);
-        map.put("title",getString(R.string.latest));
-        list.add(map);
-        map = new HashMap<String, Object>();
         map.put("img",R.drawable.drawer_heart);
         map.put("title",getString(R.string.my_fav));
         list.add(map);
@@ -171,10 +165,11 @@ public class StartActivity extends ActionBarActivity implements AdapterView.OnIt
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         String title = ((TextView)view.findViewById(R.id.item_name)).getText().toString();
         if(title.equals(getString(R.string.guess))){
+            Intent intent = new Intent(mContext,GuessActivity.class);
+            startActivity(intent);
         }else if(title.equals(getString(R.string.my_fav))){
             Intent intent = new Intent(mContext,FavoriteActivity.class);
             startActivity(intent);
-        }else if(title.equals(getString(R.string.latest))){
         }else if(title.equals(getString(R.string.interview))){
             Intent intent = new Intent(mContext,InterviewActivity.class);
             startActivity(intent);

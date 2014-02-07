@@ -37,4 +37,7 @@
 	<!-- Drawer -->
 	<dimen name="drawer_width">245dp</dimen>
 	<!-- Drawer -->
+	<!-- SlidingStrip -->
+	<dimen name="tab_height">48dip</dimen>
+	<!-- SlidingStrip -->
 </resources>

@@ -22,5 +22,13 @@
 	<color name="drawer_selected_background">#4491DF</color>
 	<color name="drawer_text">#ffffff</color>
 	<color name="drawer_divider">#333333</color>
+	<!-- Drawer -->
+
+	<!-- SlidingTabStrip-->
+	<color name="strip_divider">#222222</color>
+	<color name="tab_background">#222222</color>
+	<color name="tab_text">#ffffff</color>
+	<color name="tab_indicator">#4B9AEB</color>
+	<!-- SlidingTabStrip-->
 
 </resources>

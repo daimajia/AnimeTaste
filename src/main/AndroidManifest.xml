@@ -113,6 +113,10 @@
             android:screenOrientation="portrait" >
         </activity>
 	    <activity
+			    android:name="com.zhan_dui.animetaste.GuessActivity"
+			    android:screenOrientation="portrait" >
+	    </activity>
+	    <activity
 			android:name="com.zhan_dui.animetaste.AdvertiseActivity"
 			android:uiOptions="splitActionBarWhenNarrow"
 			android:screenOrientation="portrait">
