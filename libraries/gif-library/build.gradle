@@ -5,10 +5,10 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 17
-    buildToolsVersion "18.1.1"
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion rootProject.buildToolsVersion
 
-            lintOptions {  
+        lintOptions {  
               abortOnError false  
         }
 

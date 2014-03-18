@@ -9,8 +9,8 @@ dependencies {
 }
 
 android {
-  compileSdkVersion 14
-  buildToolsVersion '17.0.0'
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion rootProject.buildToolsVersion
 
   sourceSets {
         main {
