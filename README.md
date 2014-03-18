@@ -1,4 +1,4 @@
-AnimeTaste(全球动画精选)
+AnimeTaste(全球动画精选)[![Build Status](https://travis-ci.org/daimajia/AnimeTaste.png?branch=master)](https://travis-ci.org/daimajia/AnimeTaste)
 ==========
 
 AnimeTaste（品赏艾尼莫）是国内首个关注独立动画的网站。
