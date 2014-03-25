@@ -8,7 +8,9 @@ buildscript {
     }
 }
 
-
+task wrap(type: Wrapper) {
+  gradleVersion = '1.9'
+}
 
 apply plugin: 'android'
 

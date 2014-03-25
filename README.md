@@ -43,14 +43,10 @@ Step-0:
 
 确保安装了Android SDK所有版本（最好安装齐所有SDK版本）
 
-
 Step-1: 
 
-**安装[Gradle 1.9](http://www.gradle.org/downloads)(请注意：版本很重要，1.9)** 
+**Mac和Linux用户在根目录运行`./gradlew assemble`, Windows用户双击`gradlew.bat` 稍等片刻即可。**
 
-Step-2: 
-
-**在根目录运行`gradle build` 稍等片刻即可。**
 
 ----------------
 
