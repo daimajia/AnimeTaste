@@ -45,7 +45,7 @@ Step-0:
 
 Step-1: 
 
-**Mac和Linux用户在根目录运行`./gradlew assemble`, Windows用户双击`gradlew.bat` 稍等片刻即可。**
+**Mac和Linux用户在根目录运行`./gradlew assemble`, Windows用户运行`gradlew.bat assemble` 稍等片刻即可。**
 
 
 ----------------
