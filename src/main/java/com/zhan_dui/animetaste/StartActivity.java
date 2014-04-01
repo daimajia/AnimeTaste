@@ -215,15 +215,19 @@ public class StartActivity extends ActionBarActivity implements
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("img",R.drawable.drawer_light);
-        map.put("title",getString(R.string.guess));
+        map.put("title", getString(R.string.guess));
         list.add(map);
         map = new HashMap<String, Object>();
         map.put("img",R.drawable.drawer_all);
-        map.put("title",getString(R.string.latest));
+        map.put("title", getString(R.string.latest));
         list.add(map);
         map = new HashMap<String, Object>();
         map.put("img",R.drawable.drawer_heart);
-        map.put("title",getString(R.string.my_fav));
+        map.put("title", getString(R.string.my_fav));
+        list.add(map);
+        map = new HashMap<String, Object>();
+        map.put("img",R.drawable.drawer_download);
+        map.put("title",getString(R.string.my_download));
         list.add(map);
         map = new HashMap<String, Object>();
         map.put("img",R.drawable.drawer_chat);
@@ -292,6 +296,9 @@ public class StartActivity extends ActionBarActivity implements
             mType = ApiConnector.RequestType.ALL;
         }else if(title.equals(getString(R.string.interview))){
             Intent intent = new Intent(mContext,InterviewActivity.class);
+            startActivity(intent);
+        }else if(title.equals(getString(R.string.my_download))){
+            Intent intent = new Intent(mContext,DownloadActivity.class);
             startActivity(intent);
         }
         mDrawerLayout.closeDrawers();

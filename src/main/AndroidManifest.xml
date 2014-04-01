@@ -109,6 +109,10 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
+            android:name="com.zhan_dui.animetaste.DownloadActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
             android:name="com.zhan_dui.animetaste.FeedbackActivity"
             android:screenOrientation="portrait" >
         </activity>
@@ -119,7 +123,9 @@
 		    <meta-data android:name="android.support.UI_OPTIONS"
 		               android:value="splitActionBarWhenNarrow" />
 	    </activity>
+
 	    <activity android:name="com.zhan_dui.animetaste.InterviewActivity" android:screenOrientation="portrait"></activity>
+        <service android:name="com.zhan_dui.services.DownloadService" android:exported="false"></service>
     </application>
 
 </manifest>

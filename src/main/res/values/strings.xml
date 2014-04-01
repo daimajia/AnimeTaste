@@ -91,6 +91,7 @@
 	<string name="latest">最新视频</string>
 	<string name="my_fav">我的收藏</string>
 	<string name="category">分类浏览</string>
+    <string name="my_download">我的下载</string>
 	<!-- Drawer -->
 
 	<!-- Load -->

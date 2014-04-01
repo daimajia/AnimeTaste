@@ -34,18 +34,15 @@ AnimeTaste For Android，为全球动画爱好者所开发。
 *	[SuperToasts](https://github.com/JohnPersano/SuperToasts) 扩展的Toasts弹出框
 *	[SwipeBackLayout](https://github.com/Issacw0ng/SwipeBackLayout) 滑动退出
 *	Android-Support-v7-appcompat Android ActionBar 兼容库
+*	[sdk-manager-plugin](https://github.com/JakeWharton/sdk-manager-plugin) SDK管理工具
 
 -------------------
 
 ### 如何编译 ###
 
-Step-0:
+Step-All: 
 
-确保安装了Android SDK所有版本（最好安装齐所有SDK版本）
-
-Step-1: 
-
-**Mac和Linux用户在根目录运行`./gradlew assemble`, Windows用户双击`gradlew.bat` 稍等片刻即可。**
+**Mac和Linux用户在根目录运行`./gradlew assemble`, Windows用户运行`gradlew.bat assemble` 稍等片刻即可(会自动下载确实的SDK版本以及依赖包，可能会比较慢)。**
 
 
 ----------------
