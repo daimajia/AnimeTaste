@@ -15,10 +15,23 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.View.OnTouchListener;
-import android.widget.*;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.update.UmengUpdateAgent;
@@ -27,15 +40,22 @@ import com.viewpagerindicator.UnderlinePageIndicator;
 import com.zhan_dui.adapters.AnimationListAdapter;
 import com.zhan_dui.adapters.RecommendAdapter;
 import com.zhan_dui.data.ApiConnector;
+import com.zhan_dui.download.DownloadHelper;
 import com.zhan_dui.modal.Advertise;
 import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Category;
 import com.zhan_dui.utils.ViewUtils;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class StartActivity extends ActionBarActivity implements
 		OnScrollListener,AdapterView.OnItemClickListener,OnTouchListener {
@@ -491,5 +511,11 @@ public class StartActivity extends ActionBarActivity implements
                 }
             },3000);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        DownloadHelper.getInstance(mContext).unbindDownloadService();
     }
 }

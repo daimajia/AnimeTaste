@@ -11,17 +11,37 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.*;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.text.InputFilter;
-import android.view.*;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.OrientationEventListener;
+import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.widget.*;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import cn.sharesdk.sina.weibo.SinaWeibo;
-import cn.sharesdk.tencent.qzone.QZone;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.avos.avoscloud.ParseException;
 import com.avos.avoscloud.ParseObject;
 import com.avos.avoscloud.ParseQuery;
@@ -41,12 +61,13 @@ import com.zhan_dui.auth.SocialPlatform;
 import com.zhan_dui.auth.User;
 import com.zhan_dui.data.AnimeTasteDB;
 import com.zhan_dui.data.ApiConnector;
+import com.zhan_dui.download.DownloadHelper;
 import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Comment;
 import com.zhan_dui.utils.OrientationHelper;
 import com.zhan_dui.utils.Screen;
 import com.zhan_dui.utils.SwipeBackAppCompatActivity;
-import me.imid.swipebacklayout.lib.SwipeBackLayout;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,7 +77,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import cn.sharesdk.sina.weibo.SinaWeibo;
+import cn.sharesdk.tencent.qzone.QZone;
+import me.imid.swipebacklayout.lib.SwipeBackLayout;
 
 public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickListener,
 		Target, OnPreparedListener, OnCompletionListener, OnErrorListener,
@@ -529,6 +558,9 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
                 item.setIcon(R.drawable.ab_fav_active);
 			}
 			return true;
+        case R.id.action_download:
+            DownloadHelper.getInstance(mContext).startDownload(mAnimation);
+            break;
 		default:
 			break;
 		}
@@ -934,4 +966,5 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 		}
 		return super.onKeyDown(keyCode, event);
 	}
+
 };

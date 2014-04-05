@@ -1,4 +1,4 @@
-package com.daimajia.alfred.Utils;
+package com.daimajia.alfred.utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,8 +41,11 @@ public class AlfredUtils {
     }
 
     public static String getReadableSpeed(long downloaded,long timespend,TimeUnit timeUnit) {
-        long span = timeUnit.convert(timespend,TimeUnit.SECONDS);
-        return getReadableSize(downloaded/span * 1000000) + "/s";
+        long span = timeUnit.toSeconds(timespend);
+        if(timespend * span == 0){
+            return "0";
+        }
+        return getReadableSize(downloaded/span,true) + "/s";
     }
 
     public static String getFileNameWithExtention(String url){

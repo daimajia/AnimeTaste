@@ -5,7 +5,7 @@
     android:versionName="1.3.0" >
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="9"
         android:targetSdkVersion="19" />
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -26,9 +26,18 @@
         android:theme="@style/AppTheme" >
 
 	    <meta-data android:name="AA_DB_NAME" android:value="Anime.db"></meta-data>
-	    <meta-data android:name="AA_DB_VERSION" android:value="1"></meta-data>
+	    <meta-data android:name="AA_DB_VERSION" android:value="2"></meta-data>
 
+        <activity
+            android:name="im.dino.dbinspector.activities.DbInspectorActivity"
+            android:label="Example DbInspector"
+            android:icon="@drawable/ic_launcher_dbinspector">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <!-- ShareSDK开始 -->
         <activity
@@ -126,6 +135,7 @@
 
 	    <activity android:name="com.zhan_dui.animetaste.InterviewActivity" android:screenOrientation="portrait"></activity>
         <service android:name="com.zhan_dui.services.DownloadService" android:exported="false"></service>
+        <receiver android:name="com.daimajia.alfred.defaults.MissionActionReceiver"></receiver>
     </application>
 
 </manifest>

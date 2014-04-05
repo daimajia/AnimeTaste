@@ -4,9 +4,15 @@
 
     <item
         android:id="@+id/action_fav"
+        android:title="@string/ic_action_fav"
         android:icon="@drawable/ab_fav_normal"
         menu:showAsAction="always">
     </item>
+    <item
+        android:id="@+id/action_download"
+        android:title="@string/ic_action_download"
+        android:icon="@drawable/ic_action_download"
+        menu:showAsAction="always"></item>
     <item
         android:id="@+id/menu_item_share"
         android:title="Share"

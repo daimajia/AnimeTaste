@@ -1,4 +1,4 @@
-package com.daimajia.alfred.Missions;
+package com.daimajia.alfred.missions;
 
 import net.chilicat.m3u8.Element;
 import net.chilicat.m3u8.Playlist;
@@ -19,14 +19,18 @@ public class M3U8Mission extends Mission{
     protected int mTotalVideoDuration;
     protected int mDownloadedVideoDuration;
 
-    protected Playlist mM3U8Playlist;
+    protected int mCurrentPartDownloaded = 0;
+    private int mReopenCount = 30;
+    private final int MAX_REOPEN_COUNT = 0;
 
-    public M3U8Mission(String uri, String saveDirectory){
-        super(uri,saveDirectory);
-    }
+    protected Playlist mM3U8Playlist;
 
     public M3U8Mission(String uri,String saveDirectory,String saveName){
         super(uri,saveDirectory,saveName);
+    }
+
+    public M3U8Mission(String uri,String saveDirectory,String saveName,String showName){
+        super(uri,saveDirectory,saveName,showName);
     }
 
     @Override
@@ -46,33 +50,55 @@ public class M3U8Mission extends Mission{
                 mTotalVideoDuration += el.getDuration();
             }
             mElementCount = mM3U8Playlist.getElements().size();
-
             notifyMetaDataReady();
 
             byte data[] = new byte[1024];
             int count;
-
+            int c = 0;
             for(Element el :mM3U8Playlist){
-
                 HttpURLConnection connection = (HttpURLConnection)new URL(el.getURI().toString()).openConnection();
+                connection.setConnectTimeout(5000);
                 in = new BufferedInputStream(connection.getInputStream());
-                while (isCanceled() == false && (count = in.read(data,0,1024)) != -1){
-                    out.write(data,0,count);
-                    mDownloaded+=count;
-                    notifyProgressing();
-                    checkPaused();
+
+                while (isCanceled() == false){
+                    try{
+                        count = in.read(data,0,1024);
+                        if(count == -1){
+                            break;
+                        }
+                        out.write(data,0,count);
+                        mCurrentPartDownloaded += count;
+                        mDownloaded+=count;
+                        notifySpeedChange();
+                        checkPaused();
+                    }catch (Exception e){
+                        //if pause download, it will makes the socket close,and stop the download.
+                        //so we need to reopen it.
+                        //well, maybe a big bug here, maybe cause dead cycle :( so I set a
+                        //max open count to prevent this situation.
+                        mReopenCount++;
+                        if(mReopenCount > MAX_REOPEN_COUNT){
+                            throw new Exception("There is too much open exception.");
+                        }
+                        connection = (HttpURLConnection)new URL(el.getURI().toString()).openConnection();
+                        connection.setRequestProperty("Range","bytes=" + mCurrentPartDownloaded + "-");
+                        connection.setDoOutput(true);
+                        connection.setDoInput(true);
+                        in = new BufferedInputStream(connection.getInputStream());
+                    }
                 }
+                mCurrentPartDownloaded = 0;
                 mDownloadedCount++;
                 mDownloadedVideoDuration+=el.getDuration();
-
+                notifyPercentageChange();
                 if(isCanceled()){
                     notifyCancel();
                     break;
-                }else{
-                    Thread.sleep(1000);
-                    notifyProgressing();
-                    notifySuccess();
                 }
+            }
+            if(!isCanceled()){
+                notifyPercentageChange();
+                notifySuccess();
             }
         }catch (Exception e){
             notifyError(e);
@@ -93,11 +119,19 @@ public class M3U8Mission extends Mission{
         return (int)(mDownloadedVideoDuration * 100.0f/mTotalVideoDuration);
     }
 
+    public int getSegmentsCount(){
+        if(mM3U8Playlist != null){
+            return mM3U8Playlist.getElements().size();
+        }else{
+            return -1;
+        }
+    }
+
     /**
      * get m3u8 video duration
      * @return the video duration(seconds)
      */
-    public int getDuration(){
+    public int getVideoDuration(){
         return mTotalVideoDuration;
     }
 
@@ -107,10 +141,6 @@ public class M3U8Mission extends Mission{
      */
     public int getDownloadedDuration(){
         return mDownloadedVideoDuration;
-    }
-
-    public Playlist getPlaylist(){
-        return mM3U8Playlist;
     }
 
 }
