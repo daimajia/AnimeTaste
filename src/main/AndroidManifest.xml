@@ -79,7 +79,7 @@
         </meta-data>
         <meta-data
             android:name="UMENG_CHANNEL"
-            android:value="UMENG_CHANNEL_VALUE" />
+            android:value="Play" />
         <!-- 友盟结束 -->
         <activity
             android:name="com.zhan_dui.animetaste.StartActivity"
@@ -134,9 +134,11 @@
 		               android:value="splitActionBarWhenNarrow" />
 	    </activity>
 
-	    <activity android:name="com.zhan_dui.animetaste.InterviewActivity" android:screenOrientation="portrait"></activity>
+	    <activity android:name="com.zhan_dui.animetaste.InterviewActivity"
+                  android:screenOrientation="portrait">
+	    </activity>
         <service android:name="com.zhan_dui.services.DownloadService" android:exported="false"></service>
-        <receiver android:name="com.daimajia.alfred.defaults.MissionActionReceiver"></receiver>
+        <receiver android:name="com.zhan_dui.download.alfred.defaults.MissionActionReceiver"></receiver>
     </application>
 
 </manifest>

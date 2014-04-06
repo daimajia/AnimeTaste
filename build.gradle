@@ -24,8 +24,9 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-    compile 'com.android.support:support-v4:19.0.+'
+    compile 'com.android.support:support-v4:+'
     compile 'com.android.support:appcompat-v7:+'
+    compile 'com.github.johnpersano:supertoasts:1.3.4@aar'
     compile 'de.hdodenhof:circleimageview:1.1.0'
     debugCompile 'im.dino:dbinspector:1.0.5@aar'
     compile project(':libraries:ViewPagerIndicator')
@@ -33,8 +34,6 @@ dependencies {
     compile project(':libraries:android-switch-backport')
     compile project(':libraries:MainLibs')
     compile project(':libraries:OneKeyShare')
-    compile project(':libraries:supertoasts')
-    compile project(':libraries:SwipeBackLayout')
 }
 
 

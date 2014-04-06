@@ -9,7 +9,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.daimajia.alfred.missions.M3U8Mission;
+import com.zhan_dui.download.alfred.missions.M3U8Mission;
 import com.zhan_dui.modal.Animation;
 import com.zhan_dui.services.DownloadService;
 import com.zhan_dui.services.DownloadService.DownloadServiceBinder;

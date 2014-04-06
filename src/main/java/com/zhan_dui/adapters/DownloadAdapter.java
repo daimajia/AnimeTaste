@@ -1,21 +1,16 @@
 package com.zhan_dui.adapters;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.daimajia.alfred.defaults.MissionListenerForAdapter;
-import com.daimajia.alfred.missions.M3U8Mission;
-import com.daimajia.alfred.missions.Mission;
+import com.zhan_dui.download.alfred.defaults.MissionListenerForAdapter;
+import com.zhan_dui.download.alfred.missions.Mission;
 import com.squareup.picasso.Picasso;
 import com.zhan_dui.animetaste.R;
 import com.zhan_dui.modal.Animation;
-
-import java.util.concurrent.TimeUnit;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -26,13 +21,10 @@ public class DownloadAdapter extends MissionListenerForAdapter{
 
     private Context mContext;
     private LayoutInflater mLayoutInflater;
-    private long mPreviousTime;
-
 
     public DownloadAdapter(Context context) {
         mContext = context;
         mLayoutInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mPreviousTime = System.currentTimeMillis();
     }
 
     @Override
@@ -65,7 +57,6 @@ public class DownloadAdapter extends MissionListenerForAdapter{
         progress.setText(mission.getReadablePercentage());
         title.setText(animation.Name);
         content.setText(animation.Brief);
-        thumb.setAlpha(mission.getPercentage());
         return convertView;
     }
 
@@ -80,29 +71,4 @@ public class DownloadAdapter extends MissionListenerForAdapter{
             this.thumb = thumb;
         }
     }
-
-    @Override
-    public void onPercentageChange(M3U8Mission mission) {
-        long currentTime = System.currentTimeMillis();
-        long span = TimeUnit.MILLISECONDS.toSeconds(currentTime - mPreviousTime);
-        if(span > 1){
-            mPreviousTime = currentTime;
-            handler.sendEmptyMessage(0);
-        }
-        super.onPercentageChange(mission);
-    }
-
-    @Override
-    public void onSuccess(M3U8Mission mission) {
-        super.onSuccess(mission);
-
-    }
-
-    Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            notifyDataSetChanged();
-        }
-    };
 }

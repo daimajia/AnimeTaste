@@ -2,15 +2,14 @@ package com.zhan_dui.animetaste;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.avos.avoscloud.ParseObject;
-import com.zhan_dui.utils.SwipeBackAppCompatActivity;
-import me.imid.swipebacklayout.lib.SwipeBackLayout;
 
-public class FeedbackActivity extends SwipeBackAppCompatActivity {
+public class FeedbackActivity extends ActionBarActivity {
 	private EditText mFeedback;
 	private Context mContext;
 
@@ -19,10 +18,9 @@ public class FeedbackActivity extends SwipeBackAppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_feedback);
 		mContext = this;
-		mFeedback = (EditText) findViewById(R.id.suggestion);
+        mFeedback = (EditText) findViewById(R.id.suggestion);
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSwipeBackLayout().setEdgeTrackingEnabled(SwipeBackLayout.EDGE_LEFT);
 	}
 
 	@Override

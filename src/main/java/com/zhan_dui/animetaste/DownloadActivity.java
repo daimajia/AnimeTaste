@@ -5,17 +5,16 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v7.app.ActionBarActivity;
 import android.widget.ListView;
 
 import com.zhan_dui.services.DownloadService;
-import com.zhan_dui.utils.SwipeBackAppCompatActivity;
 
-import me.imid.swipebacklayout.lib.SwipeBackLayout;
 
 /**
  * Created by daimajia on 14-2-11.
  */
-public class DownloadActivity extends SwipeBackAppCompatActivity {
+public class DownloadActivity extends ActionBarActivity {
 
     private DownloadService.DownloadServiceBinder mDownloadBinder;
     private boolean isConnected = false;
@@ -37,7 +36,6 @@ public class DownloadActivity extends SwipeBackAppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSwipeBackLayout().setEdgeTrackingEnabled(SwipeBackLayout.EDGE_LEFT);
         setContentView(R.layout.activity_download);
         setTitle(R.string.my_download);
         Intent intent = new Intent(this,DownloadService.class);

@@ -9,25 +9,27 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Toast;
+
+import com.umeng.analytics.MobclickAgent;
+
+import org.jraf.android.backport.switchwidget.Switch;
+
+import java.util.HashMap;
+
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.sina.weibo.SinaWeibo;
 import cn.sharesdk.tencent.qzone.QZone;
-import com.umeng.analytics.MobclickAgent;
-import com.zhan_dui.utils.SwipeBackAppCompatActivity;
-import me.imid.swipebacklayout.lib.SwipeBackLayout;
-import org.jraf.android.backport.switchwidget.Switch;
 
-import java.util.HashMap;
-
-public class SettingActivity extends SwipeBackAppCompatActivity implements
+public class SettingActivity extends ActionBarActivity implements
 		OnClickListener, OnCheckedChangeListener, PlatformActionListener {
 	private View mRecommand;
 	private View mSuggestion;
@@ -77,7 +79,6 @@ public class SettingActivity extends SwipeBackAppCompatActivity implements
 		mSwitchOnlyWifi.setChecked(mSharedPreferences.getBoolean("only_wifi",
 				true));
 		mSwitchUseHD.setChecked(mSharedPreferences.getBoolean("use_hd", true));
-        getSwipeBackLayout().setEdgeTrackingEnabled(SwipeBackLayout.EDGE_LEFT);
 	}
 
 	@Override

@@ -22,5 +22,6 @@
 	<color name="drawer_selected_background">#4491DF</color>
 	<color name="drawer_text">#ffffff</color>
 	<color name="drawer_divider">#333333</color>
-
+    <!-- ActionBar -->
+    <color name="actionbar_background">#272727</color>
 </resources>

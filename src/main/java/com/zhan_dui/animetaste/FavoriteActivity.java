@@ -7,6 +7,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,17 +15,16 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import com.activeandroid.query.Select;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.adapters.AnimationListAdapter;
 import com.zhan_dui.modal.Animation;
-import com.zhan_dui.utils.SwipeBackAppCompatActivity;
-import me.imid.swipebacklayout.lib.SwipeBackLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FavoriteActivity extends SwipeBackAppCompatActivity implements
+public class FavoriteActivity extends ActionBarActivity implements
 		OnItemLongClickListener {
 
 	private Context mContext;
@@ -41,7 +41,6 @@ public class FavoriteActivity extends SwipeBackAppCompatActivity implements
 		getSupportActionBar().setDisplayShowTitleEnabled(false);
 		mFavListView.setOnItemLongClickListener(this);
 		new LoadAsyncTask().execute();
-        getSwipeBackLayout().setEdgeTrackingEnabled(SwipeBackLayout.EDGE_LEFT);
 	}
 
 	private class LoadAsyncTask extends AsyncTask<Void, Void, Void> {
@@ -82,9 +81,9 @@ public class FavoriteActivity extends SwipeBackAppCompatActivity implements
 											int which) {
                                         Animation.removeAllFavorite(new Animation.UpdateFinishCallback() {
                                             @Override
-                                            public void onUpdateFinished(Animation.Method method,Message msg) {
+                                            public void onUpdateFinished(Animation.Method method, Message msg) {
                                                 new LoadAsyncTask().execute();
-                                                Toast.makeText(mContext, R.string.delete_success,Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(mContext, R.string.delete_success, Toast.LENGTH_SHORT).show();
                                             }
                                         });
 									}

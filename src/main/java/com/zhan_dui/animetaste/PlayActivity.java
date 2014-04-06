@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
 import android.text.InputFilter;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -66,7 +67,6 @@ import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Comment;
 import com.zhan_dui.utils.OrientationHelper;
 import com.zhan_dui.utils.Screen;
-import com.zhan_dui.utils.SwipeBackAppCompatActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -85,9 +85,8 @@ import java.util.TimerTask;
 
 import cn.sharesdk.sina.weibo.SinaWeibo;
 import cn.sharesdk.tencent.qzone.QZone;
-import me.imid.swipebacklayout.lib.SwipeBackLayout;
 
-public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickListener,
+public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		Target, OnPreparedListener, OnCompletionListener, OnErrorListener,
 		OnTouchListener {
 
@@ -204,7 +203,6 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
         mAnimation.recordWatch();
 		ApiConnector.instance().getRandom(5, mRandomHandler);
 		new CommentsTask().execute();
-        getSwipeBackLayout().setEdgeTrackingEnabled(SwipeBackLayout.EDGE_LEFT);
 	}
 
 	@Override
@@ -839,7 +837,7 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
                 SuperToast superToast = new SuperToast(this);
                 superToast.setDuration(12000);
                 superToast.setText("魅族某些版本固件可能存在兼容性问题，建议您升级到最新固件");
-                superToast.setIconResource(SuperToast.Icon.Dark.INFO, SuperToast.IconPosition.LEFT);
+                superToast.setIcon(SuperToast.Icon.Dark.INFO, SuperToast.IconPosition.LEFT);
                 superToast.show();
                 mSharedPreferences.edit().putBoolean("Meizu",true).commit();
             }

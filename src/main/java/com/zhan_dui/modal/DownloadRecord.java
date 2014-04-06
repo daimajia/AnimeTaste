@@ -6,7 +6,7 @@ import android.os.Parcelable;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
-import com.daimajia.alfred.missions.M3U8Mission;
+import com.zhan_dui.download.alfred.missions.M3U8Mission;
 
 import java.util.Date;
 

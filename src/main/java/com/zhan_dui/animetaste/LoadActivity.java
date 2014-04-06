@@ -12,7 +12,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.widget.Toast;
-import cn.sharesdk.framework.ShareSDK;
+
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Delete;
 import com.avos.avoscloud.Parse;
@@ -26,10 +26,13 @@ import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Category;
 import com.zhan_dui.modal.WatchRecord;
 import com.zhan_dui.utils.NetworkUtils;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+
+import cn.sharesdk.framework.ShareSDK;
 
 public class LoadActivity extends ActionBarActivity {
 	private Context mContext;
@@ -43,9 +46,6 @@ public class LoadActivity extends ActionBarActivity {
         ActiveAndroid.setLoggingEnabled(false);
 		ShareSDK.initSDK(mContext);
 		ParseAnalytics.trackAppOpened(getIntent());
-		if (getSupportActionBar() != null) {
-			getSupportActionBar().hide();
-		}
 
         updateFromOldVersion();
 
