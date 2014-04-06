@@ -1,4 +1,4 @@
-package net.chilicat.m3u8;
+package com.zhan_dui.utils.m3u8;
 
 /**
  * @author dkuffner

@@ -1,7 +1,7 @@
 package com.zhan_dui.download.alfred.missions;
 
-import net.chilicat.m3u8.Element;
-import net.chilicat.m3u8.Playlist;
+import com.zhan_dui.utils.m3u8.Element;
+import com.zhan_dui.utils.m3u8.Playlist;
 
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;

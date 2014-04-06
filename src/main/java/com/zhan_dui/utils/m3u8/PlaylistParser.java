@@ -1,8 +1,7 @@
-package net.chilicat.m3u8;
+package com.zhan_dui.utils.m3u8;
 
 import java.io.File;
 import java.net.URI;
-import java.nio.channels.Channels;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +11,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static net.chilicat.m3u8.M3uConstants.*;
+import static com.zhan_dui.utils.m3u8.M3uConstants.*;
 
 /**
  * Implementation based on http://tools.ietf.org/html/draft-pantos-http-live-streaming-02#section-3.1.
