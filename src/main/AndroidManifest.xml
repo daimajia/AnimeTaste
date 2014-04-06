@@ -97,6 +97,7 @@
         </activity>
         <activity
             android:name="com.zhan_dui.animetaste.LoadActivity"
+            android:theme="@style/LoadActivityTheme"
             android:screenOrientation="portrait" >
 
 	        <!-- 豌豆荚 -->
