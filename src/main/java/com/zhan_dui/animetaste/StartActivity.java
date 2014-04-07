@@ -160,6 +160,8 @@ public class StartActivity extends ActionBarActivity implements
                     mCurrentPage = 1;
                     mIsEnd = false;
                     mVideoAdapter.removeAllData();
+                    mFooterView.findViewById(R.id.loading).setVisibility(View.VISIBLE);
+                    mFooterView.findViewById(R.id.load_text).setVisibility(View.INVISIBLE);
                     triggerApiConnector();
                 }
             }
@@ -372,8 +374,6 @@ public class StartActivity extends ActionBarActivity implements
 
     private class LoadMoreJSONListener extends JsonHttpResponseHandler {
 
-		private View mFooterView;
-
 		public LoadMoreJSONListener() {
 			mUpdating = true;
 		}
@@ -385,9 +385,12 @@ public class StartActivity extends ActionBarActivity implements
 				try {
                     if(response.getJSONObject("data").getJSONObject("list").getJSONArray("anime").isNull(1)){
                         mIsEnd = true;
-                        Toast.makeText(mContext,R.string.end,Toast.LENGTH_LONG).show();
+                        mFooterView.findViewById(R.id.loading).setVisibility(View.INVISIBLE);
+                        mFooterView.findViewById(R.id.load_text).setVisibility(View.VISIBLE);
                     }else{
 					    mVideoAdapter.addAnimationsFromJsonArray(response.getJSONObject("data").getJSONObject("list").getJSONArray("anime"));
+                        mFooterView.findViewById(R.id.loading).setVisibility(View.VISIBLE);
+                        mFooterView.findViewById(R.id.load_text).setVisibility(View.INVISIBLE);
                     }
 				} catch (JSONException e) {
 					e.printStackTrace();

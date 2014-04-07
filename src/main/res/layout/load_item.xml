@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="120dp"
+    android:layout_height="wrap_content"
+    android:padding="7dp"
     android:background="@color/backgroundColor" >
 
     <ProgressBar
-        android:id="@+id/progressBar1"
+        android:id="@+id/loading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
         android:layout_centerHorizontal="true" />
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/load_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/progressBar1"
-        android:layout_centerHorizontal="true"
-        android:text="正在加载更多..."
+        android:layout_above="@+id/loading"
+        android:visibility="invisible"
+        android:layout_centerInParent="true"
+        android:text="@string/end"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@color/videoListItemContentColor" />
 
