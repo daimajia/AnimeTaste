@@ -4,15 +4,15 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.zhan_dui.download.alfred.defaults.MissionListenerForAdapter;
-import com.zhan_dui.download.alfred.missions.Mission;
 import com.squareup.picasso.Picasso;
 import com.zhan_dui.animetaste.R;
+import com.zhan_dui.download.alfred.defaults.MissionListenerForAdapter;
+import com.zhan_dui.download.alfred.missions.Mission;
 import com.zhan_dui.modal.Animation;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by daimajia on 14-3-25.
@@ -29,7 +29,7 @@ public class DownloadAdapter extends MissionListenerForAdapter{
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        CircleImageView thumb;
+        ImageView thumb;
         TextView title,content,progress;
         ViewHolder holder;
         Mission mission = getMission(position);
@@ -37,7 +37,7 @@ public class DownloadAdapter extends MissionListenerForAdapter{
         Animation animation = (Animation)extra;
         if(convertView == null){
             convertView = mLayoutInflater.inflate(R.layout.download_item,null);
-            thumb = (CircleImageView)convertView.findViewById(R.id.thumbImage);
+            thumb = (ImageView)convertView.findViewById(R.id.thumbImage);
             title = (TextView)convertView.findViewById(R.id.title);
             content = (TextView)convertView.findViewById(R.id.content);
             progress = (TextView)convertView.findViewById(R.id.progress);
@@ -62,9 +62,9 @@ public class DownloadAdapter extends MissionListenerForAdapter{
 
     private static class ViewHolder{
         public TextView title,progress,content;
-        public CircleImageView thumb;
+        public ImageView thumb;
 
-        private ViewHolder(TextView title, TextView progress, TextView content, CircleImageView thumb) {
+        private ViewHolder(TextView title, TextView progress, TextView content, ImageView thumb) {
             this.title = title;
             this.progress = progress;
             this.content = content;

@@ -2,13 +2,18 @@ package com.zhan_dui.modal;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
+import com.activeandroid.query.Delete;
+import com.activeandroid.query.Select;
+import com.activeandroid.query.Update;
 import com.zhan_dui.download.alfred.missions.M3U8Mission;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by daimajia on 14-4-3.
@@ -17,7 +22,7 @@ import java.util.Date;
 public class DownloadRecord extends Model implements Parcelable {
 
     enum STATUS{
-        DOWNLOADING,PAUSE,CANCEL,ERROR,SUCCESS
+        DOWNLOADING,ERROR,SUCCESS
     };
     /**
      * Animation Information
@@ -67,8 +72,8 @@ public class DownloadRecord extends Model implements Parcelable {
     public int Duration;
     @Column(name = "DownloadedDuration")
     public int DownloadedDuration;
-    @Column(name = "Segements")
-    public int Segements;
+    @Column(name = "Segments")
+    public int Segments;
     @Column(name = "DownloadedSegments")
     public int DownloadedSegments;
     @Column(name = "DownloadedPercentage")
@@ -86,7 +91,8 @@ public class DownloadRecord extends Model implements Parcelable {
     @Column(name = "UsingDownloadUrl")
     public String UsingDownloadUrl;
 
-    public DownloadRecord(Animation animation){
+
+    private DownloadRecord(Animation animation){
         AnimationId = animation.AnimationId;
         Name = animation.Name;
         OriginVideoUrl = animation.OriginVideoUrl;
@@ -107,11 +113,12 @@ public class DownloadRecord extends Model implements Parcelable {
 
     public DownloadRecord(Animation animation,M3U8Mission mission){
         this(animation);
+        AddedTime = new Date();
         Size = mission.getFilesize();
         DownloadedSize = mission.getDownloaded();
         Duration = mission.getVideoDuration();
         DownloadedPercentage = mission.getPercentage();
-        Segements = mission.getSegmentsCount();
+        Segments = mission.getSegmentsCount();
         Duration = mission.getVideoDuration();
         DownloadedDuration = mission.getDownloadedDuration();
         SaveDir = mission.getSaveDir();
@@ -148,7 +155,7 @@ public class DownloadRecord extends Model implements Parcelable {
         dest.writeLong(this.DownloadedSize);
         dest.writeInt(this.Duration);
         dest.writeInt(this.DownloadedDuration);
-        dest.writeInt(this.Segements);
+        dest.writeInt(this.Segments);
         dest.writeInt(this.DownloadedSegments);
         dest.writeInt(this.RangeStart);
         dest.writeInt(this.Status == null ? -1 : this.Status.ordinal());
@@ -178,7 +185,7 @@ public class DownloadRecord extends Model implements Parcelable {
         this.DownloadedSize = in.readLong();
         this.Duration = in.readInt();
         this.DownloadedDuration = in.readInt();
-        this.Segements = in.readInt();
+        this.Segments = in.readInt();
         this.DownloadedSegments = in.readInt();
         this.RangeStart = in.readInt();
         int tmpStatus = in.readInt();
@@ -190,9 +197,69 @@ public class DownloadRecord extends Model implements Parcelable {
         public DownloadRecord createFromParcel(Parcel source) {
             return new DownloadRecord(source);
         }
-
         public DownloadRecord[] newArray(int size) {
             return new DownloadRecord[size];
         }
     };
+
+    public static void deleteOne(Animation animation){
+        new Delete().from(DownloadRecord.class).where("AnimationId = ?",animation.AnimationId).execute();
+    }
+
+    public static List<DownloadRecord> getAllDownloaded(){
+        return new Select()
+                .from(DownloadRecord.class)
+                .where("Status = ?",STATUS.SUCCESS)
+                .orderBy("AddedTime DESC")
+                .execute();
+    }
+
+    public static void save(Animation animation,M3U8Mission mission){
+        DownloadRecord record = new Select()
+                .from(DownloadRecord.class)
+                .where("AnimationId = ?" , animation.AnimationId)
+                .executeSingle();
+        if(record == null){
+            Log.e("Download","START CREATE A RECORD");
+            new DownloadRecord(animation,mission).save();
+        }else{
+            Log.e("Download","UPDATE");
+            int status;
+            if(mission.isDone()){
+                status = mission.isSuccess()?STATUS.SUCCESS.ordinal():STATUS.ERROR.ordinal();
+            }else{
+                status = STATUS.DOWNLOADING.ordinal();
+            }
+            new Update(DownloadRecord.class)
+                    .set("Size = ?," +
+                                    "DownloadedSize = ?," +
+                                    "Duration = ?," +
+                                    "DownloadedDuration = ?," +
+                                    "Segments = ?," +
+                                    "DownloadedSegments = ?," +
+                                    "DownloadedPercentage = ?," +
+                                    "RangeStart = ?,"+
+                                    "Status = ?," +
+                                    "Extra = ?," +
+                                    "SaveDir = ?," +
+                                    "SaveFileName = ? ," +
+                                    "UsingDownloadUrl = ? ",
+                            mission.getFilesize(),
+                            mission.getDownloaded(),
+                            mission.getVideoDuration(),
+                            mission.getDownloadedDuration(),
+                            mission.getSegmentsCount(),
+                            mission.getDownloadedSegmentCount(),
+                            mission.getPercentage(),
+                            mission.getCurrentSegmentDownloaded(),
+                            status,
+                            "",
+                            mission.getSaveDir(),
+                            mission.getSaveName(),
+                            mission.getUri())
+                    .where("AnimationId = ?",animation.AnimationId)
+                    .execute();
+        }
+    }
+
 }

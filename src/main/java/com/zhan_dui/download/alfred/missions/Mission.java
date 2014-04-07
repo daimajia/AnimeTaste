@@ -1,7 +1,5 @@
 package com.zhan_dui.download.alfred.missions;
 
-import android.util.Log;
-
 import com.zhan_dui.download.alfred.utils.AlfredUtils;
 
 import java.io.BufferedInputStream;
@@ -54,6 +52,7 @@ public class Mission implements Runnable{
 
     private boolean isDone = false;
     private boolean isPaused = false;
+    private boolean isSuccess = false;
     private boolean isCanceled = false;
     private final Object o = new Object();
 
@@ -163,23 +162,21 @@ public class Mission implements Runnable{
 
     protected FileOutputStream getSafeOutputStream(String directory,String filename) {
         String filepath;
-        if(directory.lastIndexOf(File.separator) != directory.length()){
+        if(directory.lastIndexOf(File.separator) != directory.length() - 1){
             directory += File.separator;
         }
         filepath = directory + filename;
-        Log.e("Filepath",filepath + " ");
         File file = new File(filepath);
         try{
             file.createNewFile();
             return new FileOutputStream(file.getCanonicalFile().toString());
         }catch (Exception e){
-            e.printStackTrace();
-            return null;
+            throw new Error("Can not get an valid output stream");
         }
     }
 
     protected String getSafeFilename(String name){
-        return name.replaceAll("\\W+", "");
+        return name.replaceAll("[\\\\|\\/|\\:|\\*|\\?|\\\"|\\<|\\>|\\|]", "-");
     }
 
     protected void checkPaused(){
@@ -278,6 +275,7 @@ public class Mission implements Runnable{
     }
 
     protected final void notifyCancel(){
+        isDone = true;
         if(missionListeners != null && missionListeners.size()!=0){
             for(MissionListener l : missionListeners){
                 l.onCancel(this);
@@ -295,6 +293,8 @@ public class Mission implements Runnable{
 
     protected final void notifySuccess(){
         mResultStatus = RESULT_STATUS.SUCCESS;
+        isDone = true;
+        isSuccess = true;
         if(missionListeners != null && missionListeners.size()!=0){
             for(MissionListener l : missionListeners){
                 l.onSuccess(this);
@@ -304,6 +304,8 @@ public class Mission implements Runnable{
 
     protected final void notifyError(Exception e){
         mResultStatus = RESULT_STATUS.FAILED;
+        isDone = true;
+        isSuccess = false;
         if(missionListeners != null && missionListeners.size()!=0){
             for(MissionListener l : missionListeners){
                 l.onError(this, e);
@@ -406,6 +408,10 @@ public class Mission implements Runnable{
 
     public boolean isDone(){
         return isDone;
+    }
+
+    public boolean isSuccess(){
+        return isSuccess;
     }
 
     public boolean isPaused(){return isPaused;}

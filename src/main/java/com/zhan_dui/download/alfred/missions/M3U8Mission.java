@@ -13,8 +13,8 @@ import java.net.URL;
  */
 public class M3U8Mission extends Mission{
 
-    protected int mElementCount;
-    protected int mDownloadedCount;
+    protected int mVideoSegmentCount = -1;
+    protected int mDownloadedSgementCount = 0;
 
     protected int mTotalVideoDuration;
     protected int mDownloadedVideoDuration;
@@ -49,7 +49,7 @@ public class M3U8Mission extends Mission{
             for(Element el:mM3U8Playlist){
                 mTotalVideoDuration += el.getDuration();
             }
-            mElementCount = mM3U8Playlist.getElements().size();
+            mVideoSegmentCount = mM3U8Playlist.getElements().size();
             notifyMetaDataReady();
 
             byte data[] = new byte[1024];
@@ -88,7 +88,7 @@ public class M3U8Mission extends Mission{
                     }
                 }
                 mCurrentPartDownloaded = 0;
-                mDownloadedCount++;
+                mDownloadedSgementCount++;
                 mDownloadedVideoDuration+=el.getDuration();
                 notifyPercentageChange();
                 if(isCanceled()){
@@ -120,11 +120,7 @@ public class M3U8Mission extends Mission{
     }
 
     public int getSegmentsCount(){
-        if(mM3U8Playlist != null){
-            return mM3U8Playlist.getElements().size();
-        }else{
-            return -1;
-        }
+        return mVideoSegmentCount;
     }
 
     /**
@@ -141,6 +137,14 @@ public class M3U8Mission extends Mission{
      */
     public int getDownloadedDuration(){
         return mDownloadedVideoDuration;
+    }
+
+    public int getDownloadedSegmentCount(){
+        return mDownloadedSgementCount;
+    }
+
+    public int getCurrentSegmentDownloaded(){
+        return mCurrentPartDownloaded;
     }
 
 }

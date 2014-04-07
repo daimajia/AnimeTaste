@@ -114,11 +114,11 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	private MenuItem mFavMenuItem;
 	private Bitmap mDetailPicture;
-	private LinearLayout mComments, mRecomendList;
+	private LinearLayout mComments, mRecomendView;
 	private LayoutInflater mLayoutInflater;
-	private RelativeLayout mHeaderWrpper;
+	private RelativeLayout mHeaderWrapper;
 	private View mLoadMoreComment;
-	private View mRecommandView;
+	private View mRecommendView;
 	private Button mLoadMoreButton;
 	private Button mZoomButton;
 
@@ -130,7 +130,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	private int mCommentCount;
 
 	private int mSkip = 0;
-	private int mStep = 5;
+	private int mStep = 8;
 	private int mLastPos = 0;
 	private final int UI_EVENT_UPDATE_CURRPOSITION = 1;
 
@@ -182,7 +182,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mPrePlayButton = (ImageButton) findViewById(R.id.pre_play_button);
 		mLoadingGif = (GifMovieView) findViewById(R.id.loading_gif);
 		mComments = (LinearLayout) findViewById(R.id.comments);
-		mRecommandView = findViewById(R.id.recommand_view);
+		mRecommendView = findViewById(R.id.recommand_view);
 		mPlaybtn = (Button) findViewById(R.id.play_btn);
 		mProgress = (SeekBar) findViewById(R.id.media_progress);
 		mDuration = (TextView) findViewById(R.id.time_total);
@@ -191,9 +191,9 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mViewHolder = (RelativeLayout) findViewById(R.id.view_holder);
 		mVV = (BVideoView) findViewById(R.id.video_view);
 		mCommentEditText = (EditText) findViewById(R.id.comment_edit_text);
-		mHeaderWrpper = (RelativeLayout) findViewById(R.id.header_wrapper);
+		mHeaderWrapper = (RelativeLayout) findViewById(R.id.header_wrapper);
 		mZoomButton = (Button) findViewById(R.id.zoom_btn);
-		mRecomendList = (LinearLayout) findViewById(R.id.recommend_list);
+		mRecomendView = (LinearLayout) findViewById(R.id.recommend_list);
 		mRobotoBold = Typeface.createFromAsset(getAssets(),
 				"fonts/Roboto-Bold.ttf");
 		mRobotoThin = Typeface.createFromAsset(getAssets(),
@@ -246,7 +246,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
                 recommendContent.setText(animation.Brief);
                 recommend_item.setTag(animation);
                 recommend_item.setOnClickListener(PlayActivity.this);
-                View line = mRecommandView
+                View line = mRecommendView
                         .findViewById(R.id.divide_line);
                 if (i == mRandomJsonArray.length() - 1 && line != null) {
                     recommend_item.removeView(line);
@@ -262,7 +262,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            mRecomendList.addView(mRandomLayout);
+            mRecomendView.addView(mRandomLayout);
         }
     }
 
@@ -846,7 +846,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
         RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
 				Screen.getScreenWidth(getWindowManager()),
 				Screen.getScreenHeight(getWindowManager()));
-		mHeaderWrpper.setLayoutParams(param);
+		mHeaderWrapper.setLayoutParams(param);
 		mVV.setLayoutParams(param);
 		mZoomButton.setBackgroundResource(R.drawable.screensize_zoomin_button);
 		mCurrentScape = OrientationHelper.LANDSCAPE;
@@ -860,7 +860,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
 				Screen.getScreenWidth(getWindowManager()), getResources()
 						.getDimensionPixelSize(R.dimen.player_height));
-		mHeaderWrpper.setLayoutParams(param);
+		mHeaderWrapper.setLayoutParams(param);
 		mVV.setLayoutParams(param);
 		mZoomButton.setBackgroundResource(R.drawable.screensize_zoomout_button);
 		mCurrentScape = OrientationHelper.PORTRAIT;

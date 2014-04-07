@@ -7,11 +7,11 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.BaseAdapter;
 
+import com.zhan_dui.adapters.DownloadAdapter;
 import com.zhan_dui.download.alfred.Alfred;
 import com.zhan_dui.download.alfred.defaults.MissionListenerForNotification;
+import com.zhan_dui.download.alfred.defaults.MissionSaver;
 import com.zhan_dui.download.alfred.missions.M3U8Mission;
-import com.zhan_dui.download.alfred.missions.Mission;
-import com.zhan_dui.adapters.DownloadAdapter;
 
 /**
  * Created by daimajia on 14-2-11.
@@ -20,13 +20,11 @@ public class DownloadService extends Service{
 
     public static final String TAG = "DownloadService";
     private Alfred alfred = Alfred.getInstance();
-    private Mission.MissionListener missionListenerForNotification;
     private DownloadAdapter missionAdapter;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        missionListenerForNotification = new MissionListenerForNotification(this);
         missionAdapter = new DownloadAdapter(this);
         Log.e(TAG, "onCreate() executed");
     }
@@ -60,6 +58,7 @@ public class DownloadService extends Service{
         public void startDownload(M3U8Mission mission) {
             mission.addMissionListener(new MissionListenerForNotification(DownloadService.this));
             mission.addMissionListener(missionAdapter);
+            mission.addMissionListener(new MissionSaver());
             alfred.addMission(mission);
         }
 
