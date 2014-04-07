@@ -11,6 +11,10 @@ buildscript {
 
 apply plugin: 'android'
 
+task wrap(type: Wrapper) {
+  gradleVersion = '1.9'
+}
+
 repositories {
     mavenCentral()
     mavenLocal()
@@ -19,7 +23,7 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-    compile 'com.android.support:support-v4:19.0.+'
+    compile 'com.android.support:support-v4:+'
     compile 'com.android.support:appcompat-v7:+'
     compile project(':libraries:ViewPagerIndicator')
     compile project(':libraries:gif-library')
@@ -28,6 +32,7 @@ dependencies {
     compile project(':libraries:OneKeyShare')
     compile project(':libraries:supertoasts')
     compile project(':libraries:SwipeBackLayout')
+    compile project(':libraries:PagerSlidingTabStrip')
 }
 
 
@@ -36,28 +41,6 @@ dependencies {
 android {
     compileSdkVersion 19
     buildToolsVersion '19.0.1'
-    
-    signingConfigs {
-        release {
-            storeFile file("AnimeTasteKey")
-            storePassword "410831497"
-            keyAlias "AnimeTaste"
-            keyPassword "410831497"
-        }
-    }
-
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
-            zipAlign true
-        }
-    }
-
-    //渠道
-    productFlavors {
-        XiaoMi{}
-        
-    }
 
     lintOptions {  
           abortOnError false
@@ -76,22 +59,5 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
-    }
-    android.applicationVariants.all{ variant -> 
-        println "${variant.productFlavors[0].name}"
-        variant.processManifest.doLast{
-            copy{
-                from("${buildDir}/manifests"){
-                    include "${variant.dirName}/AndroidManifest.xml"
-                }
-                into("${buildDir}/manifests/$variant.name")
-
-                filter{
-                    String line -> line.replaceAll("UMENG_CHANNEL_VALUE", "${variant.productFlavors[0].name}")
-                }
-
-                variant.processResources.manifestFile = file("${buildDir}/manifests/${variant.name}/${variant.dirName}/AndroidManifest.xml")
-            }    
-       }
     }
 }

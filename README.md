@@ -15,6 +15,12 @@ AnimeTaste For Android，为全球动画爱好者所开发。
 ![AnimeTaste](http://ww2.sinaimg.cn/mw690/610dc034jw1e885o9kjgzj208c0b40ty.jpg)..
 ![AnimeTaste](http://ww3.sinaimg.cn/mw690/610dc034jw1e885obnjy6j208c0b43zo.jpg)
 
+### 仿Google Play滑动版本
+
+这是一个Demo版本，曾经和少楠讨论是否要更换展示的方式，做了这个测试版本。
+
+![滑动版本](https://s3.amazonaws.com/pushbullet-uploads/ujAiLaSjqmG-16ivvyE2ipkUuIpJmIEYSiyKKRSbCHO9/Screenshot_2014-04-07-11-32-32.png)
+
 ### 关于AnimeTaste: ###
 
 *	[AnimeTaste官网](http://www.animetaste.net)
@@ -50,7 +56,7 @@ Step-1:
 
 Step-2: 
 
-**在根目录运行`gradle build` 稍等片刻即可。**
+**在根目录运行`gradlew build` 稍等片刻即可。**
 
 ----------------
 
