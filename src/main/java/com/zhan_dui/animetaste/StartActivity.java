@@ -80,6 +80,7 @@ public class StartActivity extends ActionBarActivity implements
 	private RecommendAdapter mRecommendAdapter;
 
 	private LayoutInflater mLayoutInflater;
+    private View mFooterView;
 
     private ApiConnector.RequestType mPreviousType = ApiConnector.RequestType.ALL;
     private ApiConnector.RequestType mType = ApiConnector.RequestType.ALL;
@@ -112,6 +113,9 @@ public class StartActivity extends ActionBarActivity implements
 		mLayoutInflater = (LayoutInflater) this
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mCategoryList = (ListView)findViewById(R.id.category_list);
+
+        mFooterView = mLayoutInflater.inflate(R.layout.load_item, null);
+        mVideoList.addFooterView(mFooterView);
 
 		mVideoList.setOnScrollListener(this);
         mDrawer.setOnTouchListener(this);
@@ -267,10 +271,10 @@ public class StartActivity extends ActionBarActivity implements
         if(mCurrentPage == 1){
             switch (mType){
                 case ALL:
-                    ApiConnector.instance().getALLRecommend(4,new LoadRecomendListener());
+                    ApiConnector.instance().getALLRecommend(4,new LoadRecommendListener());
                     break;
                 case CATEGORY:
-                    ApiConnector.instance().getCategoryRecommend(mCategoryId,4,new LoadRecomendListener());
+                    ApiConnector.instance().getCategoryRecommend(mCategoryId,4,new LoadRecommendListener());
                     break;
                 default:
             }
@@ -329,7 +333,7 @@ public class StartActivity extends ActionBarActivity implements
         return true;
     }
 
-    private class LoadRecomendListener extends JsonHttpResponseHandler{
+    private class LoadRecommendListener extends JsonHttpResponseHandler{
         @Override
         public void onSuccess(final JSONObject response) {
             super.onSuccess(response);
@@ -400,15 +404,13 @@ public class StartActivity extends ActionBarActivity implements
 		@Override
 		public void onStart() {
 			super.onStart();
-			mFooterView = mLayoutInflater.inflate(R.layout.load_item, null);
-			mVideoList.addFooterView(mFooterView);
+
 		}
 
 		@Override
 		public void onFinish() {
 			super.onFinish();
 			mUpdating = false;
-			mVideoList.removeFooterView(mFooterView);
 		}
 	}
 
@@ -501,13 +503,13 @@ public class StartActivity extends ActionBarActivity implements
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
-                   runOnUiThread(new Runnable() {
-                       @Override
-                       public void run() {
-                           mDrawerLayout.closeDrawers();
-                       }
-                   });
-                   mSharedPreferences.edit().putBoolean("showed15",true).commit();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mDrawerLayout.closeDrawers();
+                        }
+                    });
+                    mSharedPreferences.edit().putBoolean("showed15",true).commit();
                 }
             },3000);
         }
