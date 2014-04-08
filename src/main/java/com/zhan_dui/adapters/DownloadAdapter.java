@@ -1,7 +1,7 @@
 package com.zhan_dui.adapters;
 
 import android.content.Context;
-import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
-import com.zhan_dui.animetaste.PlayActivity;
 import com.zhan_dui.animetaste.R;
 import com.zhan_dui.download.alfred.defaults.MissionListenerForAdapter;
 import com.zhan_dui.download.alfred.missions.M3U8Mission;
@@ -23,34 +22,34 @@ import java.util.ArrayList;
 /**
  * Created by daimajia on 14-3-25.
  */
-public class DownloadAdapter extends MissionListenerForAdapter implements View.OnClickListener {
+public class DownloadAdapter extends MissionListenerForAdapter{
 
     private Context mContext;
     private LayoutInflater mLayoutInflater;
     private ArrayList<DownloadRecord> mCompletedMissions;
-    private ArrayList<DownloadRecord> mCanceledMissions;
+    private ArrayList<DownloadRecord> mFaileureMissions;
 
     public DownloadAdapter(Context context) {
         mContext = context;
         mLayoutInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mCompletedMissions = new ArrayList<DownloadRecord>();
-        mCanceledMissions = new ArrayList<DownloadRecord>();
+        mFaileureMissions = new ArrayList<DownloadRecord>();
         updateList();
     }
 
     @Override
     public int getCount() {
-        return mCompletedMissions.size() + onGoingMissions.size() + mCanceledMissions.size();
+        return mCompletedMissions.size() + onGoingMissions.size() + mFaileureMissions.size();
     }
 
     @Override
     public Object getItem(int position) {
         if(position < onGoingMissions.size()){
             return onGoingMissions.get(position);
-        }else if(position < onGoingMissions.size() + mCanceledMissions.size()){
-            return mCanceledMissions.get(position - onGoingMissions.size());
+        }else if(position < onGoingMissions.size() + mFaileureMissions.size()){
+            return mFaileureMissions.get(position - onGoingMissions.size());
         }else{
-            return mCompletedMissions.get(position - onGoingMissions.size() - mCanceledMissions.size());
+            return mCompletedMissions.get(position - onGoingMissions.size() - mFaileureMissions.size());
         }
     }
 
@@ -59,15 +58,15 @@ public class DownloadAdapter extends MissionListenerForAdapter implements View.O
         super.onFinish(mission);
     }
 
-    private void updateList(){
+    public void updateList(){
         new Thread(){
             @Override
             public void run() {
                 super.run();
                 mCompletedMissions.clear();
                 mCompletedMissions.addAll(DownloadRecord.getAllDownloaded());
-                mCanceledMissions.clear();
-                mCanceledMissions.addAll(DownloadRecord.getAllCanceled());
+                mFaileureMissions.clear();
+                mFaileureMissions.addAll(DownloadRecord.getAllFailures());
                 updateUI();
             }
         }.start();
@@ -97,8 +96,14 @@ public class DownloadAdapter extends MissionListenerForAdapter implements View.O
         Object mission = getItem(position);
         Animation animation = null;
         if(mission instanceof DownloadRecord){
+            DownloadRecord r = (DownloadRecord)mission;
             animation = DownloadRecord.getAnimation((DownloadRecord)mission);
-            progress.setVisibility(View.INVISIBLE);
+            Log.e("TAG,",r.Status + " ");//此处是NULL
+            if(r.Status == DownloadRecord.STATUS.SUCCESS){
+                progress.setVisibility(View.INVISIBLE);
+            }else{
+                Log.e("TAG",r.Name +" " + "Not finished");
+            }
         }else if(mission instanceof M3U8Mission){
             Mission m = (M3U8Mission)mission;
             Object extra =m.getExtraInformation(m.getUri());
@@ -116,21 +121,10 @@ public class DownloadAdapter extends MissionListenerForAdapter implements View.O
                 .error(R.drawable.placeholder_fail).into(thumb);
         title.setText(animation.Name);
         content.setText(animation.Brief);
-        convertView.setOnClickListener(this);
         return convertView;
     }
 
-    @Override
-    public void onClick(View v) {
-        ViewHolder holder = (ViewHolder)v.getTag();
-        Animation animation = holder.animation;
-        Intent intent = new Intent(mContext, PlayActivity.class);
-        intent.putExtra("Animation",animation);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        mContext.startActivity(intent);
-    }
-
-    private static class ViewHolder{
+    public static class ViewHolder{
         public Animation animation;
         public TextView title,progress,content;
         public ImageView thumb;

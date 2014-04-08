@@ -33,7 +33,7 @@
     <string name="delete_all_tip">全部删除?</string>
     <string name="delete_null">这里空空如也，快去收藏些自己喜爱的动画吧</string>
     <string name="only_wifi_title">网络提示</string>
-    <string name="only_wifi_body">检测到您现在使用的不是Wifi网络，可能耗费较大流量，继续么？</string>
+    <string name="only_wifi_body">不是Wifi网络，继续么？</string>
 	<string name="get_data_error">获取数据出错，为您转向离线</string>
     <string name="touch_to_retry">获取失败，轻触以重试</string>
     <string name="only_wifi_ok">继续</string>
@@ -53,6 +53,9 @@
     <string name="tip">爱心提示</string>
     <string name="yes">是</string>
     <string name="no">否</string>
+    <string name="play_offline">视频已离线</string>
+    <string name="play_no_net">没有网络</string>
+    <string name="no_wifi_force_play">没有Wifi，用流量播放？</string>
     <!-- Player -->
 
 
@@ -83,7 +86,7 @@
     <string name="login_success">登录成功</string>
     <string name="login_failed">登录失败</string>
     <string name="logout_success">退出登录成功</string>
-    <string name="write_someting">写下你的感想&#8230;&#8230;</string>
+    <string name="write_something">写下你的感想&#8230;&#8230;</string>
     <!-- Comment -->
 
 
@@ -99,6 +102,13 @@
 	<string name="category">分类浏览</string>
     <string name="my_download">我的下载</string>
 	<!-- Drawer -->
+
+    <!-- Download -->
+    <string name="no_network">没有连接网络</string>
+    <string name="no_wifi_download">没有连接Wifi，要用流量下载吗？</string>
+    <string name="stop_mission">终止下载『%1$s』？</string>
+    <string name="surely_delete">彻底删除『%1$s』？</string>
+    <!-- Download -->
 
 	<!-- Load -->
 	<string name="init_failed">初始化失败</string>

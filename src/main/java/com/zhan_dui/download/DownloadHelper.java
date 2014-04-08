@@ -7,11 +7,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.activeandroid.query.Select;
 import com.zhan_dui.animetaste.R;
@@ -20,6 +19,7 @@ import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.DownloadRecord;
 import com.zhan_dui.services.DownloadService;
 import com.zhan_dui.services.DownloadService.DownloadServiceBinder;
+import com.zhan_dui.utils.NetworkUtils;
 
 import java.io.File;
 
@@ -73,7 +73,7 @@ public class DownloadHelper {
                          .setPositiveButton(R.string.yes,new DialogInterface.OnClickListener() {
                              @Override
                              public void onClick(DialogInterface dialog, int which) {
-                                download(animation);
+                                safeDownload(animation);
                              }
                          })
                          .setNegativeButton(R.string.no,new DialogInterface.OnClickListener() {
@@ -85,21 +85,37 @@ public class DownloadHelper {
                          .create()
                          .show();
             }else{
-                download(animation);
+                safeDownload(animation);
             }
         }else {
-            download(animation);
+            safeDownload(animation);
+        }
+    }
+
+    private void safeDownload(final Animation animation){
+        if(NetworkUtils.isNetworkAvailable(mContext)){
+            if(NetworkUtils.isWifiConnected(mContext)){
+                download(animation);
+            }else{
+                new AlertDialog.Builder(mContext)
+                        .setTitle(R.string.tip)
+                        .setMessage(R.string.no_wifi_download)
+                        .setPositiveButton(R.string.yes,new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                download(animation);
+                            }
+                        })
+                        .setNegativeButton(R.string.no,null)
+                        .create()
+                        .show();
+            }
+        }else{
+            Toast.makeText(mContext,R.string.no_network,Toast.LENGTH_LONG).show();
         }
     }
 
     private void download(final Animation animation){
-        ConnectivityManager connManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-        if (mWifi.isConnected()) {
-            // Do whatever
-        }
-
         new Thread(){
             @Override
             public void run() {

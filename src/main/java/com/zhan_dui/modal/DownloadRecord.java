@@ -226,12 +226,24 @@ public class DownloadRecord extends Model implements Parcelable {
                 .execute();
     }
 
-    public static List<DownloadRecord> getAllCanceled(){
-        return new Select()
-                .from(DownloadRecord.class)
-                .where("Status = ? ",STATUS.CANCELED.ordinal())
-                .orderBy("AddedTime desc")
-                .execute();
+//    public static List<DownloadRecord> getAllCanceled(){
+//        return new Select()
+//                .from(DownloadRecord.class)
+//                .where("Status = ? ",STATUS.CANCELED.ordinal())
+//                .orderBy("AddedTime desc")
+//                .execute();
+//    }
+
+    public static DownloadRecord getFromAnimation(Animation animation,boolean needSuccess){
+        if(needSuccess){
+            return new Select().from(DownloadRecord.class)
+                    .where("AnimationId = ? and Status = ?",animation.AnimationId,STATUS.SUCCESS.ordinal())
+                    .executeSingle();
+        }else{
+            return new Select().from(DownloadRecord.class)
+                    .where("AnimationId = ?",animation.AnimationId)
+                    .executeSingle();
+        }
     }
 
     public static void save(Animation animation,M3U8Mission mission){

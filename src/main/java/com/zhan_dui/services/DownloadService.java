@@ -66,6 +66,10 @@ public class DownloadService extends Service implements Mission.MissionListener<
         public BaseAdapter getMissionAdapter(){
             return missionAdapter;
         }
+
+        public void stopMission(int MissionID){
+            alfred.cancelMission(MissionID);
+        }
     }
 
     private int count = 0;

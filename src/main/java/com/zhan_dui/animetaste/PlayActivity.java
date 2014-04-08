@@ -44,7 +44,6 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.activeandroid.query.Select;
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
@@ -68,6 +67,7 @@ import com.zhan_dui.download.DownloadHelper;
 import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Comment;
 import com.zhan_dui.modal.DownloadRecord;
+import com.zhan_dui.utils.NetworkUtils;
 import com.zhan_dui.utils.OrientationHelper;
 import com.zhan_dui.utils.Screen;
 
@@ -112,8 +112,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	private Animation mAnimation;
 
 	private OrientationEventListener mOrientationEventListener;
-
-
 
 	private MenuItem mFavMenuItem;
 	private Bitmap mDetailPicture;
@@ -499,8 +497,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	public void onClick(View v) {
 		switch (v.getId()) {
             case R.id.pre_play_button:
-                mPrePlayButton.setVisibility(View.INVISIBLE);
-                mVideoAction.setVisibility(View.INVISIBLE);
                 startPlayAnimation(mLastPos,mAnimation);
                 break;
             case R.id.play_btn:
@@ -540,15 +536,33 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
     private void startPlayAnimation(final int start,Animation animation){
         final String playUrl = mSharedPreferences.getBoolean("use_hd", true)?mAnimation.HDVideoUrl:mAnimation.CommonVideoUrl;
-        DownloadRecord record =
-                new Select().from(DownloadRecord.class)
-                        .where("AnimationId = ? and Status = ?",animation.AnimationId, DownloadRecord.STATUS.SUCCESS.ordinal())
-                        .executeSingle();
+        DownloadRecord record = DownloadRecord.getFromAnimation(mAnimation,true);
         if(record!=null){
             String path = record.SaveDir + record.SaveFileName;
             File f = new File(path);
             if(f.isFile() && f.exists()){
+                mPrePlayButton.setVisibility(View.INVISIBLE);
+                mVideoAction.setVisibility(View.INVISIBLE);
                 mVV.setVideoPath(path);
+                mVV.seekTo(start);
+                mVV.start();
+                hideControls();
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                return;
+            }else{
+                Toast.makeText(mContext,R.string.offline_file_missing,Toast.LENGTH_LONG).show();
+            }
+        }
+
+        startPlayAnimationFromNet(playUrl,mLastPos,animation);
+    }
+
+    private void startPlayAnimationFromNet(final String url,final int start,Animation animation){
+        if(NetworkUtils.isNetworkAvailable(mContext)){
+            if(NetworkUtils.isWifiConnected(mContext)){
+                mPrePlayButton.setVisibility(View.INVISIBLE);
+                mVideoAction.setVisibility(View.INVISIBLE);
+                mVV.setVideoPath(url);
                 mVV.seekTo(start);
                 mVV.start();
                 hideControls();
@@ -556,11 +570,13 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
             }else{
                 new AlertDialog.Builder(mContext)
                         .setTitle(R.string.tip)
-                        .setMessage(R.string.offline_file_missing)
+                        .setMessage(R.string.no_wifi_force_play)
                         .setPositiveButton(R.string.yes,new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                mVV.setVideoPath(playUrl);
+                                mPrePlayButton.setVisibility(View.INVISIBLE);
+                                mVideoAction.setVisibility(View.INVISIBLE);
+                                mVV.setVideoPath(url);
                                 mVV.seekTo(start);
                                 mVV.start();
                                 hideControls();
@@ -568,14 +584,11 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
                             }
                         })
                         .setNegativeButton(R.string.no,null)
-                        .create().show();
+                        .create()
+                        .show();
             }
         }else{
-            mVV.setVideoPath(playUrl);
-            mVV.seekTo(start);
-            mVV.start();
-            hideControls();
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            Toast.makeText(mContext,R.string.no_network,Toast.LENGTH_LONG).show();
         }
     }
 
@@ -733,33 +746,35 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		protected void onPostExecute(Boolean result) {
 			super.onPostExecute(result);
 
-            if (mLoadMoreComment != null) {
-                mLoadMoreComment.findViewById(R.id.load_progressbar)
-                        .setVisibility(View.INVISIBLE);
-                mLoadMoreComment.findViewById(R.id.load_more_comment_btn)
-                        .setVisibility(View.VISIBLE);
+            if(result){
+                if (mCommentFinished == false) {
+                    mLoadMoreComment = mLayoutInflater.inflate(
+                            R.layout.comment_load_more, null);
+                    mLoadMoreButton = (Button) mLoadMoreComment
+                            .findViewById(R.id.load_more_comment_btn);
+                    mComments.addView(mLoadMoreComment);
+                    mLoadMoreButton.setOnClickListener(new OnClickListener() {
+
+                        @Override
+                        public void onClick(View v) {
+                            new CommentsTask().execute();
+                            MobclickAgent.onEvent(mContext, "more_comment");
+                        }
+                    });
+                } else {
+                    if (mCommentCount > 5) {
+                        mLoadMoreButton.setText(R.string.no_more_comments);
+                        mLoadMoreButton.setEnabled(false);
+                    }
+                }
+            }else{
+                if(mLoadMoreComment != null){
+                    mLoadMoreComment.findViewById(R.id.load_progressbar)
+                            .setVisibility(View.INVISIBLE);
+                    mLoadMoreComment.findViewById(R.id.load_more_comment_btn)
+                            .setVisibility(View.VISIBLE);
+                }
             }
-
-			if (mCommentFinished == false) {
-				mLoadMoreComment = mLayoutInflater.inflate(
-						R.layout.comment_load_more, null);
-				mLoadMoreButton = (Button) mLoadMoreComment
-						.findViewById(R.id.load_more_comment_btn);
-				mComments.addView(mLoadMoreComment);
-				mLoadMoreButton.setOnClickListener(new OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-						new CommentsTask().execute();
-						MobclickAgent.onEvent(mContext, "more_comment");
-					}
-				});
-			} else {
-				if (mCommentCount > 5) {
-					mLoadMoreButton.setText(R.string.no_more_comments);
-					mLoadMoreButton.setEnabled(false);
-				}
-			}
 		}
 	}
 
@@ -868,6 +883,13 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		}
 		Picasso.with(mContext).load(mAnimation.DetailPic)
 				.placeholder(R.drawable.big_bg).into(this);
+        DownloadRecord record = DownloadRecord.getFromAnimation(mAnimation,true);
+        if(record != null){
+            File file = new File(record.SaveDir + record.SaveFileName);
+            if(file.exists() && file.isFile()){
+                Toast.makeText(mContext,R.string.play_offline,Toast.LENGTH_SHORT).show();
+            }
+        }
 	}
 
 	private void stopPlay() {

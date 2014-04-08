@@ -9,8 +9,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
+import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.activeandroid.ActiveAndroid;
@@ -34,7 +37,7 @@ import java.util.ArrayList;
 
 import cn.sharesdk.framework.ShareSDK;
 
-public class LoadActivity extends ActionBarActivity {
+public class LoadActivity extends ActionBarActivity{
 	private Context mContext;
 
 	protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +57,7 @@ public class LoadActivity extends ActionBarActivity {
 		MobclickAgent.onError(this);
 		if (PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(
 				"only_wifi", true)
-				&& NetworkUtils.isWifi(mContext) == false) {
+				&& NetworkUtils.isWifiConnected(mContext) == false) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(mContext)
 					.setTitle(R.string.only_wifi_title).setMessage(
 							R.string.only_wifi_body);
@@ -149,12 +152,9 @@ public class LoadActivity extends ActionBarActivity {
                 }
 
                 @Override
-                public void onFailure(Throwable throwable, String s) {
-                    super.onFailure(throwable, s);
-                    Toast.makeText(mContext,R.string.get_data_error,Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(LoadActivity.this,DownloadActivity.class);
-                    startActivity(intent);
-                    finish();
+                public void onFailure(Throwable error) {
+                    super.onFailure(error);
+                    error();
                 }
             });
         }
@@ -241,10 +241,20 @@ public class LoadActivity extends ActionBarActivity {
         }
     }
 
+    private Handler errorHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Toast.makeText(mContext, R.string.get_data_error, Toast.LENGTH_SHORT)
+                    .show();
+            Intent intent = new Intent(LoadActivity.this,DownloadActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    };
+
     private void error(){
-        Toast.makeText(mContext, R.string.get_data_error, Toast.LENGTH_SHORT)
-                .show();
-        finish();
+        errorHandler.sendEmptyMessage(0);
     }
 
 	@Override
@@ -286,5 +296,13 @@ public class LoadActivity extends ActionBarActivity {
             db.close();
         }
         PreferenceManager.getDefaultSharedPreferences(mContext).edit().putBoolean("updated",true).commit();
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            System.exit(0);
+        }
+        return super.onKeyUp(keyCode, event);
     }
 }

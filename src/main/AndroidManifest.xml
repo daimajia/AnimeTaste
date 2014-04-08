@@ -28,16 +28,7 @@
 	    <meta-data android:name="AA_DB_NAME" android:value="Anime.db"></meta-data>
 	    <meta-data android:name="AA_DB_VERSION" android:value="2"></meta-data>
 
-        <activity
-            android:name="im.dino.dbinspector.activities.DbInspectorActivity"
-            android:label="Example DbInspector"
-            android:icon="@drawable/ic_launcher_dbinspector">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
         <!-- ShareSDK开始 -->
         <activity

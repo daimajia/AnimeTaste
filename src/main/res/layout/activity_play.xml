@@ -194,7 +194,7 @@
                     android:layout_marginTop="15dp"
                     android:background="@drawable/textfield_search_default_holo_light"
                     android:focusable="false"
-                    android:hint="@string/write_someting"
+                    android:hint="@string/write_something"
                     android:paddingBottom="5dp"
                     android:textSize="@dimen/play_content_size" />
             </LinearLayout>

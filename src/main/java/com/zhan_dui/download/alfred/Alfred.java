@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class Alfred {
 
     private final String TAG = "Alfred";
-    private static int MAX_MISSION_COUNT = 2;
+    private static int MAX_MISSION_COUNT = 5;
     private static Alfred Instance;
     protected ThreadPoolExecutor mExecutorService;
     protected HashMap<Integer,Mission> mMissionBook;

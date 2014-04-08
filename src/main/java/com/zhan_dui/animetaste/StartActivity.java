@@ -408,10 +408,10 @@ public class StartActivity extends ActionBarActivity implements
 			}
 		}
 
-		@Override
-		public void onFailure(Throwable error, String content) {
-			super.onFailure(error, content);
-			mCurrentPage--;
+        @Override
+        public void onFailure(Throwable error) {
+            super.onFailure(error);
+            mCurrentPage--;
             mLoadText.setText(R.string.touch_to_retry);
             mLoadText.setVisibility(View.VISIBLE);
             mLoadProgress.setVisibility(View.INVISIBLE);
@@ -422,9 +422,9 @@ public class StartActivity extends ActionBarActivity implements
                     triggerApiConnector();
                 }
             });
-		}
+        }
 
-		@Override
+        @Override
 		public void onStart() {
 			super.onStart();
             mLoadText.setVisibility(View.INVISIBLE);

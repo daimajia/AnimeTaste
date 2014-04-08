@@ -27,7 +27,7 @@ dependencies {
     compile 'com.android.support:support-v4:+'
     compile 'com.android.support:appcompat-v7:+'
     compile 'com.github.johnpersano:supertoasts:1.3.4@aar'
-    debugCompile 'im.dino:dbinspector:1.0.5@aar'
+    compile 'im.dino:dbinspector:1.0.5@aar'
     compile project(':libraries:ViewPagerIndicator')
     compile project(':libraries:gif-library')
     compile project(':libraries:android-switch-backport')

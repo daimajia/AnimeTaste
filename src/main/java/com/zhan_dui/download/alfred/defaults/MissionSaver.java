@@ -50,7 +50,7 @@ public class MissionSaver implements Mission.MissionListener<M3U8Mission>{
 
     @Override
     public void onFinish(M3U8Mission mission) {
-
+        save(mission);
     }
 
     @Override
