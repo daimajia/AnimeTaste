@@ -21,6 +21,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.text.InputFilter;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -43,9 +44,10 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.avos.avoscloud.ParseException;
-import com.avos.avoscloud.ParseObject;
-import com.avos.avoscloud.ParseQuery;
+import com.activeandroid.query.Select;
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVObject;
+import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.SaveCallback;
 import com.baidu.cyberplayer.core.BVideoView;
 import com.baidu.cyberplayer.core.BVideoView.OnCompletionListener;
@@ -65,6 +67,7 @@ import com.zhan_dui.data.ApiConnector;
 import com.zhan_dui.download.DownloadHelper;
 import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Comment;
+import com.zhan_dui.modal.DownloadRecord;
 import com.zhan_dui.utils.OrientationHelper;
 import com.zhan_dui.utils.Screen;
 
@@ -130,7 +133,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	private int mCommentCount;
 
 	private int mSkip = 0;
-	private int mStep = 8;
+	private int mStep = 5;
 	private int mLastPos = 0;
 	private final int UI_EVENT_UPDATE_CURRPOSITION = 1;
 
@@ -148,6 +151,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	private Typeface mRobotoBold, mRobotoThin;
 
+    private DownloadHelper mDownloadHelper;
+
 	@Override
 	public void onCreate(Bundle savedInstance) {
 		super.onCreate(savedInstance);
@@ -158,10 +163,11 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		if (getIntent().getExtras().containsKey("Animation")) {
             mAnimation = getIntent().getParcelableExtra("Animation");
 		}
-
+        mDownloadHelper = new DownloadHelper(this);
 		if (savedInstance != null && savedInstance.containsKey("Animation")) {
 			mAnimation = savedInstance.getParcelable("Animation");
 			mLastPos = savedInstance.getInt("LastPosition");
+            Log.e("Tag","onCreate executed");
 		}
 
 		mUser = new User(mContext);
@@ -208,9 +214,20 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
+        Log.e("Tag","onSaveInstanceState() executed");
 		outState.putInt("LastPosition", mLastPos);
         outState.putParcelable("Animation", mAnimation);
 	}
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Log.e("Tag","onRestoreInstanceState() executed");
+        if (savedInstanceState != null && savedInstanceState.containsKey("Animation")) {
+            mAnimation = savedInstanceState.getParcelable("Animation");
+            mLastPos = savedInstanceState.getInt("LastPosition");
+        }
+    }
 
     private class RandomRecommendTask extends AsyncTask<Void,Void,Void>{
 
@@ -420,10 +437,10 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		@Override
 		public void run() {
 			super.run();
-			ParseObject parseComment = new ParseObject("Comments");
-			ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Users");
+			AVObject parseComment = new AVObject("Comments");
+			AVQuery<AVObject> query = new AVQuery<AVObject>("Users");
 			try {
-				ParseObject user = query.get(mSharedPreferences.getString(
+				AVObject user = query.get(mSharedPreferences.getString(
 						"objectid", "0"));
 				parseComment.put("vid", mAnimation.AnimationId);
 				parseComment.put("uid", user);
@@ -431,7 +448,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 				parseComment.saveInBackground(new SaveCallback() {
 
 					@Override
-					public void done(ParseException err) {
+					public void done(AVException err) {
 						if (err == null) {
 							PlayActivity.this.runOnUiThread(new Runnable() {
 
@@ -472,7 +489,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 						}
 					}
 				});
-			} catch (ParseException e) {
+			} catch (AVException e) {
 				e.printStackTrace();
 			}
 		}
@@ -480,54 +497,88 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	@Override
 	public void onClick(View v) {
-
 		switch (v.getId()) {
-		case R.id.pre_play_button:
-			mPrePlayButton.setVisibility(View.INVISIBLE);
-			mVideoAction.setVisibility(View.INVISIBLE);
-			mPlaybtn.performClick();
-			startPlay(mLastPos);
-			updateControlBar(false);
-			if (mSharedPreferences.getBoolean("use_hd", true)) {
-				mVV.setVideoPath(mAnimation.HDVideoUrl);
-			} else {
-				mVV.setVideoPath(mAnimation.CommonVideoUrl);
-			}
-			break;
-		case R.id.play_btn:
-			if (mVV.isPlaying()) {
-				mPlaybtn.setBackgroundResource(R.drawable.play_btn_style);
-				mVV.pause();
-			} else {
-				mPlaybtn.setBackgroundResource(R.drawable.pause_btn_style);
-				mVV.resume();
-			}
-			mController.setVisibility(View.INVISIBLE);
-			break;
-		case R.id.comment_edit_text:
-			comment();
-			break;
-		case R.id.recommend_item:
-			stopPlay();
-			Animation animation = (Animation) v.getTag();
-			Intent intent = new Intent(mContext, PlayActivity.class);
-			intent.putExtra("Animation", animation);
-			mContext.startActivity(intent);
-			MobclickAgent.onEvent(mContext, "recommend");
-			finish();
-			break;
-		case R.id.zoom_btn:
-			if (mCurrentScape == OrientationHelper.LANDSCAPE) {
-				setMinSize();
-			} else {
-				setMaxSize();
-			}
-			break;
-		default:
-			break;
+            case R.id.pre_play_button:
+                mPrePlayButton.setVisibility(View.INVISIBLE);
+                mVideoAction.setVisibility(View.INVISIBLE);
+                startPlayAnimation(mLastPos,mAnimation);
+                break;
+            case R.id.play_btn:
+                if (mVV.isPlaying()) {
+                    mPlaybtn.setBackgroundResource(R.drawable.play_btn_style);
+                    mVV.pause();
+                } else {
+                    mPlaybtn.setBackgroundResource(R.drawable.pause_btn_style);
+                    mVV.resume();
+                }
+                mController.setVisibility(View.INVISIBLE);
+                break;
+            case R.id.comment_edit_text:
+                comment();
+                break;
+            case R.id.recommend_item:
+                stopPlay();
+                Animation animation = (Animation) v.getTag();
+                Intent intent = new Intent(mContext, PlayActivity.class);
+                intent.putExtra("Animation", animation);
+                mContext.startActivity(intent);
+                MobclickAgent.onEvent(mContext, "recommend");
+                finish();
+                break;
+            case R.id.zoom_btn:
+                if (mCurrentScape == OrientationHelper.LANDSCAPE) {
+                    setMinSize();
+                } else {
+                    setMaxSize();
+                }
+                break;
+            default:
+                break;
 		}
 
 	}
+
+    private void startPlayAnimation(final int start,Animation animation){
+        final String playUrl = mSharedPreferences.getBoolean("use_hd", true)?mAnimation.HDVideoUrl:mAnimation.CommonVideoUrl;
+        DownloadRecord record =
+                new Select().from(DownloadRecord.class)
+                        .where("AnimationId = ? and Status = ?",animation.AnimationId, DownloadRecord.STATUS.SUCCESS.ordinal())
+                        .executeSingle();
+        if(record!=null){
+            String path = record.SaveDir + record.SaveFileName;
+            File f = new File(path);
+            if(f.isFile() && f.exists()){
+                mVV.setVideoPath(path);
+                mVV.seekTo(start);
+                mVV.start();
+                hideControls();
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            }else{
+                new AlertDialog.Builder(mContext)
+                        .setTitle(R.string.tip)
+                        .setMessage(R.string.offline_file_missing)
+                        .setPositiveButton(R.string.yes,new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mVV.setVideoPath(playUrl);
+                                mVV.seekTo(start);
+                                mVV.start();
+                                hideControls();
+                                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                            }
+                        })
+                        .setNegativeButton(R.string.no,null)
+                        .create().show();
+            }
+        }else{
+            mVV.setVideoPath(playUrl);
+            mVV.seekTo(start);
+            mVV.start();
+            hideControls();
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+    }
+
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -557,7 +608,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			}
 			return true;
         case R.id.action_download:
-            DownloadHelper.getInstance(mContext).startDownload(mAnimation);
+            mDownloadHelper.startDownload(mAnimation);
             break;
 		default:
 			break;
@@ -570,6 +621,9 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		if (mShareActionProvider != null) {
 			mShareActionProvider.setShareIntent(getDefaultIntent());
 		}
+        mLoadingGif.setVisibility(View.INVISIBLE);
+        mPrePlayButton.setVisibility(View.VISIBLE);
+        mVideoAction.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -600,7 +654,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		}
 	}
 
-	private class CommentsTask extends AsyncTask<Void, LinearLayout, Void> {
+	private class CommentsTask extends AsyncTask<Void, LinearLayout, Boolean> {
 
 		@Override
 		protected void onPreExecute() {
@@ -613,9 +667,11 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			}
 		}
 
+
+
 		@Override
-		protected Void doInBackground(Void... params) {
-			ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
+		protected Boolean doInBackground(Void... params) {
+			AVQuery<AVObject> query = new AVQuery<AVObject>(
 					"Comments");
 			query.whereEqualTo("vid", mAnimation.AnimationId);
 			query.setLimit(mStep);
@@ -623,13 +679,13 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			query.include("uid");
 			query.orderByDescending("updatedAt");
 			try {
-				List<ParseObject> commentList = query.find();
+				List<AVObject> commentList = query.find();
 				if (commentList.size() < mStep) {
 					mCommentFinished = true;
 				}
 				ArrayList<LinearLayout> commentsLayout = new ArrayList<LinearLayout>();
-				for (ParseObject comment : commentList) {
-					ParseObject user = comment.getParseObject("uid");
+				for (AVObject comment : commentList) {
+					AVObject user = comment.getAVObject("uid");
 					Comment commentInformation = new Comment(
 							user.getString("username"),
 							user.getString("avatar"),
@@ -656,10 +712,10 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 				mCommentCount += commentList.size();
 				publishProgress(commentsLayout
 						.toArray(new LinearLayout[commentList.size()]));
-			} catch (ParseException e) {
-				e.printStackTrace();
+                return true;
+			} catch (AVException e) {
+                return false;
 			}
-			return null;
 		}
 
 		@Override
@@ -674,8 +730,16 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		}
 
 		@Override
-		protected void onPostExecute(Void result) {
+		protected void onPostExecute(Boolean result) {
 			super.onPostExecute(result);
+
+            if (mLoadMoreComment != null) {
+                mLoadMoreComment.findViewById(R.id.load_progressbar)
+                        .setVisibility(View.INVISIBLE);
+                mLoadMoreComment.findViewById(R.id.load_more_comment_btn)
+                        .setVisibility(View.VISIBLE);
+            }
+
 			if (mCommentFinished == false) {
 				mLoadMoreComment = mLayoutInflater.inflate(
 						R.layout.comment_load_more, null);
@@ -751,28 +815,33 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		view.setText(strTemp);
 	}
 
-	public void updateControlBar(boolean show) {
-		if (show) {
-			if (mController.getVisibility() == View.INVISIBLE) {
-				mController.setVisibility(View.VISIBLE);
-				new Timer().schedule(new TimerTask() {
+    private Timer mt;
+    public void touchControlBar(){
+        if(mController.getVisibility() == View.INVISIBLE){
+            mController.setVisibility(View.VISIBLE);
+            mt = new Timer();
+            mt.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    PlayActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mController.setVisibility(View.INVISIBLE);
+                        }
+                    });
+                }
+            },3000);
+        }else{
+            if(mt != null){
+                mt.cancel();
+            }
+            mController.setVisibility(View.INVISIBLE);
+        }
+    }
 
-					@Override
-					public void run() {
-						PlayActivity.this.runOnUiThread(new Runnable() {
-
-							@Override
-							public void run() {
-								updateControlBar(false);
-							}
-						});
-					}
-				}, 4000);
-			}
-		} else {
-			mController.setVisibility(View.INVISIBLE);
-		}
-	}
+    public void hideControls(){
+        mController.setVisibility(View.INVISIBLE);
+    }
 
 	private void initPlayer() {
 		BVideoView.setAKSK(AK, SK);
@@ -799,13 +868,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		}
 		Picasso.with(mContext).load(mAnimation.DetailPic)
 				.placeholder(R.drawable.big_bg).into(this);
-	}
-
-	private void startPlay(int from) {
-		setMaxSize();
-		mVV.seekTo(from);
-		mVV.start();
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 
 	private void stopPlay() {
@@ -879,8 +941,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			}
 
 			public void onStopTrackingTouch(SeekBar seekBar) {
-				int iseekPos = seekBar.getProgress();
-				mVV.seekTo(iseekPos);
+				int seekPosition = seekBar.getProgress();
+				mVV.seekTo(seekPosition);
 				mUIHandler.sendEmptyMessage(UI_EVENT_UPDATE_CURRPOSITION);
 			}
 		};
@@ -889,10 +951,22 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	@Override
 	public boolean onError(int arg0, int arg1) {
-		Toast.makeText(mContext, R.string.play_error, Toast.LENGTH_SHORT)
-				.show();
+        errorHandler.sendEmptyMessage(0);
 		return true;
 	}
+
+    private Handler errorHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            setMinSize();
+            mPrePlayButton.setVisibility(View.VISIBLE);
+            mVideoAction.setVisibility(View.VISIBLE);
+            mDetailImageView.setVisibility(View.VISIBLE);
+            Toast.makeText(mContext, R.string.play_error, Toast.LENGTH_SHORT)
+                    .show();
+        }
+    };
 
 	@SuppressLint("HandlerLeak")
 	private Handler mCompleteHandler = new Handler() {
@@ -906,8 +980,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	public void onCompletion() {
 		mCompleteHandler.sendEmptyMessage(0);
 		mLastPos = 0;
-		int playcount = mSharedPreferences.getInt("playcount", 0);
-		mSharedPreferences.edit().putInt("playcount", playcount + 1).commit();
+		int playCount = mSharedPreferences.getInt("playCount", 0);
+		mSharedPreferences.edit().putInt("playCount", playCount + 1).commit();
 		if (mCurrentScape == OrientationHelper.LANDSCAPE) {
 			PlayActivity.this.runOnUiThread(new Runnable() {
 
@@ -923,7 +997,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	protected void onResume() {
 		super.onResume();
 		if (mLastPos != 0) {
-			startPlay(mLastPos);
+            startPlayAnimation(mLastPos,mAnimation);
 		}
 		MobclickAgent.onResume(mContext);
 	}
@@ -941,6 +1015,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		stopPlay();
 		if (mOrientationEventListener != null)
 			mOrientationEventListener.disable();
+
+        mDownloadHelper.unbindDownloadService();
 	}
 
 	@Override
@@ -950,7 +1026,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		updateControlBar(true);
+		touchControlBar();
 		return false;
 	}
 

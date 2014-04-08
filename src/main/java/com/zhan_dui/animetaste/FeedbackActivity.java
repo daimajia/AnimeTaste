@@ -7,7 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
-import com.avos.avoscloud.ParseObject;
+import com.avos.avoscloud.AVObject;
 
 public class FeedbackActivity extends ActionBarActivity {
 	private EditText mFeedback;
@@ -37,7 +37,8 @@ public class FeedbackActivity extends ActionBarActivity {
 				Toast.makeText(mContext, R.string.empty, Toast.LENGTH_SHORT)
 						.show();
 			} else {
-                ParseObject feed = new ParseObject("Feedback");
+                
+                AVObject feed = new AVObject("Feedback");
                 feed.put("content",feedback);
 				feed.put("phone", android.os.Build.MODEL);
 				feed.put("os", android.os.Build.VERSION.SDK_INT);

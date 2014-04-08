@@ -215,10 +215,6 @@ public class Mission implements Runnable{
         }
     }
 
-    protected boolean isCanceled(){
-        return isCanceled;
-    }
-
     protected final void notifyPercentageChange(){
         if(missionListeners != null && missionListeners.size()!=0){
             int currentPercentage = getPercentage();
@@ -415,6 +411,10 @@ public class Mission implements Runnable{
     }
 
     public boolean isPaused(){return isPaused;}
+
+    public boolean isCanceled(){
+        return isCanceled;
+    }
 
     public RESULT_STATUS getResultStatus(){
         return mResultStatus;

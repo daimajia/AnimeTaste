@@ -1,18 +1,23 @@
 package com.zhan_dui.auth;
 
-import java.util.HashMap;
-import java.util.List;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVObject;
+import com.avos.avoscloud.AVQuery;
+import com.avos.avoscloud.FindCallback;
+import com.avos.avoscloud.SaveCallback;
+import com.umeng.analytics.MobclickAgent;
+
+import java.util.HashMap;
+import java.util.List;
+
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
-
-import com.avos.avoscloud.*;
-import com.umeng.analytics.MobclickAgent;
 
 public class SocialPlatform implements PlatformActionListener {
 	private Context mContext;
@@ -40,12 +45,12 @@ public class SocialPlatform implements PlatformActionListener {
 	}
 
 	private void saveInformation(final Platform platform, boolean update,
-			ParseObject toUpdateobject) {
-		final ParseObject object;
+			AVObject toUpdateobject) {
+		final AVObject object;
 		if (update) {
 			object = toUpdateobject;
 		} else {
-			object = new ParseObject("Users");
+			object = new AVObject("Users");
 		}
 		object.setFetchWhenSave(true);
 		object.put("username", platform.getDb().getUserName());
@@ -55,7 +60,7 @@ public class SocialPlatform implements PlatformActionListener {
 		object.put("others", platform.getDb().exportData());
 		object.saveInBackground(new SaveCallback() {
 			@Override
-			public void done(ParseException err) {
+			public void done(AVException err) {
 				if (err == null) {
 					mSharedPreferences
 							.edit()
@@ -84,13 +89,13 @@ public class SocialPlatform implements PlatformActionListener {
 	public void onComplete(final Platform platform, int action,
 			HashMap<String, Object> res) {
 
-		ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Users");
+		AVQuery<AVObject> query = new AVQuery<AVObject>("Users");
 		query.whereEqualTo("platform", platform.getName());
 		query.whereEqualTo("uid", platform.getDb().getUserId());
 		query.setLimit(1);
-		query.findInBackground(new FindCallback<ParseObject>() {
+		query.findInBackground(new FindCallback<AVObject>() {
 			@Override
-			public void done(List<ParseObject> objects, ParseException e) {
+			public void done(List<AVObject> objects, AVException e) {
 				if (e == null) {
 					if (objects.size() > 0) {
 						saveInformation(platform, true, objects.get(0));

@@ -22,8 +22,6 @@ public class MissionActionReceiver extends BroadcastReceiver{
     }
 
     public static PendingIntent buildReceiverPendingIntent(Context context,MISSION_TYPE type,int missionID){
-        Log.e(TAG,"buildReceiverPendingIntent() executed");
-        Log.e(TAG,"MissionID:" + missionID);
         Intent intent = new Intent(context.getApplicationContext(),MissionActionReceiver.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra(ID,missionID);

@@ -15,6 +15,7 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +29,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,7 +42,6 @@ import com.viewpagerindicator.UnderlinePageIndicator;
 import com.zhan_dui.adapters.AnimationListAdapter;
 import com.zhan_dui.adapters.RecommendAdapter;
 import com.zhan_dui.data.ApiConnector;
-import com.zhan_dui.download.DownloadHelper;
 import com.zhan_dui.modal.Advertise;
 import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Category;
@@ -81,6 +82,8 @@ public class StartActivity extends ActionBarActivity implements
 
 	private LayoutInflater mLayoutInflater;
     private View mFooterView;
+    private TextView mLoadText;
+    private ProgressBar mLoadProgress;
 
     private ApiConnector.RequestType mPreviousType = ApiConnector.RequestType.ALL;
     private ApiConnector.RequestType mType = ApiConnector.RequestType.ALL;
@@ -100,6 +103,7 @@ public class StartActivity extends ActionBarActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		mContext = this;
 		mSharedPreferences = PreferenceManager
 				.getDefaultSharedPreferences(mContext);
@@ -115,6 +119,8 @@ public class StartActivity extends ActionBarActivity implements
         mCategoryList = (ListView)findViewById(R.id.category_list);
 
         mFooterView = mLayoutInflater.inflate(R.layout.load_item, null);
+        mLoadProgress = (ProgressBar)mFooterView.findViewById(R.id.loading);
+        mLoadText = (TextView)mFooterView.findViewById(R.id.load_text);
         mVideoList.addFooterView(mFooterView);
 
 		mVideoList.setOnScrollListener(this);
@@ -270,6 +276,7 @@ public class StartActivity extends ActionBarActivity implements
 
 
     public void triggerApiConnector(){
+        Log.e("Trigger","triger");
         if(mCurrentPage == 1){
             switch (mType){
                 case ALL:
@@ -385,12 +392,15 @@ public class StartActivity extends ActionBarActivity implements
 				try {
                     if(response.getJSONObject("data").getJSONObject("list").getJSONArray("anime").isNull(1)){
                         mIsEnd = true;
-                        mFooterView.findViewById(R.id.loading).setVisibility(View.INVISIBLE);
-                        mFooterView.findViewById(R.id.load_text).setVisibility(View.VISIBLE);
+                        mLoadProgress.setVisibility(View.INVISIBLE);
+                        mLoadText.setText(R.string.end);
+                        mLoadText.setVisibility(View.VISIBLE);
                     }else{
 					    mVideoAdapter.addAnimationsFromJsonArray(response.getJSONObject("data").getJSONObject("list").getJSONArray("anime"));
-                        mFooterView.findViewById(R.id.loading).setVisibility(View.VISIBLE);
-                        mFooterView.findViewById(R.id.load_text).setVisibility(View.INVISIBLE);
+                        mLoadProgress.setVisibility(View.VISIBLE);
+                        mLoadText.setVisibility(View.INVISIBLE);
+                        mVideoList.setOnScrollListener(StartActivity.this);
+                        mFooterView.setOnClickListener(null);
                     }
 				} catch (JSONException e) {
 					e.printStackTrace();
@@ -402,12 +412,23 @@ public class StartActivity extends ActionBarActivity implements
 		public void onFailure(Throwable error, String content) {
 			super.onFailure(error, content);
 			mCurrentPage--;
+            mLoadText.setText(R.string.touch_to_retry);
+            mLoadText.setVisibility(View.VISIBLE);
+            mLoadProgress.setVisibility(View.INVISIBLE);
+            mVideoList.setOnScrollListener(null);
+            mFooterView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    triggerApiConnector();
+                }
+            });
 		}
 
 		@Override
 		public void onStart() {
 			super.onStart();
-
+            mLoadText.setVisibility(View.INVISIBLE);
+            mLoadProgress.setVisibility(View.VISIBLE);
 		}
 
 		@Override
@@ -518,9 +539,4 @@ public class StartActivity extends ActionBarActivity implements
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        DownloadHelper.getInstance(mContext).unbindDownloadService();
-    }
 }

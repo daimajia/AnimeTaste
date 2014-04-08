@@ -15,8 +15,8 @@ import android.widget.Toast;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Delete;
-import com.avos.avoscloud.Parse;
-import com.avos.avoscloud.ParseAnalytics;
+import com.avos.avoscloud.AVOSCloud;
+import com.avos.avoscloud.AVAnalytics;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.data.AnimeTasteDB;
@@ -40,12 +40,13 @@ public class LoadActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = this;
-        Parse.initialize(this,
+        AVOSCloud.initialize(this,
                 "w43xht9daji0uut74pseeiibax8c2tnzxowmx9f81nvtpims",
                 "86q8251hrodk6wnf4znistay1mva9rm1xikvp1s9mhp5n7od");
         ActiveAndroid.setLoggingEnabled(false);
 		ShareSDK.initSDK(mContext);
-		ParseAnalytics.trackAppOpened(getIntent());
+        ShareSDK.setNetworkDevInfoEnable(true);
+		AVAnalytics.trackAppOpened(getIntent());
 
         updateFromOldVersion();
 
@@ -67,7 +68,7 @@ public class LoadActivity extends ActionBarActivity {
 							init();
 						}
 					});
-			builder.setNegativeButton(R.string.obly_wifi_cancel,
+			builder.setNegativeButton(R.string.only_wifi_cancel,
 					new OnClickListener() {
 
 						@Override
@@ -151,27 +152,9 @@ public class LoadActivity extends ActionBarActivity {
                 public void onFailure(Throwable throwable, String s) {
                     super.onFailure(throwable, s);
                     Toast.makeText(mContext,R.string.get_data_error,Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(LoadActivity.this,DownloadActivity.class);
+                    startActivity(intent);
                     finish();
-//                    List<Animation> animations = new Select().from(Animation.class).orderBy("AnimationId desc").execute();
-//                    List<Category> categories = new Select().from(Category.class).orderBy("cid asc").execute();
-//                    List<Advertise> advertises = new Select().from(Advertise.class).orderBy("adid asc").execute();
-//                    List<Animation> recommends = new Select().from(Animation.class).orderBy("AnimationId desc").limit(5).execute();
-//                    ArrayList<Animation> Animations = new ArrayList<Animation>();
-//                    ArrayList<Category> Categories = new ArrayList<Category>();
-//                    ArrayList<Advertise> Advertises = new ArrayList<Advertise>();
-//                    ArrayList<Animation> Recommends = new ArrayList<Animation>();
-//                    Animations.addAll(animations);
-//                    Categories.addAll(categories);
-//                    Advertises.addAll(advertises);
-//                    Recommends.addAll(recommends);
-//                    Intent mIntent = new Intent(LoadActivity.this,
-//                            StartActivity.class);
-//                    mIntent.putParcelableArrayListExtra("Animations",Animations);
-//                    mIntent.putParcelableArrayListExtra("Categories",Categories);
-//                    mIntent.putParcelableArrayListExtra("Advertises",Advertises);
-//                    mIntent.putParcelableArrayListExtra("Recommends",Recommends);
-//                    mIntent.putExtra("Success",true);
-//                    startActivity(mIntent);
                 }
             });
         }

@@ -21,8 +21,8 @@ import java.util.List;
 @Table(name="DownloadRecord")
 public class DownloadRecord extends Model implements Parcelable {
 
-    enum STATUS{
-        DOWNLOADING,ERROR,SUCCESS
+    public enum STATUS{
+        DOWNLOADING,ERROR,SUCCESS,CANCELED
     };
     /**
      * Animation Information
@@ -193,6 +193,10 @@ public class DownloadRecord extends Model implements Parcelable {
         this.Extra = in.readString();
     }
 
+    public static Animation getAnimation(DownloadRecord record){
+        return Animation.build(record);
+    }
+
     public static Parcelable.Creator<DownloadRecord> CREATOR = new Parcelable.Creator<DownloadRecord>() {
         public DownloadRecord createFromParcel(Parcel source) {
             return new DownloadRecord(source);
@@ -209,8 +213,24 @@ public class DownloadRecord extends Model implements Parcelable {
     public static List<DownloadRecord> getAllDownloaded(){
         return new Select()
                 .from(DownloadRecord.class)
-                .where("Status = ?",STATUS.SUCCESS)
-                .orderBy("AddedTime DESC")
+                .where("Status = ?",STATUS.SUCCESS.ordinal())
+                .orderBy("AddedTime desc")
+                .execute();
+    }
+
+    public static List<DownloadRecord> getAllFailures(){
+        return new Select()
+                .from(DownloadRecord.class)
+                .where("Status = ?",STATUS.ERROR.ordinal())
+                .orderBy("AddedTime desc")
+                .execute();
+    }
+
+    public static List<DownloadRecord> getAllCanceled(){
+        return new Select()
+                .from(DownloadRecord.class)
+                .where("Status = ? ",STATUS.CANCELED.ordinal())
+                .orderBy("AddedTime desc")
                 .execute();
     }
 
@@ -226,12 +246,13 @@ public class DownloadRecord extends Model implements Parcelable {
             Log.e("Download","UPDATE");
             int status;
             if(mission.isDone()){
-                status = mission.isSuccess()?STATUS.SUCCESS.ordinal():STATUS.ERROR.ordinal();
+                status = mission.isSuccess() ? STATUS.SUCCESS.ordinal() : STATUS.ERROR.ordinal();
+                status = mission.isCanceled() ? STATUS.CANCELED.ordinal() : status;
             }else{
                 status = STATUS.DOWNLOADING.ordinal();
             }
             new Update(DownloadRecord.class)
-                    .set("Size = ?," +
+                            .set("Size = ?," +
                                     "DownloadedSize = ?," +
                                     "Duration = ?," +
                                     "DownloadedDuration = ?," +

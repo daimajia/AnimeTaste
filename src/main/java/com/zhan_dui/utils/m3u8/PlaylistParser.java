@@ -2,6 +2,7 @@ package com.zhan_dui.utils.m3u8;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.channels.Channels;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +37,7 @@ final class PlaylistParser {
 
 
     /**
-     * See {@link java.nio.channels.Channels#newReader(java.nio.channels.ReadableByteChannel, String)}
+     * See {@link Channels#newReader(java.nio.channels.ReadableByteChannel, String)}
      * See {@link java.io.StringReader}
      *
      * @param source the source.
@@ -50,7 +51,7 @@ final class PlaylistParser {
         boolean firstLine = true;
 
         int lineNumber = 0;
-                          
+
         final List<Element> elements = new ArrayList<Element>(10);
         final ElementBuilder builder = new ElementBuilder();
         boolean endListSet = false;
@@ -82,7 +83,7 @@ final class PlaylistParser {
                         }
                         mediaSequenceNumber = parseMediaSequence(line, lineNumber);
                     } else if (line.startsWith(EXT_X_DISCONTINUITY)) {
-                    	builder.discontinuity(true);
+                        builder.discontinuity(true);
                     } else if (line.startsWith(EXT_X_PROGRAM_DATE_TIME)) {
                         long programDateTime = parseProgramDateTime(line, lineNumber);
                         builder.programDate(programDateTime);
@@ -174,7 +175,7 @@ final class PlaylistParser {
         try {
             builder.duration(Double.valueOf(duration)).title(title);
         } catch (NumberFormatException e) {
-            // should not happen because of 
+            // should not happen because of
             throw new ParseException(line, lineNumber, e);
         }
     }

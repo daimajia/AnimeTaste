@@ -1,16 +1,23 @@
 package com.zhan_dui.download;
 
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.activeandroid.query.Select;
+import com.zhan_dui.animetaste.R;
 import com.zhan_dui.download.alfred.missions.M3U8Mission;
 import com.zhan_dui.modal.Animation;
+import com.zhan_dui.modal.DownloadRecord;
 import com.zhan_dui.services.DownloadService;
 import com.zhan_dui.services.DownloadService.DownloadServiceBinder;
 
@@ -27,14 +34,9 @@ public class DownloadHelper {
     private DownloadServiceBinder mDownloadServiceBinder;
     private Boolean isConnected = false;
     private Object o = new Object();
-    private int unbindTimeCounter = 0;
 
-
-    private static DownloadHelper INSTANCE;
-
-
-    private DownloadHelper(Context context){
-        mContext = context.getApplicationContext();
+    public DownloadHelper(Context context){
+        mContext = context;
     }
 
     private ServiceConnection connection = new ServiceConnection() {
@@ -55,15 +57,49 @@ public class DownloadHelper {
         }
     };
 
-    public static synchronized DownloadHelper getInstance(Context context){
-        if(INSTANCE == null){
-            INSTANCE = new DownloadHelper(context);
-        }
-        return INSTANCE;
-    }
-
     public void startDownload(final Animation animation){
         Log.e(TAG,"StartDownload");
+
+        DownloadRecord record = new Select()
+                .from(DownloadRecord.class)
+                .where("AnimationId = ? and Status = ?",animation.AnimationId, DownloadRecord.STATUS.SUCCESS.ordinal())
+                .executeSingle();
+        if(record != null){
+            File file = new File(record.SaveDir + record.SaveFileName);
+            if(file.exists() && file.isFile()){
+                 new AlertDialog.Builder(mContext)
+                         .setTitle(R.string.tip)
+                         .setMessage(R.string.redownload_tips)
+                         .setPositiveButton(R.string.yes,new DialogInterface.OnClickListener() {
+                             @Override
+                             public void onClick(DialogInterface dialog, int which) {
+                                download(animation);
+                             }
+                         })
+                         .setNegativeButton(R.string.no,new DialogInterface.OnClickListener() {
+                             @Override
+                             public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                             }
+                         })
+                         .create()
+                         .show();
+            }else{
+                download(animation);
+            }
+        }else {
+            download(animation);
+        }
+    }
+
+    private void download(final Animation animation){
+        ConnectivityManager connManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+        if (mWifi.isConnected()) {
+            // Do whatever
+        }
+
         new Thread(){
             @Override
             public void run() {
@@ -92,6 +128,7 @@ public class DownloadHelper {
         }.start();
     }
 
+
     private boolean isDownloadServiceRunning(){
         ActivityManager manager = (ActivityManager)mContext.getSystemService(Context.ACTIVITY_SERVICE);
         for(ActivityManager.RunningServiceInfo service: manager.getRunningServices(Integer.MAX_VALUE)){
@@ -106,10 +143,7 @@ public class DownloadHelper {
 
     public void unbindDownloadService(){
         Log.e(TAG,"unbindDownloadService");
-        if(++unbindTimeCounter > 1){
-            return;
-        }
-        if(isConnected){
+        if(isDownloadServiceRunning() && isConnected && connection!=null){
             mContext.unbindService(connection);
         }
     }

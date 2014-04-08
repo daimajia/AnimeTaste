@@ -6,6 +6,7 @@ import com.zhan_dui.download.alfred.missions.M3U8Mission;
 import com.zhan_dui.download.alfred.missions.Mission;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -32,7 +33,7 @@ public class Alfred {
     private Alfred(){
         mMissionBook = new HashMap<Integer, Mission>();
         mExecutorService = new AlfredMissionPool(MAX_MISSION_COUNT,MAX_MISSION_COUNT,15,TimeUnit.SECONDS,new LinkedBlockingDeque<Runnable>());
-        Log.e(TAG,"Create a New Alfred");
+        Log.e(TAG, "Create a New Alfred");
     }
 
     public void addMission(Mission mission){
@@ -55,6 +56,12 @@ public class Alfred {
     public void cancelMission(int missionID){
         if(mMissionBook.containsKey(missionID)){
             mMissionBook.get(missionID).cancel();
+        }
+    }
+
+    public void surrenderMissions(){
+        for(Map.Entry mission : mMissionBook.entrySet()){
+            mMissionBook.get(mission).cancel();
         }
     }
 

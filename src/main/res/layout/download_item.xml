@@ -34,6 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="12dp"
         android:layout_toRightOf="@+id/thumb"
+        android:textColor="@color/title_unwatched"
         android:textSize="@dimen/video_list_title"
         android:text="Title"
         android:textStyle="bold" />

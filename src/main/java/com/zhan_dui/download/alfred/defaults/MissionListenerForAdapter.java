@@ -20,7 +20,6 @@ public abstract class MissionListenerForAdapter extends BaseAdapter implements M
         return onGoingMissions.get(position);
     }
 
-
     @Override
     public int getCount() {
         return onGoingMissions.size();
@@ -67,7 +66,10 @@ public abstract class MissionListenerForAdapter extends BaseAdapter implements M
     }
 
     @Override
-    public void onFinish(M3U8Mission mission) {}
+    public void onFinish(M3U8Mission mission) {
+        onGoingMissions.remove(mission.getUri());
+        updateUI();
+    }
 
     @Override
     public void onPause(M3U8Mission mission) {}

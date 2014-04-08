@@ -12,11 +12,12 @@ import com.zhan_dui.download.alfred.Alfred;
 import com.zhan_dui.download.alfred.defaults.MissionListenerForNotification;
 import com.zhan_dui.download.alfred.defaults.MissionSaver;
 import com.zhan_dui.download.alfred.missions.M3U8Mission;
+import com.zhan_dui.download.alfred.missions.Mission;
 
 /**
  * Created by daimajia on 14-2-11.
  */
-public class DownloadService extends Service{
+public class DownloadService extends Service implements Mission.MissionListener<M3U8Mission>{
 
     public static final String TAG = "DownloadService";
     private Alfred alfred = Alfred.getInstance();
@@ -49,7 +50,6 @@ public class DownloadService extends Service{
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.e(TAG,"onUnbind() executed");
         return super.onUnbind(intent);
     }
 
@@ -59,6 +59,7 @@ public class DownloadService extends Service{
             mission.addMissionListener(new MissionListenerForNotification(DownloadService.this));
             mission.addMissionListener(missionAdapter);
             mission.addMissionListener(new MissionSaver());
+            mission.addMissionListener(DownloadService.this);
             alfred.addMission(mission);
         }
 
@@ -67,4 +68,59 @@ public class DownloadService extends Service{
         }
     }
 
+    private int count = 0;
+
+    @Override
+    public void onStart(M3U8Mission mission) {
+        count++;
+    }
+
+    @Override
+    public void onMetaDataPrepared(M3U8Mission mission) {
+
+    }
+
+    @Override
+    public void onPercentageChange(M3U8Mission mission) {
+
+    }
+
+    @Override
+    public void onSpeedChange(M3U8Mission mission) {
+
+    }
+
+    @Override
+    public void onError(M3U8Mission mission, Exception e) {
+
+    }
+
+    @Override
+    public void onSuccess(M3U8Mission mission) {
+
+    }
+
+    @Override
+    public void onFinish(M3U8Mission mission) {
+        count--;
+        if(count == 0){
+            Log.e(TAG,"StopSelf() executed");
+            stopSelf();
+        }
+    }
+
+    @Override
+    public void onPause(M3U8Mission mission) {
+
+    }
+
+    @Override
+    public void onResume(M3U8Mission mission) {
+
+    }
+
+    @Override
+    public void onCancel(M3U8Mission mission) {
+
+    }
 }

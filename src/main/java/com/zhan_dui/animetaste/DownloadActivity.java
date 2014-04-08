@@ -16,7 +16,6 @@ import com.zhan_dui.services.DownloadService;
  */
 public class DownloadActivity extends ActionBarActivity {
 
-    private DownloadService.DownloadServiceBinder mDownloadBinder;
     private boolean isConnected = false;
     private ServiceConnection connection = new ServiceConnection() {
         @Override
