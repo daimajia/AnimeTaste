@@ -18,6 +18,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Toast;
 
 import com.umeng.analytics.MobclickAgent;
+import com.zhan_dui.utils.CacheUtils;
 
 import org.jraf.android.backport.switchwidget.Switch;
 
@@ -36,6 +37,7 @@ public class SettingActivity extends ActionBarActivity implements
 	private View mFocusUs;
 	private View mCancelAuth;
 	private View mRateForUs;
+    private View mClearCache;
 
 	private Switch mSwitchOnlyWifi;
 	private Switch mSwitchUseHD;
@@ -61,6 +63,7 @@ public class SettingActivity extends ActionBarActivity implements
 		mFocusUs = findViewById(R.id.focus_us);
 		mCancelAuth = findViewById(R.id.cancel_auth);
 		mRateForUs = findViewById(R.id.rate_for_us);
+        mClearCache = findViewById(R.id.clear_cache);
 
 		mSwitchOnlyWifi = (Switch) findViewById(R.id.switch_wifi);
 		mSwitchUseHD = (Switch) findViewById(R.id.switch_hd);
@@ -75,6 +78,7 @@ public class SettingActivity extends ActionBarActivity implements
 		mSwitchUseHD.setOnCheckedChangeListener(this);
 		mCancelAuth.setOnClickListener(this);
 		mRateForUs.setOnClickListener(this);
+        mClearCache.setOnClickListener(this);
 
 		mSwitchOnlyWifi.setChecked(mSharedPreferences.getBoolean("only_wifi",
 				true));
@@ -127,6 +131,17 @@ public class SettingActivity extends ActionBarActivity implements
 				Toast.makeText(mContext, R.string.can_not_open_market,
 						Toast.LENGTH_SHORT).show();
 			}
+            break;
+        case R.id.clear_cache:
+            new Thread(){
+                @Override
+                public void run() {
+                    super.run();
+                    CacheUtils.deleteCache(mContext);
+                }
+            }.start();
+            Toast.makeText(mContext,R.string.clear_ok,Toast.LENGTH_SHORT).show();
+            break;
 		default:
 			break;
 		}

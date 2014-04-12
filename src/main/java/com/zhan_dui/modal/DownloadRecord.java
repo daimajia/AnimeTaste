@@ -21,8 +21,11 @@ import java.util.List;
 @Table(name="DownloadRecord")
 public class DownloadRecord extends Model implements Parcelable {
 
-    public enum STATUS{
-        DOWNLOADING,ERROR,SUCCESS,CANCELED
+    public class STATUS{
+        public static final int DOWNLOADING = 0;
+        public static final int ERROR = 1;
+        public static final int SUCCESS = 2;
+        public static final int CANCELED = 3;
     };
     /**
      * Animation Information
@@ -81,7 +84,7 @@ public class DownloadRecord extends Model implements Parcelable {
     @Column(name = "RangeStart")
     public  int RangeStart;
     @Column(name = "Status")
-    public STATUS Status;
+    public int Status;
     @Column(name = "Extra")
     public String Extra;
     @Column(name = "SaveDir")
@@ -126,94 +129,20 @@ public class DownloadRecord extends Model implements Parcelable {
         UsingDownloadUrl = mission.getUri();
     }
 
-    public static Animation getFromDownloadRecord(DownloadRecord record){
-        return null;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.Name);
-        dest.writeString(this.OriginVideoUrl);
-        dest.writeString(this.HDVideoUrl);
-        dest.writeString(this.CommonVideoUrl);
-        dest.writeString(this.Author);
-        dest.writeString(this.Year);
-        dest.writeString(this.Brief);
-        dest.writeString(this.HomePic);
-        dest.writeString(this.DetailPic);
-        dest.writeString(this.Youku);
-        dest.writeString(this.UHD);
-        dest.writeString(this.HD);
-        dest.writeString(this.SD);
-        dest.writeLong(AddedTime != null ? AddedTime.getTime() : -1);
-        dest.writeLong(this.Size);
-        dest.writeLong(this.DownloadedSize);
-        dest.writeInt(this.Duration);
-        dest.writeInt(this.DownloadedDuration);
-        dest.writeInt(this.Segments);
-        dest.writeInt(this.DownloadedSegments);
-        dest.writeInt(this.RangeStart);
-        dest.writeInt(this.Status == null ? -1 : this.Status.ordinal());
-        dest.writeString(this.Extra);
-    }
-
-    public DownloadRecord() {
-    }
-
-    private DownloadRecord(Parcel in) {
-        this.Name = in.readString();
-        this.OriginVideoUrl = in.readString();
-        this.HDVideoUrl = in.readString();
-        this.CommonVideoUrl = in.readString();
-        this.Author = in.readString();
-        this.Year = in.readString();
-        this.Brief = in.readString();
-        this.HomePic = in.readString();
-        this.DetailPic = in.readString();
-        this.Youku = in.readString();
-        this.UHD = in.readString();
-        this.HD = in.readString();
-        this.SD = in.readString();
-        long tmpDownloadTime = in.readLong();
-        this.AddedTime = tmpDownloadTime == -1 ? null : new Date(tmpDownloadTime);
-        this.Size = in.readLong();
-        this.DownloadedSize = in.readLong();
-        this.Duration = in.readInt();
-        this.DownloadedDuration = in.readInt();
-        this.Segments = in.readInt();
-        this.DownloadedSegments = in.readInt();
-        this.RangeStart = in.readInt();
-        int tmpStatus = in.readInt();
-        this.Status = tmpStatus == -1 ? null : STATUS.values()[tmpStatus];
-        this.Extra = in.readString();
-    }
-
     public static Animation getAnimation(DownloadRecord record){
         return Animation.build(record);
     }
-
-    public static Parcelable.Creator<DownloadRecord> CREATOR = new Parcelable.Creator<DownloadRecord>() {
-        public DownloadRecord createFromParcel(Parcel source) {
-            return new DownloadRecord(source);
-        }
-        public DownloadRecord[] newArray(int size) {
-            return new DownloadRecord[size];
-        }
-    };
 
     public static void deleteOne(Animation animation){
         new Delete().from(DownloadRecord.class).where("AnimationId = ?",animation.AnimationId).execute();
     }
 
+    public DownloadRecord(){}
+
     public static List<DownloadRecord> getAllDownloaded(){
         return new Select()
                 .from(DownloadRecord.class)
-                .where("Status = ?",STATUS.SUCCESS.ordinal())
+                .where("Status = ?",STATUS.SUCCESS)
                 .orderBy("AddedTime desc")
                 .execute();
     }
@@ -221,28 +150,22 @@ public class DownloadRecord extends Model implements Parcelable {
     public static List<DownloadRecord> getAllFailures(){
         return new Select()
                 .from(DownloadRecord.class)
-                .where("Status = ?",STATUS.ERROR.ordinal())
+                .where("Status = ?",STATUS.ERROR)
                 .orderBy("AddedTime desc")
                 .execute();
     }
 
-//    public static List<DownloadRecord> getAllCanceled(){
-//        return new Select()
-//                .from(DownloadRecord.class)
-//                .where("Status = ? ",STATUS.CANCELED.ordinal())
-//                .orderBy("AddedTime desc")
-//                .execute();
-//    }
-
     public static DownloadRecord getFromAnimation(Animation animation,boolean needSuccess){
         if(needSuccess){
             return new Select().from(DownloadRecord.class)
-                    .where("AnimationId = ? and Status = ?",animation.AnimationId,STATUS.SUCCESS.ordinal())
+                    .where("AnimationId = ? and Status = ?",animation.AnimationId,STATUS.SUCCESS)
                     .executeSingle();
         }else{
-            return new Select().from(DownloadRecord.class)
+            DownloadRecord r =
+                    new Select().from(DownloadRecord.class)
                     .where("AnimationId = ?",animation.AnimationId)
                     .executeSingle();
+            return r;
         }
     }
 
@@ -258,10 +181,10 @@ public class DownloadRecord extends Model implements Parcelable {
             Log.e("Download","UPDATE");
             int status;
             if(mission.isDone()){
-                status = mission.isSuccess() ? STATUS.SUCCESS.ordinal() : STATUS.ERROR.ordinal();
-                status = mission.isCanceled() ? STATUS.CANCELED.ordinal() : status;
+                status = mission.isSuccess() ? STATUS.SUCCESS : STATUS.ERROR;
+                status = mission.isCanceled() ? STATUS.CANCELED : status;
             }else{
-                status = STATUS.DOWNLOADING.ordinal();
+                status = STATUS.DOWNLOADING;
             }
             new Update(DownloadRecord.class)
                             .set("Size = ?," +
@@ -295,4 +218,86 @@ public class DownloadRecord extends Model implements Parcelable {
         }
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(this.AnimationId);
+        dest.writeString(this.Name);
+        dest.writeString(this.OriginVideoUrl);
+        dest.writeString(this.HDVideoUrl);
+        dest.writeString(this.CommonVideoUrl);
+        dest.writeString(this.Author);
+        dest.writeString(this.Year);
+        dest.writeString(this.Brief);
+        dest.writeString(this.HomePic);
+        dest.writeString(this.DetailPic);
+        dest.writeString(this.Youku);
+        dest.writeString(this.UHD);
+        dest.writeString(this.HD);
+        dest.writeString(this.SD);
+        dest.writeByte(IsFav ? (byte) 1 : (byte) 0);
+        dest.writeByte(IsWatched ? (byte) 1 : (byte) 0);
+        dest.writeLong(AddedTime != null ? AddedTime.getTime() : -1);
+        dest.writeLong(this.Size);
+        dest.writeLong(this.DownloadedSize);
+        dest.writeInt(this.Duration);
+        dest.writeInt(this.DownloadedDuration);
+        dest.writeInt(this.Segments);
+        dest.writeInt(this.DownloadedSegments);
+        dest.writeInt(this.DownloadedPercentage);
+        dest.writeInt(this.RangeStart);
+        dest.writeInt(this.Status);
+        dest.writeString(this.Extra);
+        dest.writeString(this.SaveDir);
+        dest.writeString(this.SaveFileName);
+        dest.writeString(this.UsingDownloadUrl);
+    }
+
+    private DownloadRecord(Parcel in) {
+        this.AnimationId = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.Name = in.readString();
+        this.OriginVideoUrl = in.readString();
+        this.HDVideoUrl = in.readString();
+        this.CommonVideoUrl = in.readString();
+        this.Author = in.readString();
+        this.Year = in.readString();
+        this.Brief = in.readString();
+        this.HomePic = in.readString();
+        this.DetailPic = in.readString();
+        this.Youku = in.readString();
+        this.UHD = in.readString();
+        this.HD = in.readString();
+        this.SD = in.readString();
+        this.IsFav = in.readByte() != 0;
+        this.IsWatched = in.readByte() != 0;
+        long tmpAddedTime = in.readLong();
+        this.AddedTime = tmpAddedTime == -1 ? null : new Date(tmpAddedTime);
+        this.Size = in.readLong();
+        this.DownloadedSize = in.readLong();
+        this.Duration = in.readInt();
+        this.DownloadedDuration = in.readInt();
+        this.Segments = in.readInt();
+        this.DownloadedSegments = in.readInt();
+        this.DownloadedPercentage = in.readInt();
+        this.RangeStart = in.readInt();
+        this.Status = in.readInt();
+        this.Extra = in.readString();
+        this.SaveDir = in.readString();
+        this.SaveFileName = in.readString();
+        this.UsingDownloadUrl = in.readString();
+    }
+
+    public static Creator<DownloadRecord> CREATOR = new Creator<DownloadRecord>() {
+        public DownloadRecord createFromParcel(Parcel source) {
+            return new DownloadRecord(source);
+        }
+
+        public DownloadRecord[] newArray(int size) {
+            return new DownloadRecord[size];
+        }
+    };
 }

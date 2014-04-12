@@ -165,12 +165,15 @@ public class Mission implements Runnable{
         if(directory.lastIndexOf(File.separator) != directory.length() - 1){
             directory += File.separator;
         }
+        File dir = new File(directory);
+        dir.mkdirs();
         filepath = directory + filename;
         File file = new File(filepath);
         try{
             file.createNewFile();
             return new FileOutputStream(file.getCanonicalFile().toString());
         }catch (Exception e){
+            e.printStackTrace();
             throw new Error("Can not get an valid output stream");
         }
     }

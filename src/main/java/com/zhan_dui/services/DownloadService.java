@@ -3,11 +3,15 @@ package com.zhan_dui.services;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
 import android.widget.BaseAdapter;
+import android.widget.Toast;
 
 import com.zhan_dui.adapters.DownloadAdapter;
+import com.zhan_dui.animetaste.R;
 import com.zhan_dui.download.alfred.Alfred;
 import com.zhan_dui.download.alfred.defaults.MissionListenerForNotification;
 import com.zhan_dui.download.alfred.defaults.MissionSaver;
@@ -22,6 +26,14 @@ public class DownloadService extends Service implements Mission.MissionListener<
     public static final String TAG = "DownloadService";
     private Alfred alfred = Alfred.getInstance();
     private DownloadAdapter missionAdapter;
+
+    private Handler downloadRepeat = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Toast.makeText(DownloadService.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+        }
+    };
 
     @Override
     public void onCreate() {
@@ -56,11 +68,15 @@ public class DownloadService extends Service implements Mission.MissionListener<
     public class DownloadServiceBinder extends Binder {
 
         public void startDownload(M3U8Mission mission) {
-            mission.addMissionListener(new MissionListenerForNotification(DownloadService.this));
-            mission.addMissionListener(missionAdapter);
-            mission.addMissionListener(new MissionSaver());
-            mission.addMissionListener(DownloadService.this);
-            alfred.addMission(mission);
+            if(missionAdapter.isDownloadingRightNow(mission.getUri())){
+                downloadRepeat.sendEmptyMessage(0);
+            }else{
+                mission.addMissionListener(new MissionListenerForNotification(DownloadService.this));
+                mission.addMissionListener(missionAdapter);
+                mission.addMissionListener(new MissionSaver());
+                mission.addMissionListener(DownloadService.this);
+                alfred.addMission(mission);
+            }
         }
 
         public BaseAdapter getMissionAdapter(){

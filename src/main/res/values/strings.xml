@@ -108,6 +108,7 @@
     <string name="no_wifi_download">没有连接Wifi，要用流量下载吗？</string>
     <string name="stop_mission">终止下载『%1$s』？</string>
     <string name="surely_delete">彻底删除『%1$s』？</string>
+    <string name="downloading">正在下载</string>
     <!-- Download -->
 
 	<!-- Load -->
@@ -131,4 +132,8 @@
     <string name="ic_action_fav">喜欢</string>
     <string name="ic_action_download">下载</string>
     <!-- Menu Title-->
+
+    <!-- Cache -->
+    <string name="clear_ok">清理完成</string>
+    <!-- Cache -->
 </resources>

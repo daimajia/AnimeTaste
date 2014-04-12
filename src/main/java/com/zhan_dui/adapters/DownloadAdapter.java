@@ -27,29 +27,29 @@ public class DownloadAdapter extends MissionListenerForAdapter{
     private Context mContext;
     private LayoutInflater mLayoutInflater;
     private ArrayList<DownloadRecord> mCompletedMissions;
-    private ArrayList<DownloadRecord> mFaileureMissions;
+    private ArrayList<DownloadRecord> mFailureMissions;
 
     public DownloadAdapter(Context context) {
         mContext = context;
         mLayoutInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mCompletedMissions = new ArrayList<DownloadRecord>();
-        mFaileureMissions = new ArrayList<DownloadRecord>();
+        mFailureMissions = new ArrayList<DownloadRecord>();
         updateList();
     }
 
     @Override
     public int getCount() {
-        return mCompletedMissions.size() + onGoingMissions.size() + mFaileureMissions.size();
+        return mCompletedMissions.size() + onGoingMissions.size() + mFailureMissions.size();
     }
 
     @Override
     public Object getItem(int position) {
         if(position < onGoingMissions.size()){
             return onGoingMissions.get(position);
-        }else if(position < onGoingMissions.size() + mFaileureMissions.size()){
-            return mFaileureMissions.get(position - onGoingMissions.size());
+        }else if(position < onGoingMissions.size() + mFailureMissions.size()){
+            return mFailureMissions.get(position - onGoingMissions.size());
         }else{
-            return mCompletedMissions.get(position - onGoingMissions.size() - mFaileureMissions.size());
+            return mCompletedMissions.get(position - onGoingMissions.size() - mFailureMissions.size());
         }
     }
 
@@ -65,8 +65,8 @@ public class DownloadAdapter extends MissionListenerForAdapter{
                 super.run();
                 mCompletedMissions.clear();
                 mCompletedMissions.addAll(DownloadRecord.getAllDownloaded());
-                mFaileureMissions.clear();
-                mFaileureMissions.addAll(DownloadRecord.getAllFailures());
+                mFailureMissions.clear();
+                mFailureMissions.addAll(DownloadRecord.getAllFailures());
                 updateUI();
             }
         }.start();

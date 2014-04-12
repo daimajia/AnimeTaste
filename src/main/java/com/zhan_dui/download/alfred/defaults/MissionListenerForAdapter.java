@@ -91,4 +91,13 @@ public abstract class MissionListenerForAdapter extends BaseAdapter implements M
             notifyDataSetChanged();
         }
     };
+
+    public boolean isDownloadingRightNow(String url){
+        for(M3U8Mission mission : onGoingMissions){
+            if(mission.getUri().equals(url)){
+                return true;
+            }
+        }
+        return false;
+    }
 }

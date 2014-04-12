@@ -62,7 +62,7 @@ public class DownloadHelper {
 
         DownloadRecord record = new Select()
                 .from(DownloadRecord.class)
-                .where("AnimationId = ? and Status = ?",animation.AnimationId, DownloadRecord.STATUS.SUCCESS.ordinal())
+                .where("AnimationId = ? and Status = ?",animation.AnimationId, DownloadRecord.STATUS.SUCCESS)
                 .executeSingle();
         if(record != null){
             File file = new File(record.SaveDir + record.SaveFileName);
@@ -137,7 +137,7 @@ public class DownloadHelper {
                 }
                 File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
                 file.mkdirs();
-                M3U8Mission mission = new M3U8Mission(animation.SD,file.getAbsolutePath() + "/" ,animation.Name + ".ts");
+                M3U8Mission mission = new M3U8Mission(animation.SD,file.getAbsolutePath() + "/AnimeTaste/" ,animation.Name + ".ts");
                 mission.addExtraInformation(mission.getUri(),animation);
                 mDownloadServiceBinder.startDownload(mission);
             }
