@@ -35,18 +35,18 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
         notifyBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setContentTitle(mission.getShowName())
-                .setContentText("准备下载")
+                .setContentText(context.getString(R.string.download_preparing))
                 .setProgress(100,100,true)
                 .setContentInfo("0%")
-                .addAction(R.drawable.ic_action_coffee,"暂停", pausePendingIntent)
-                .addAction(R.drawable.ic_action_cancel,"停止", cancelPendingIntent)
+                .addAction(R.drawable.ic_action_coffee,context.getString(R.string.download_pause), pausePendingIntent)
+                .addAction(R.drawable.ic_action_cancel,context.getString(R.string.download_cancel), cancelPendingIntent)
                 .setContentIntent(cancelPendingIntent);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
     }
 
     @Override
     public void onMetaDataPrepared(M3U8Mission mission) {
-        notifyBuilder.setContentText("开始下载");
+        notifyBuilder.setContentText(context.getString(R.string.download_start));
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
     }
 
@@ -61,12 +61,18 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
     @Override
     public void onError(M3U8Mission mission, Exception e) {
         e.printStackTrace();
+        notifyBuilder = new NotificationCompat.Builder(context)
+                .setSmallIcon(android.R.drawable.stat_sys_download)
+                .setContentTitle(mission.getShowName())
+                .setContentText(context.getString(R.string.download_error))
+                .setContentInfo(mission.getPercentage() + "%")
+                .setContentIntent(cancelPendingIntent);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
     }
 
     @Override
     public void onSuccess(M3U8Mission mission) {
-        notifyBuilder.setContentText("下载成功");
+        notifyBuilder.setContentText(context.getString(R.string.download_success));
         notifyBuilder.setSmallIcon(R.drawable.ic_action_emo_wink);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
     }
@@ -85,7 +91,7 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
 
     @Override
     public void onSpeedChange(M3U8Mission mission) {
-        notifyBuilder.setProgress(100,mission.getPercentage(),false).setContentText("正在下载速度:"+mission.getAccurateReadableSpeed());
+        notifyBuilder.setProgress(100,mission.getPercentage(),false).setContentText(context.getString(R.string.download_speed,mission.getAccurateReadableSpeed()));
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
     }
 
@@ -94,11 +100,11 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
         notifyBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setContentTitle(mission.getShowName())
-                .setContentText("暂停")
+                .setContentText(context.getString(R.string.download_pause))
                 .setProgress(100,mission.getPercentage(),false)
                 .setContentInfo(mission.getPercentage() + "%")
-                .addAction(R.drawable.ic_action_rocket,"继续", resumePendingIntent)
-                .addAction(R.drawable.ic_action_cancel,"停止", cancelPendingIntent)
+                .addAction(R.drawable.ic_action_rocket,context.getString(R.string.download_resume), resumePendingIntent)
+                .addAction(R.drawable.ic_action_cancel,context.getString(R.string.download_cancel), cancelPendingIntent)
                 .setContentIntent(cancelPendingIntent);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
     }
@@ -108,11 +114,11 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
         notifyBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setContentTitle(mission.getShowName())
-                .setContentText("正在下载")
+                .setContentText(context.getString(R.string.download_downloading))
                 .setProgress(100,mission.getPercentage(),false)
                 .setContentInfo(mission.getPercentage() + "%")
-                .addAction(R.drawable.ic_action_coffee,"暂停", pausePendingIntent)
-                .addAction(R.drawable.ic_action_cancel,"停止", cancelPendingIntent)
+                .addAction(R.drawable.ic_action_coffee,context.getString(R.string.download_pause), pausePendingIntent)
+                .addAction(R.drawable.ic_action_cancel,context.getString(R.string.download_cancel), cancelPendingIntent)
                 .setContentIntent(cancelPendingIntent);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
     }

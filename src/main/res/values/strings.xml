@@ -136,4 +136,16 @@
     <!-- Cache -->
     <string name="clear_ok">清理完成</string>
     <!-- Cache -->
+
+    <!-- Notification -->
+    <string name="download_success">下载成功</string>
+    <string name="download_speed">速度:%1$s</string>
+    <string name="download_pause">暂停</string>
+    <string name="download_resume">继续</string>
+    <string name="download_cancel">停止</string>
+    <string name="download_downloading">正在下载</string>
+    <string name="download_preparing">准备下载</string>
+    <string name="download_start">开始下载</string>
+    <string name="download_error">下载失败</string>
+    <!-- Notification -->
 </resources>

@@ -37,8 +37,7 @@ public class DownloadActivity extends ActionBarActivity implements AdapterView.O
             mBinder = (DownloadService.DownloadServiceBinder)service;
             isConnected = true;
             mDownloadList = (ListView)findViewById(R.id.download_list);
-            DownloadService.DownloadServiceBinder binder = (DownloadService.DownloadServiceBinder)service;
-            mDownloadList.setAdapter(binder.getMissionAdapter());
+            mDownloadList.setAdapter(mBinder.getMissionAdapter());
             mDownloadList.setOnItemClickListener(DownloadActivity.this);
             mDownloadList.setOnItemLongClickListener(DownloadActivity.this);
         }
@@ -81,7 +80,7 @@ public class DownloadActivity extends ActionBarActivity implements AdapterView.O
         Object obj = mDownloadList.getAdapter().getItem(position);
         if(obj instanceof Mission){
             final Mission m = (Mission)obj;
-            show(R.string.tip,R.string.stop_mission,new DialogInterface.OnClickListener() {
+            show(R.string.tip,getString(R.string.stop_mission,m.getSaveName()),new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     mBinder.stopMission(m.getMissionID());
@@ -102,7 +101,7 @@ public class DownloadActivity extends ActionBarActivity implements AdapterView.O
                             .where("AnimationId = ?", r.AnimationId)
                             .executeSingle();
                     DownloadAdapter adapter = (DownloadAdapter)mDownloadList.getAdapter();
-                    adapter.updateList();
+                    adapter.updateUI();
                 }
             });
         }

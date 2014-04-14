@@ -7,6 +7,7 @@ import android.widget.BaseAdapter;
 
 import com.zhan_dui.download.alfred.missions.M3U8Mission;
 import com.zhan_dui.download.alfred.missions.Mission;
+import com.zhan_dui.modal.DownloadRecord;
 
 import java.util.ArrayList;
 
@@ -16,18 +17,31 @@ import java.util.ArrayList;
 public abstract class MissionListenerForAdapter extends BaseAdapter implements Mission.MissionListener<M3U8Mission>{
 
     protected ArrayList<M3U8Mission> onGoingMissions = new ArrayList<M3U8Mission>();
-    protected Mission getMission(int position){
-        return onGoingMissions.get(position);
+    protected ArrayList<DownloadRecord> mCompletedMissions = new ArrayList<DownloadRecord>();
+
+    public MissionListenerForAdapter(){
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                mCompletedMissions.addAll(DownloadRecord.getAllDownloaded());
+                updateUI();
+            }
+        }.start();
     }
 
     @Override
     public int getCount() {
-        return onGoingMissions.size();
+        return mCompletedMissions.size() + onGoingMissions.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return onGoingMissions.get(position);
+        if(position < onGoingMissions.size()){
+            return onGoingMissions.get(position);
+        }else{
+            return mCompletedMissions.get(position - onGoingMissions.size());
+        }
     }
 
     @Override
@@ -40,8 +54,11 @@ public abstract class MissionListenerForAdapter extends BaseAdapter implements M
 
 
     @Override
-    public void onStart(M3U8Mission mission) {
+    public synchronized void onStart(M3U8Mission mission) {
         onGoingMissions.add(mission);
+        ArrayList<DownloadRecord> records = new ArrayList<DownloadRecord>();
+        records.addAll(DownloadRecord.getAllDownloaded());
+        mCompletedMissions = records;
         updateUI();
     }
 
@@ -61,13 +78,13 @@ public abstract class MissionListenerForAdapter extends BaseAdapter implements M
 
     @Override
     public void onSuccess(M3U8Mission mission) {
-        onGoingMissions.remove(mission.getUri());
         updateUI();
     }
 
     @Override
-    public void onFinish(M3U8Mission mission) {
+    public synchronized void onFinish(M3U8Mission mission) {
         onGoingMissions.remove(mission.getUri());
+        mCompletedMissions.addAll(DownloadRecord.getAllDownloaded());
         updateUI();
     }
 
@@ -78,9 +95,11 @@ public abstract class MissionListenerForAdapter extends BaseAdapter implements M
     public void onResume(M3U8Mission mission) {}
 
     @Override
-    public void onCancel(M3U8Mission mission) {}
+    public void onCancel(M3U8Mission mission) {
+        onGoingMissions.remove(mission);
+    }
 
-    protected void updateUI(){
+    public void updateUI(){
         WindTalker.sendEmptyMessage(0);
     }
 

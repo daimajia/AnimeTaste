@@ -1,8 +1,5 @@
 package com.zhan_dui.download.alfred;
 
-import android.util.Log;
-
-import com.zhan_dui.download.alfred.missions.M3U8Mission;
 import com.zhan_dui.download.alfred.missions.Mission;
 
 import java.util.HashMap;
@@ -33,7 +30,6 @@ public class Alfred {
     private Alfred(){
         mMissionBook = new HashMap<Integer, Mission>();
         mExecutorService = new AlfredMissionPool(MAX_MISSION_COUNT,MAX_MISSION_COUNT,15,TimeUnit.SECONDS,new LinkedBlockingDeque<Runnable>());
-        Log.e(TAG, "Create a New Alfred");
     }
 
     public void addMission(Mission mission){
@@ -80,8 +76,6 @@ public class Alfred {
         @Override
         protected void afterExecute(Runnable r, Throwable t) {
             super.afterExecute(r, t);
-            M3U8Mission mission = (M3U8Mission) r;
-            Log.e(TAG, mission.getUri());
         }
     }
 

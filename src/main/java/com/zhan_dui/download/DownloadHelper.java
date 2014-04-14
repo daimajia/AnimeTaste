@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Environment;
 import android.os.IBinder;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.activeandroid.query.Select;
@@ -28,8 +27,6 @@ import java.io.File;
  */
 public class DownloadHelper {
 
-    private final String TAG = "DownloadHelper";
-
     private Context mContext;
     private DownloadServiceBinder mDownloadServiceBinder;
     private Boolean isConnected = false;
@@ -42,7 +39,6 @@ public class DownloadHelper {
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.e(TAG,"onServiceConnected()");
             mDownloadServiceBinder = (DownloadService.DownloadServiceBinder)service;
             synchronized (o){
                 isConnected = true;
@@ -52,14 +48,11 @@ public class DownloadHelper {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            Log.e(TAG,"onService Disconnected()");
             isConnected = false;
         }
     };
 
     public void startDownload(final Animation animation){
-        Log.e(TAG,"StartDownload");
-
         DownloadRecord record = new Select()
                 .from(DownloadRecord.class)
                 .where("AnimationId = ? and Status = ?",animation.AnimationId, DownloadRecord.STATUS.SUCCESS)
@@ -149,16 +142,13 @@ public class DownloadHelper {
         ActivityManager manager = (ActivityManager)mContext.getSystemService(Context.ACTIVITY_SERVICE);
         for(ActivityManager.RunningServiceInfo service: manager.getRunningServices(Integer.MAX_VALUE)){
             if(DownloadService.class.getName().equals(service.service.getClassName())){
-                Log.e(TAG,"Service exist");
                 return true;
             }
         }
-        Log.e(TAG,"Service not exist");
         return false;
     }
 
     public void unbindDownloadService(){
-        Log.e(TAG,"unbindDownloadService");
         if(isDownloadServiceRunning() && isConnected && connection!=null){
             mContext.unbindService(connection);
         }

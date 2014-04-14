@@ -6,7 +6,6 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.util.Log;
 import android.widget.BaseAdapter;
 import android.widget.Toast;
 
@@ -23,7 +22,6 @@ import com.zhan_dui.download.alfred.missions.Mission;
  */
 public class DownloadService extends Service implements Mission.MissionListener<M3U8Mission>{
 
-    public static final String TAG = "DownloadService";
     private Alfred alfred = Alfred.getInstance();
     private DownloadAdapter missionAdapter;
 
@@ -39,24 +37,20 @@ public class DownloadService extends Service implements Mission.MissionListener<
     public void onCreate() {
         super.onCreate();
         missionAdapter = new DownloadAdapter(this);
-        Log.e(TAG, "onCreate() executed");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.e(TAG, "onStartCommand() executed");
         return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.e(TAG, "onDestroy() executed");
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.e(TAG,"onBind() executed");
         return new DownloadServiceBinder();
     }
 
@@ -124,7 +118,6 @@ public class DownloadService extends Service implements Mission.MissionListener<
     public void onFinish(M3U8Mission mission) {
         count--;
         if(count == 0){
-            Log.e(TAG,"StopSelf() executed");
             stopSelf();
         }
     }

@@ -212,7 +212,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-        Log.e("Tag","onSaveInstanceState() executed");
 		outState.putInt("LastPosition", mLastPos);
         outState.putParcelable("Animation", mAnimation);
 	}
@@ -220,7 +219,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        Log.e("Tag","onRestoreInstanceState() executed");
         if (savedInstanceState != null && savedInstanceState.containsKey("Animation")) {
             mAnimation = savedInstanceState.getParcelable("Animation");
             mLastPos = savedInstanceState.getInt("LastPosition");

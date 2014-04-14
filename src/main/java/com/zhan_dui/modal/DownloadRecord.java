@@ -2,7 +2,6 @@ package com.zhan_dui.modal;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
@@ -175,10 +174,8 @@ public class DownloadRecord extends Model implements Parcelable {
                 .where("AnimationId = ?" , animation.AnimationId)
                 .executeSingle();
         if(record == null){
-            Log.e("Download","START CREATE A RECORD");
             new DownloadRecord(animation,mission).save();
         }else{
-            Log.e("Download","UPDATE");
             int status;
             if(mission.isDone()){
                 status = mission.isSuccess() ? STATUS.SUCCESS : STATUS.ERROR;

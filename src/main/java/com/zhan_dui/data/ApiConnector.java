@@ -53,6 +53,7 @@ public class ApiConnector {
         params.put("advert",String.valueOf(advertiseCount));
         String access_token = ApiUtils.getAccessToken(params,API_SECRET);
         String request = String.format(INIT_REQUEST_URL,API_KEY,timeStamp,animeCount,featureCount,advertiseCount,access_token);
+        Log.e("Request",request);
         get(request, handler);
     }
 

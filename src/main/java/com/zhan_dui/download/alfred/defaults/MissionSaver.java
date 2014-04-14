@@ -10,10 +10,17 @@ import com.zhan_dui.modal.DownloadRecord;
  */
 public class MissionSaver implements Mission.MissionListener<M3U8Mission>{
 
-    private void save(M3U8Mission mission){
+    private Animation getAnimation(M3U8Mission mission){
         Object obj = mission.getExtraInformation(mission.getUri());
-        if(obj!=null){
-            Animation animation = (Animation)obj;
+        Animation animation = null;
+        if(obj!=null)
+            animation = (Animation)obj;
+        return animation;
+    }
+
+    private void save(M3U8Mission mission){
+        Animation animation = getAnimation(mission);
+        if(animation!=null){
             DownloadRecord.save(animation,mission);
         }
     }
@@ -65,6 +72,9 @@ public class MissionSaver implements Mission.MissionListener<M3U8Mission>{
 
     @Override
     public void onCancel(M3U8Mission mission) {
-        save(mission);
+        Animation animation = getAnimation(mission);
+        if(animation!=null){
+            DownloadRecord.deleteOne(animation);
+        }
     }
 }

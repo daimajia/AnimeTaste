@@ -1,7 +1,6 @@
 package com.zhan_dui.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +15,6 @@ import com.zhan_dui.download.alfred.missions.Mission;
 import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.DownloadRecord;
 
-import java.util.ArrayList;
-
 
 /**
  * Created by daimajia on 14-3-25.
@@ -26,50 +23,12 @@ public class DownloadAdapter extends MissionListenerForAdapter{
 
     private Context mContext;
     private LayoutInflater mLayoutInflater;
-    private ArrayList<DownloadRecord> mCompletedMissions;
-    private ArrayList<DownloadRecord> mFailureMissions;
+
 
     public DownloadAdapter(Context context) {
+        super();
         mContext = context;
         mLayoutInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mCompletedMissions = new ArrayList<DownloadRecord>();
-        mFailureMissions = new ArrayList<DownloadRecord>();
-        updateList();
-    }
-
-    @Override
-    public int getCount() {
-        return mCompletedMissions.size() + onGoingMissions.size() + mFailureMissions.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        if(position < onGoingMissions.size()){
-            return onGoingMissions.get(position);
-        }else if(position < onGoingMissions.size() + mFailureMissions.size()){
-            return mFailureMissions.get(position - onGoingMissions.size());
-        }else{
-            return mCompletedMissions.get(position - onGoingMissions.size() - mFailureMissions.size());
-        }
-    }
-
-    @Override
-    public void onFinish(M3U8Mission mission) {
-        super.onFinish(mission);
-    }
-
-    public void updateList(){
-        new Thread(){
-            @Override
-            public void run() {
-                super.run();
-                mCompletedMissions.clear();
-                mCompletedMissions.addAll(DownloadRecord.getAllDownloaded());
-                mFailureMissions.clear();
-                mFailureMissions.addAll(DownloadRecord.getAllFailures());
-                updateUI();
-            }
-        }.start();
     }
 
     @Override
@@ -96,14 +55,8 @@ public class DownloadAdapter extends MissionListenerForAdapter{
         Object mission = getItem(position);
         Animation animation = null;
         if(mission instanceof DownloadRecord){
-            DownloadRecord r = (DownloadRecord)mission;
             animation = DownloadRecord.getAnimation((DownloadRecord)mission);
-            Log.e("TAG,",r.Status + " ");//此处是NULL
-            if(r.Status == DownloadRecord.STATUS.SUCCESS){
-                progress.setVisibility(View.INVISIBLE);
-            }else{
-                Log.e("TAG",r.Name +" " + "Not finished");
-            }
+            progress.setVisibility(View.INVISIBLE);
         }else if(mission instanceof M3U8Mission){
             Mission m = (M3U8Mission)mission;
             Object extra =m.getExtraInformation(m.getUri());
@@ -137,8 +90,5 @@ public class DownloadAdapter extends MissionListenerForAdapter{
         }
     }
 
-    @Override
-    public void onSuccess(M3U8Mission mission) {
-        super.onSuccess(mission);
-    }
+
 }
