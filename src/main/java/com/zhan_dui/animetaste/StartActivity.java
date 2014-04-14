@@ -15,7 +15,6 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -274,9 +273,7 @@ public class StartActivity extends ActionBarActivity implements
 		return true;
 	}
 
-
     public void triggerApiConnector(){
-        Log.e("Trigger","triger");
         if(mCurrentPage == 1){
             switch (mType){
                 case ALL:
@@ -288,6 +285,7 @@ public class StartActivity extends ActionBarActivity implements
                 default:
             }
         }
+
         switch (mType){
             case ALL:
                 ApiConnector.instance().getList(mCurrentPage++,new LoadMoreJSONListener());
@@ -301,16 +299,18 @@ public class StartActivity extends ActionBarActivity implements
         }
     }
 
-	@Override
-	public void onScroll(AbsListView view, int firstVisibleItem,
-			int visibleItemCount, int totalItemCount) {
-		if (mUpdating == false && totalItemCount != 0
-				&& view.getLastVisiblePosition() == totalItemCount - 1 && !mIsEnd ) {
-			mUpdating = true;
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem,
+                         int visibleItemCount, int totalItemCount) {
+        if(mUpdating){
+            return;
+        }
+        if (mUpdating == false && totalItemCount != 0
+                && firstVisibleItem + visibleItemCount >= totalItemCount && !mIsEnd ) {
+            mUpdating = true;
             triggerApiConnector();
-		}
-
-	}
+        }
+    }
 
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState) {

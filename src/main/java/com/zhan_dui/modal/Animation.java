@@ -360,7 +360,7 @@ public class Animation extends Model implements Parcelable {
 		try {
 			return object.getString(key);
 		} catch (JSONException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 		return NONE_VALUE;
 	}

@@ -1,7 +1,7 @@
 package com.zhan_dui.data;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
+
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.zhan_dui.utils.ApiUtils;
@@ -53,7 +53,6 @@ public class ApiConnector {
         params.put("advert",String.valueOf(advertiseCount));
         String access_token = ApiUtils.getAccessToken(params,API_SECRET);
         String request = String.format(INIT_REQUEST_URL,API_KEY,timeStamp,animeCount,featureCount,advertiseCount,access_token);
-        Log.e("Request",request);
         get(request, handler);
     }
 

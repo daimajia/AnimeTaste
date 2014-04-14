@@ -11,6 +11,7 @@ import com.activeandroid.query.Select;
 import com.activeandroid.query.Update;
 import com.zhan_dui.download.alfred.missions.M3U8Mission;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -132,9 +133,7 @@ public class DownloadRecord extends Model implements Parcelable {
         return Animation.build(record);
     }
 
-    public static void deleteOne(Animation animation){
-        new Delete().from(DownloadRecord.class).where("AnimationId = ?",animation.AnimationId).execute();
-    }
+
 
     public DownloadRecord(){}
 
@@ -297,4 +296,21 @@ public class DownloadRecord extends Model implements Parcelable {
             return new DownloadRecord[size];
         }
     };
+
+    public static void deleteOne(Animation animation){
+        new Delete().from(DownloadRecord.class).where("AnimationId = ?",animation.AnimationId).execute();
+    }
+
+    public static void deleteAll(){
+        List<DownloadRecord> records = new Select().from(DownloadRecord.class).execute();
+        for(int i = 0; i< records.size();i++){
+            DownloadRecord r = records.get(i);
+            String p = r.SaveDir + r.SaveFileName;
+            File f = new File(p);
+            if(f.exists() && f.isFile()){
+                f.delete();
+            }
+        }
+        new Delete().from(DownloadRecord.class).execute();
+    }
 }

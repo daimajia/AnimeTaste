@@ -109,6 +109,8 @@
     <string name="stop_mission">终止下载『%1$s』？</string>
     <string name="surely_delete">彻底删除『%1$s』？</string>
     <string name="downloading">正在下载</string>
+    <string name="delete_all_downloaded">删除所有下载（含文件）？</string>
+    <string name="delete_finish">删除完成</string>
     <!-- Download -->
 
 	<!-- Load -->

@@ -6,12 +6,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.activeandroid.query.Delete;
 import com.zhan_dui.adapters.DownloadAdapter;
@@ -31,13 +35,15 @@ public class DownloadActivity extends ActionBarActivity implements AdapterView.O
     private boolean isConnected = false;
     private ListView mDownloadList = null;
     private DownloadService.DownloadServiceBinder mBinder;
+    private DownloadAdapter mAdapter;
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mBinder = (DownloadService.DownloadServiceBinder)service;
             isConnected = true;
             mDownloadList = (ListView)findViewById(R.id.download_list);
-            mDownloadList.setAdapter(mBinder.getMissionAdapter());
+            mAdapter = (DownloadAdapter)mBinder.getMissionAdapter();
+            mDownloadList.setAdapter(mAdapter);
             mDownloadList.setOnItemClickListener(DownloadActivity.this);
             mDownloadList.setOnItemLongClickListener(DownloadActivity.this);
         }
@@ -68,12 +74,49 @@ public class DownloadActivity extends ActionBarActivity implements AdapterView.O
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
+        switch (item.getItemId()){
+            case android.R.id.home:
+                finish();
+                break;
+            case R.id.action_delete_all:
+                new AlertDialog.Builder(DownloadActivity.this)
+                        .setTitle(R.string.tip)
+                        .setMessage(R.string.delete_all_downloaded)
+                        .setPositiveButton(R.string.yes,new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                deleteAll();
+                            }
+                        })
+                        .setNegativeButton(R.string.no,null)
+                        .create()
+                        .show();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void deleteAll(){
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                DownloadRecord.deleteAll();
+                updateHandler.sendEmptyMessage(0);
+            }
+        }.start();
+    }
+
+    private Handler updateHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Toast.makeText(DownloadActivity.this,R.string.delete_finish,Toast.LENGTH_SHORT).show();
+            if(mAdapter!= null){
+                mAdapter.reloadData();
+            }
+        }
+    };
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -105,6 +148,12 @@ public class DownloadActivity extends ActionBarActivity implements AdapterView.O
                 }
             });
         }
+        return true;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.download, menu);
         return true;
     }
 

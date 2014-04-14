@@ -12,14 +12,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Delete;
-import com.avos.avoscloud.AVOSCloud;
 import com.avos.avoscloud.AVAnalytics;
+import com.avos.avoscloud.AVOSCloud;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.data.AnimeTasteDB;
@@ -43,6 +44,7 @@ public class LoadActivity extends ActionBarActivity{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = this;
+        google_bug();
         AVOSCloud.initialize(this,
                 "w43xht9daji0uut74pseeiibax8c2tnzxowmx9f81nvtpims",
                 "86q8251hrodk6wnf4znistay1mva9rm1xikvp1s9mhp5n7od");
@@ -52,6 +54,11 @@ public class LoadActivity extends ActionBarActivity{
 		AVAnalytics.trackAppOpened(getIntent());
 
         updateFromOldVersion();
+
+        ActionBar ab = getSupportActionBar();//support library bug
+        if(ab != null){
+            ab.hide();
+        }
 
 		setContentView(R.layout.activity_load);
 		MobclickAgent.onError(this);
@@ -85,7 +92,9 @@ public class LoadActivity extends ActionBarActivity{
 		}
 
 	};
-
+    private void google_bug(){
+        new PrepareTask(null);
+    }
     private void init(){
 
         if(getIntent().getAction().equals(Intent.ACTION_VIEW)){
@@ -142,10 +151,12 @@ public class LoadActivity extends ActionBarActivity{
         }else{
             ApiConnector.instance().getInitData(20,5,2,new JsonHttpResponseHandler(){
                 @Override
-                public void onSuccess(int statusCode,JSONObject response) {
+                public void onSuccess(int statusCode,final JSONObject response) {
                     super.onSuccess(response);
                     if(statusCode == 200 && response.has("data")){
-                        new PrepareTask(response).execute();
+                        Message msg = Message.obtain();
+                        msg.obj = response;
+                        executeHandler.sendMessage(msg);
                     }else{
                         error();
                     }
@@ -159,6 +170,16 @@ public class LoadActivity extends ActionBarActivity{
             });
         }
     }
+
+    private Handler executeHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            JSONObject o = (JSONObject)msg.obj;
+            PrepareTask t = new PrepareTask(o);
+            t.execute();
+        }
+    };
 
     private class PrepareTask extends AsyncTask<Void,Void,Boolean>{
         private JSONObject mSetupResponse;
