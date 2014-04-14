@@ -40,7 +40,8 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
                 .setContentInfo("0%")
                 .addAction(R.drawable.ic_action_coffee,context.getString(R.string.download_pause), pausePendingIntent)
                 .addAction(R.drawable.ic_action_cancel,context.getString(R.string.download_cancel), cancelPendingIntent)
-                .setContentIntent(cancelPendingIntent);
+                .setContentIntent(cancelPendingIntent)
+                .setOngoing(true);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
     }
 
@@ -66,14 +67,15 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
                 .setContentTitle(mission.getShowName())
                 .setContentText(context.getString(R.string.download_error))
                 .setContentInfo(mission.getPercentage() + "%")
-                .setContentIntent(cancelPendingIntent);
+                .setContentIntent(cancelPendingIntent)
+                .setOngoing(false);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
     }
 
     @Override
     public void onSuccess(M3U8Mission mission) {
         notifyBuilder.setContentText(context.getString(R.string.download_success));
-        notifyBuilder.setSmallIcon(R.drawable.ic_action_emo_wink);
+        notifyBuilder.setSmallIcon(R.drawable.ic_action_emo_wink).setOngoing(false);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
     }
 
@@ -105,7 +107,8 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
                 .setContentInfo(mission.getPercentage() + "%")
                 .addAction(R.drawable.ic_action_rocket,context.getString(R.string.download_resume), resumePendingIntent)
                 .addAction(R.drawable.ic_action_cancel,context.getString(R.string.download_cancel), cancelPendingIntent)
-                .setContentIntent(cancelPendingIntent);
+                .setContentIntent(cancelPendingIntent)
+                .setOngoing(true);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
     }
 
@@ -119,7 +122,8 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
                 .setContentInfo(mission.getPercentage() + "%")
                 .addAction(R.drawable.ic_action_coffee,context.getString(R.string.download_pause), pausePendingIntent)
                 .addAction(R.drawable.ic_action_cancel,context.getString(R.string.download_cancel), cancelPendingIntent)
-                .setContentIntent(cancelPendingIntent);
+                .setContentIntent(cancelPendingIntent)
+                .setOngoing(true);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
     }
 

@@ -21,7 +21,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.text.InputFilter;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -61,7 +60,6 @@ import com.squareup.picasso.Target;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.auth.SocialPlatform;
 import com.zhan_dui.auth.User;
-import com.zhan_dui.data.AnimeTasteDB;
 import com.zhan_dui.data.ApiConnector;
 import com.zhan_dui.download.DownloadHelper;
 import com.zhan_dui.modal.Animation;
@@ -105,7 +103,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
 	private Context mContext;
 	private SharedPreferences mSharedPreferences;
-	private AnimeTasteDB mAnimeTasteDB;
 
 	private View mVideoAction;
 
@@ -141,8 +138,8 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	private RelativeLayout mController = null;
 	private SeekBar mProgress = null;
 	private TextView mDuration = null;
-	private TextView mCurrPostion = null;
-	private Button mPlaybtn = null;
+	private TextView mCurPosition = null;
+	private Button mPlayBtn = null;
 	private EditText mCommentEditText;
 	private String AK = "TrqQtzMhuoKhyLmNsfvwfWDo";
 	private String SK = "UuhbIKiNfr8SA3NM";
@@ -156,7 +153,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		super.onCreate(savedInstance);
 		mPrettyTime = new PrettyTime();
 		mContext = this;
-		mAnimeTasteDB = new AnimeTasteDB(mContext, AnimeTasteDB.NAME, null, AnimeTasteDB.VERSION);
 
 		if (getIntent().getExtras().containsKey("Animation")) {
             mAnimation = getIntent().getParcelableExtra("Animation");
@@ -165,7 +161,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		if (savedInstance != null && savedInstance.containsKey("Animation")) {
 			mAnimation = savedInstance.getParcelable("Animation");
 			mLastPos = savedInstance.getInt("LastPosition");
-            Log.e("Tag","onCreate executed");
 		}
 
 		mUser = new User(mContext);
@@ -181,16 +176,16 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		mTitleTextView = (TextView) findViewById(R.id.title);
 		mContentTextView = (TextView) findViewById(R.id.content);
 		mDetailImageView = (ImageView) findViewById(R.id.detailPic);
-		mVideoAction = (View) findViewById(R.id.VideoAction);
+		mVideoAction =  findViewById(R.id.VideoAction);
 		mAuthorTextView = (TextView) findViewById(R.id.author);
 		mPrePlayButton = (ImageButton) findViewById(R.id.pre_play_button);
 		mLoadingGif = (GifMovieView) findViewById(R.id.loading_gif);
 		mComments = (LinearLayout) findViewById(R.id.comments);
 		mRecommendView = findViewById(R.id.recommand_view);
-		mPlaybtn = (Button) findViewById(R.id.play_btn);
+		mPlayBtn = (Button) findViewById(R.id.play_btn);
 		mProgress = (SeekBar) findViewById(R.id.media_progress);
 		mDuration = (TextView) findViewById(R.id.time_total);
-		mCurrPostion = (TextView) findViewById(R.id.time_current);
+		mCurPosition = (TextView) findViewById(R.id.time_current);
 		mController = (RelativeLayout) findViewById(R.id.controlbar);
 		mViewHolder = (RelativeLayout) findViewById(R.id.view_holder);
 		mVV = (BVideoView) findViewById(R.id.video_view);
@@ -248,23 +243,23 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
                 TextView recommendContent = (TextView) recommend_item
                         .findViewById(R.id.recommand_content);
                 try{
-                JSONObject animationObject = mRandomJsonArray.getJSONObject(i);
-                Animation animation = Animation
-                        .build(animationObject);
-                Picasso.with(mContext).load(animation.HomePic)
-                        .placeholder(R.drawable.placeholder_thumb)
-                        .error(R.drawable.placeholder_fail)
-                        .into(recommendThumb);
-                recommendTitle.setText(animation.Name);
-                recommendContent.setText(animation.Brief);
-                recommend_item.setTag(animation);
-                recommend_item.setOnClickListener(PlayActivity.this);
-                View line = mRecommendView
-                        .findViewById(R.id.divide_line);
-                if (i == mRandomJsonArray.length() - 1 && line != null) {
-                    recommend_item.removeView(line);
-                }
-                mRandomLayout.addView(recommend_item);
+                    JSONObject animationObject = mRandomJsonArray.getJSONObject(i);
+                    Animation animation = Animation
+                            .build(animationObject);
+                    Picasso.with(mContext).load(animation.HomePic)
+                            .placeholder(R.drawable.placeholder_thumb)
+                            .error(R.drawable.placeholder_fail)
+                            .into(recommendThumb);
+                    recommendTitle.setText(animation.Name);
+                    recommendContent.setText(animation.Brief);
+                    recommend_item.setTag(animation);
+                    recommend_item.setOnClickListener(PlayActivity.this);
+                    View line = mRecommendView
+                            .findViewById(R.id.divide_line);
+                    if (i == mRandomJsonArray.length() - 1 && line != null) {
+                        recommend_item.removeView(line);
+                    }
+                    mRandomLayout.addView(recommend_item);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -499,10 +494,10 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
                 break;
             case R.id.play_btn:
                 if (mVV.isPlaying()) {
-                    mPlaybtn.setBackgroundResource(R.drawable.play_btn_style);
+                    mPlayBtn.setBackgroundResource(R.drawable.play_btn_style);
                     mVV.pause();
                 } else {
-                    mPlaybtn.setBackgroundResource(R.drawable.pause_btn_style);
+                    mPlayBtn.setBackgroundResource(R.drawable.pause_btn_style);
                     mVV.resume();
                 }
                 mController.setVisibility(View.INVISIBLE);
@@ -801,7 +796,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 			case UI_EVENT_UPDATE_CURRPOSITION:
 				int currPosition = mVV.getCurrentPosition();
 				int duration = mVV.getDuration();
-				updateTextViewWithTimeFormat(mCurrPostion, currPosition);
+				updateTextViewWithTimeFormat(mCurPosition, currPosition);
 				updateTextViewWithTimeFormat(mDuration, duration);
 				mProgress.setMax(duration);
 				mProgress.setProgress(currPosition);
@@ -860,7 +855,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		BVideoView.setAKSK(AK, SK);
 		mZoomButton.setOnClickListener(this);
 		mVV.setVideoScalingMode(BVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT);
-		mPlaybtn.setOnClickListener(this);
+		mPlayBtn.setOnClickListener(this);
 		mVV.setOnPreparedListener(this);
 		mVV.setOnCompletionListener(this);
 		mVV.setOnErrorListener(this);
@@ -881,14 +876,28 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		}
 		Picasso.with(mContext).load(mAnimation.DetailPic)
 				.placeholder(R.drawable.big_bg).into(this);
-        DownloadRecord record = DownloadRecord.getFromAnimation(mAnimation,true);
-        if(record != null){
-            File file = new File(record.SaveDir + record.SaveFileName);
-            if(file.exists() && file.isFile()){
-                Toast.makeText(mContext,R.string.play_offline,Toast.LENGTH_SHORT).show();
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                DownloadRecord record = DownloadRecord.getFromAnimation(mAnimation,true);
+                if(record != null){
+                    File file = new File(record.SaveDir + record.SaveFileName);
+                    if(file.exists() && file.isFile()){
+                        toastHandler.sendEmptyMessage(0);
+                    }
+                }
             }
-        }
+        }.start();
 	}
+
+    private Handler toastHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Toast.makeText(mContext,R.string.play_offline,Toast.LENGTH_SHORT).show();
+        }
+    };
 
 	private void stopPlay() {
 		if (mVV.isPlaying() == false)
@@ -953,7 +962,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		OnSeekBarChangeListener seekBarChangeListener = new OnSeekBarChangeListener() {
 			public void onProgressChanged(SeekBar seekBar, int progress,
 					boolean fromUser) {
-				updateTextViewWithTimeFormat(mCurrPostion, progress);
+				updateTextViewWithTimeFormat(mCurPosition, progress);
 			}
 
 			public void onStartTrackingTouch(SeekBar seekBar) {

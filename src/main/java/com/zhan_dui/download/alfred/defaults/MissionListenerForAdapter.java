@@ -83,8 +83,10 @@ public abstract class MissionListenerForAdapter extends BaseAdapter implements M
 
     @Override
     public synchronized void onFinish(M3U8Mission mission) {
-        onGoingMissions.remove(mission.getUri());
-        mCompletedMissions.addAll(DownloadRecord.getAllDownloaded());
+        onGoingMissions.remove(mission);
+        ArrayList<DownloadRecord> records = new ArrayList<DownloadRecord>();
+        records.addAll(DownloadRecord.getAllDownloaded());
+        mCompletedMissions = records;
         updateUI();
     }
 
@@ -101,6 +103,13 @@ public abstract class MissionListenerForAdapter extends BaseAdapter implements M
 
     public void updateUI(){
         WindTalker.sendEmptyMessage(0);
+    }
+
+    public void reloadData(){
+        ArrayList<DownloadRecord> records = new ArrayList<DownloadRecord>();
+        records.addAll(DownloadRecord.getAllDownloaded());
+        mCompletedMissions = records;
+        updateUI();
     }
 
     private Handler WindTalker = new Handler(){

@@ -101,7 +101,7 @@ public class DownloadActivity extends ActionBarActivity implements AdapterView.O
                             .where("AnimationId = ?", r.AnimationId)
                             .executeSingle();
                     DownloadAdapter adapter = (DownloadAdapter)mDownloadList.getAdapter();
-                    adapter.updateUI();
+                    adapter.reloadData();
                 }
             });
         }
