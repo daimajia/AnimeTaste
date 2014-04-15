@@ -55,12 +55,8 @@ public class LoadActivity extends ActionBarActivity{
 
         updateFromOldVersion();
 
-        ActionBar ab = getSupportActionBar();//support library bug
-        if(ab != null){
-            ab.hide();
-        }
-
 		setContentView(R.layout.activity_load);
+
 		MobclickAgent.onError(this);
 		if (PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(
 				"only_wifi", true)
@@ -92,8 +88,15 @@ public class LoadActivity extends ActionBarActivity{
 		}
 
 	};
-    private void google_bug(){
+    private void google_bug(){//for support android 2.3
         new PrepareTask(null);
+        try{
+            ActionBar ab = getSupportActionBar();//support library bug
+            if(ab != null){
+                ab.hide();
+            }
+        }catch (Exception e){
+        }
     }
     private void init(){
 

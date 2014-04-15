@@ -538,6 +538,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
                 mVideoAction.setVisibility(View.INVISIBLE);
                 mVV.setVideoPath(path);
                 mVV.seekTo(start);
+                mPlayBtn.setBackgroundResource(R.drawable.pause_btn_style);
                 mVV.start();
                 hideControls();
                 getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -546,7 +547,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
                 Toast.makeText(mContext,R.string.offline_file_missing,Toast.LENGTH_LONG).show();
             }
         }
-
         startPlayAnimationFromNet(playUrl,mLastPos,animation);
     }
 
@@ -558,6 +558,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
                 mVV.setVideoPath(url);
                 mVV.seekTo(start);
                 mVV.start();
+                mPlayBtn.setBackgroundResource(R.drawable.pause_btn_style);
                 hideControls();
                 getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             }else{
@@ -572,6 +573,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
                                 mVV.setVideoPath(url);
                                 mVV.seekTo(start);
                                 mVV.start();
+                                mPlayBtn.setBackgroundResource(R.drawable.pause_btn_style);
                                 hideControls();
                                 getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                             }
@@ -838,7 +840,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
                         }
                     });
                 }
-            },3000);
+            },6000);
         }else{
             if(mt != null){
                 mt.cancel();

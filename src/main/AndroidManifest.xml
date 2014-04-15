@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.zhan_dui.animetaste"
-    android:versionCode="15"
-    android:versionName="1.3.0" >
+    android:versionCode="17"
+    android:versionName="1.5.0" >
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -16,7 +16,7 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.GET_TASKS"/>
-
+    
     <application
 		android:name="com.activeandroid.app.Application"
         android:allowBackup="true"
@@ -24,7 +24,6 @@
         android:label="@string/app_name"
         android:logo="@drawable/ab_icon"
         android:theme="@style/AppTheme" >
-
 	    <meta-data android:name="AA_DB_NAME" android:value="Anime.db"></meta-data>
 	    <meta-data android:name="AA_DB_VERSION" android:value="2"></meta-data>
 
@@ -70,7 +69,7 @@
         </meta-data>
         <meta-data
             android:name="UMENG_CHANNEL"
-            android:value="Play" />
+            android:value="UMENG_CHANNEL_VALUE" />
         <!-- 友盟结束 -->
         <activity
             android:name="com.zhan_dui.animetaste.StartActivity"
