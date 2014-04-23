@@ -219,7 +219,7 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
                 recommendContent.setText(animation.Brief);
                 recommend_item.setTag(animation);
                 recommend_item.setOnClickListener(PlayActivity.this);
-                View line = mRecommandView
+                View line = recommend_item
                         .findViewById(R.id.divide_line);
                 if (i == mRandomJsonArray.length() - 1 && line != null) {
                     recommend_item.removeView(line);
@@ -859,8 +859,13 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 
 	@Override
 	public boolean onError(int arg0, int arg1) {
-		Toast.makeText(mContext, R.string.play_error, Toast.LENGTH_SHORT)
-				.show();
+		PlayActivity.this.runOnUiThread(new Runnable() {
+		            @Override
+		            public void run() {
+		                Toast.makeText(mContext, R.string.play_error, Toast.LENGTH_SHORT)
+		                        .show();
+		            }
+	        	});
 		return true;
 	}
 
