@@ -51,7 +51,9 @@ public class DownloadAdapter extends MissionListenerForAdapter{
             progress = holder.progress;
             thumb = holder.thumb;
         }
-
+        if(position > getCount() - 1){
+            return null;
+        }
         Object mission = getItem(position);
         Animation animation = null;
         if(mission instanceof DownloadRecord){

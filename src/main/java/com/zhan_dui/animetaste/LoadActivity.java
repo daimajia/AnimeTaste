@@ -20,7 +20,6 @@ import android.widget.Toast;
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Delete;
 import com.avos.avoscloud.AVAnalytics;
-import com.avos.avoscloud.AVOSCloud;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.data.AnimeTasteDB;
@@ -45,9 +44,6 @@ public class LoadActivity extends ActionBarActivity{
 		super.onCreate(savedInstanceState);
 		mContext = this;
         google_bug();
-        AVOSCloud.initialize(this,
-                "w43xht9daji0uut74pseeiibax8c2tnzxowmx9f81nvtpims",
-                "86q8251hrodk6wnf4znistay1mva9rm1xikvp1s9mhp5n7od");
         ActiveAndroid.setLoggingEnabled(false);
 		ShareSDK.initSDK(mContext);
         ShareSDK.setNetworkDevInfoEnable(true);

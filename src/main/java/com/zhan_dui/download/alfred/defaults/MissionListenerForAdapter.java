@@ -84,10 +84,7 @@ public abstract class MissionListenerForAdapter extends BaseAdapter implements M
     @Override
     public synchronized void onFinish(M3U8Mission mission) {
         onGoingMissions.remove(mission);
-        ArrayList<DownloadRecord> records = new ArrayList<DownloadRecord>();
-        records.addAll(DownloadRecord.getAllDownloaded());
-        mCompletedMissions = records;
-        updateUI();
+        reloadData();
     }
 
     @Override
@@ -99,6 +96,7 @@ public abstract class MissionListenerForAdapter extends BaseAdapter implements M
     @Override
     public void onCancel(M3U8Mission mission) {
         onGoingMissions.remove(mission);
+        reloadData();
     }
 
     public void updateUI(){

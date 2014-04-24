@@ -4,9 +4,9 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import com.zhan_dui.download.alfred.Alfred;
+import com.zhan_dui.download.alfred.utils.AlfredUtils;
 
 /**
  * Created by daimajia on 14-3-31.
@@ -26,13 +26,12 @@ public class MissionActionReceiver extends BroadcastReceiver{
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra(ID,missionID);
         intent.putExtra(TYPE,type);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, missionID* 100 + type.ordinal(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, AlfredUtils.randInt(1,1000000), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         return pendingIntent;
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.e(TAG,"onReceive() executed");
         MISSION_TYPE type =(MISSION_TYPE)intent.getExtras().getSerializable(TYPE);
         int missionID = intent.getExtras().getInt(ID);
         if(missionID == -1){

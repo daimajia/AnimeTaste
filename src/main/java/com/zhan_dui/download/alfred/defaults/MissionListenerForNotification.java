@@ -3,11 +3,16 @@ package com.zhan_dui.download.alfred.defaults;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
+import com.umeng.analytics.MobclickAgent;
+import com.zhan_dui.animetaste.DownloadActivity;
+import com.zhan_dui.animetaste.PlayActivity;
+import com.zhan_dui.animetaste.R;
 import com.zhan_dui.download.alfred.missions.M3U8Mission;
 import com.zhan_dui.download.alfred.missions.Mission;
-import com.zhan_dui.animetaste.R;
+import com.zhan_dui.modal.Animation;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -21,6 +26,8 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
     private NotificationCompat.Builder notifyBuilder;
 
     private PendingIntent pausePendingIntent,resumePendingIntent,cancelPendingIntent;
+    private Intent contentIntent;
+    private PendingIntent contentPendingIntent;
 
     public MissionListenerForNotification(Context context){
         this.context = context;
@@ -32,6 +39,8 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
         cancelPendingIntent = MissionActionReceiver.buildReceiverPendingIntent(context, MissionActionReceiver.MISSION_TYPE.CANCEL_MISSION, mission.getMissionID());
         pausePendingIntent = MissionActionReceiver.buildReceiverPendingIntent(context, MissionActionReceiver.MISSION_TYPE.PAUSE_MISSION, mission.getMissionID());
         resumePendingIntent = MissionActionReceiver.buildReceiverPendingIntent(context, MissionActionReceiver.MISSION_TYPE.RESUME_MISSION, mission.getMissionID());
+        contentIntent = new Intent(context, DownloadActivity.class);
+        contentPendingIntent = PendingIntent.getActivity(context,0,contentIntent,Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notifyBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setContentTitle(mission.getShowName())
@@ -40,9 +49,10 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
                 .setContentInfo("0%")
                 .addAction(R.drawable.ic_action_coffee,context.getString(R.string.download_pause), pausePendingIntent)
                 .addAction(R.drawable.ic_action_cancel,context.getString(R.string.download_cancel), cancelPendingIntent)
-                .setContentIntent(cancelPendingIntent)
+                .setContentIntent(contentPendingIntent)
                 .setOngoing(true);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
+        MobclickAgent.onEvent(context,"download_start");
     }
 
     @Override
@@ -67,17 +77,30 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
                 .setContentTitle(mission.getShowName())
                 .setContentText(context.getString(R.string.download_error))
                 .setContentInfo(mission.getPercentage() + "%")
-                .setContentIntent(cancelPendingIntent)
+                .setContentIntent(contentPendingIntent)
                 .setOngoing(false);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
+        MobclickAgent.onEvent(context,"download_failed");
     }
-
+    //todo:修复
     @Override
     public void onSuccess(M3U8Mission mission) {
-        notifyBuilder.setContentText(context.getString(R.string.download_success));
-        notifyBuilder.setSmallIcon(R.drawable.ic_action_emo_wink).setOngoing(false);
+        Intent intent = new Intent(context, PlayActivity.class);
+        Animation animation = (Animation)mission.getExtraInformation(mission.getUri());
+        intent.putExtra("Animation", animation);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notifyBuilder = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_action_emo_wink)
+                .setContentTitle(mission.getShowName())
+                .setContentText(context.getString(R.string.download_success))
+                .setProgress(100,mission.getPercentage(),false)
+                .setContentIntent(pendingIntent)
+                .setOngoing(false);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
+        MobclickAgent.onEvent(context,"download_success");
     }
+
+
 
     @Override
     public void onFinish(final M3U8Mission mission) {
@@ -107,9 +130,10 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
                 .setContentInfo(mission.getPercentage() + "%")
                 .addAction(R.drawable.ic_action_rocket,context.getString(R.string.download_resume), resumePendingIntent)
                 .addAction(R.drawable.ic_action_cancel,context.getString(R.string.download_cancel), cancelPendingIntent)
-                .setContentIntent(cancelPendingIntent)
+                .setContentIntent(contentPendingIntent)
                 .setOngoing(true);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
+        MobclickAgent.onEvent(context,"download_pause");
     }
 
     @Override
@@ -122,9 +146,10 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
                 .setContentInfo(mission.getPercentage() + "%")
                 .addAction(R.drawable.ic_action_coffee,context.getString(R.string.download_pause), pausePendingIntent)
                 .addAction(R.drawable.ic_action_cancel,context.getString(R.string.download_cancel), cancelPendingIntent)
-                .setContentIntent(cancelPendingIntent)
+                .setContentIntent(contentPendingIntent)
                 .setOngoing(true);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
+        MobclickAgent.onEvent(context,"download_resume");
     }
 
     @Override

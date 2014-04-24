@@ -44,6 +44,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVOSCloud;
 import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.SaveCallback;
@@ -151,6 +152,12 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 	@Override
 	public void onCreate(Bundle savedInstance) {
 		super.onCreate(savedInstance);
+
+
+        AVOSCloud.initialize(this,
+                "w43xht9daji0uut74pseeiibax8c2tnzxowmx9f81nvtpims",
+                "86q8251hrodk6wnf4znistay1mva9rm1xikvp1s9mhp5n7od");
+
 		mPrettyTime = new PrettyTime();
 		mContext = this;
 

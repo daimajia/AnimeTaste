@@ -25,11 +25,22 @@ public class DownloadService extends Service implements Mission.MissionListener<
     private Alfred alfred = Alfred.getInstance();
     private DownloadAdapter missionAdapter;
 
-    private Handler downloadRepeat = new Handler(){
+    private final int MSG_REPEAT = 0;
+    private final int MSG_START = 1;
+    private Handler downloadHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            Toast.makeText(DownloadService.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+
+            switch (msg.what){
+                case MSG_REPEAT:
+                    Toast.makeText(DownloadService.this, R.string.downloading, Toast.LENGTH_SHORT).show();
+                    break;
+                case MSG_START:
+                    Toast.makeText(DownloadService.this, getString(R.string.start_downloading), Toast.LENGTH_SHORT).show();
+                    break;
+            }
+
         }
     };
 
@@ -63,13 +74,14 @@ public class DownloadService extends Service implements Mission.MissionListener<
 
         public void startDownload(M3U8Mission mission) {
             if(missionAdapter.isDownloadingRightNow(mission.getUri())){
-                downloadRepeat.sendEmptyMessage(0);
+                downloadHandler.sendEmptyMessage(MSG_REPEAT);
             }else{
                 mission.addMissionListener(new MissionListenerForNotification(DownloadService.this));
                 mission.addMissionListener(missionAdapter);
                 mission.addMissionListener(new MissionSaver());
                 mission.addMissionListener(DownloadService.this);
                 alfred.addMission(mission);
+                downloadHandler.sendEmptyMessage(MSG_START);
             }
         }
 
