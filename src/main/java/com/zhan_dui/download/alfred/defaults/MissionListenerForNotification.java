@@ -5,10 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.support.v4.app.NotificationCompat;
-import android.widget.Toast;
 
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.animetaste.DownloadActivity;
@@ -48,7 +45,7 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
         pausePendingIntent = MissionActionReceiver.buildReceiverPendingIntent(context, MissionActionReceiver.MISSION_TYPE.PAUSE_MISSION, mission.getMissionID());
         resumePendingIntent = MissionActionReceiver.buildReceiverPendingIntent(context, MissionActionReceiver.MISSION_TYPE.RESUME_MISSION, mission.getMissionID());
         contentIntent = new Intent(context, DownloadActivity.class);
-        contentPendingIntent = PendingIntent.getActivity(context,0,contentIntent,Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        contentPendingIntent = PendingIntent.getActivity(context,0,contentIntent,Intent.FLAG_ACTIVITY_NEW_TASK);
         notifyBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setContentTitle(mission.getShowName())
@@ -61,23 +58,6 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
                 .setOngoing(true);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
         MobclickAgent.onEvent(context,"download_start");
-//        Looper.prepare();
-//        ShowMessageHandler  = new Handler(){
-//            @Override
-//            public void handleMessage(Message msg) {
-//                super.handleMessage(msg);
-//                String name = (String)msg.obj;
-//                switch (msg.what){
-//                    case SUCCESS:
-//                        Toast.makeText(context,name + " 下载成功",Toast.LENGTH_SHORT).show();
-//                        break;
-//                    case FAILED:
-//                        Toast.makeText(context,name +" 下载失败",Toast.LENGTH_SHORT).show();
-//                        break;
-//                }
-//            }
-//        };
-//        Looper.loop();
     }
 
     @Override
