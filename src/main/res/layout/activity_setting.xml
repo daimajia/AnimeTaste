@@ -80,6 +80,27 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/clear_cache"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/setting_item_height" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:paddingLeft="@dimen/setting_text_padding_left"
+                    android:text="@string/clear_cache" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/seprate_line"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/setting_item_line" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
                 android:id="@+id/cancel_auth"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/setting_item_height"

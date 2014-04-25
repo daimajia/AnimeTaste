@@ -9,31 +9,35 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Toast;
+
+import com.umeng.analytics.MobclickAgent;
+import com.zhan_dui.utils.CacheUtils;
+
+import org.jraf.android.backport.switchwidget.Switch;
+
+import java.util.HashMap;
+
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.sina.weibo.SinaWeibo;
 import cn.sharesdk.tencent.qzone.QZone;
-import com.umeng.analytics.MobclickAgent;
-import com.zhan_dui.utils.SwipeBackAppCompatActivity;
-import me.imid.swipebacklayout.lib.SwipeBackLayout;
-import org.jraf.android.backport.switchwidget.Switch;
 
-import java.util.HashMap;
-
-public class SettingActivity extends SwipeBackAppCompatActivity implements
+public class SettingActivity extends ActionBarActivity implements
 		OnClickListener, OnCheckedChangeListener, PlatformActionListener {
 	private View mRecommand;
 	private View mSuggestion;
 	private View mFocusUs;
 	private View mCancelAuth;
 	private View mRateForUs;
+    private View mClearCache;
 
 	private Switch mSwitchOnlyWifi;
 	private Switch mSwitchUseHD;
@@ -59,6 +63,7 @@ public class SettingActivity extends SwipeBackAppCompatActivity implements
 		mFocusUs = findViewById(R.id.focus_us);
 		mCancelAuth = findViewById(R.id.cancel_auth);
 		mRateForUs = findViewById(R.id.rate_for_us);
+        mClearCache = findViewById(R.id.clear_cache);
 
 		mSwitchOnlyWifi = (Switch) findViewById(R.id.switch_wifi);
 		mSwitchUseHD = (Switch) findViewById(R.id.switch_hd);
@@ -73,11 +78,11 @@ public class SettingActivity extends SwipeBackAppCompatActivity implements
 		mSwitchUseHD.setOnCheckedChangeListener(this);
 		mCancelAuth.setOnClickListener(this);
 		mRateForUs.setOnClickListener(this);
+        mClearCache.setOnClickListener(this);
 
 		mSwitchOnlyWifi.setChecked(mSharedPreferences.getBoolean("only_wifi",
 				true));
 		mSwitchUseHD.setChecked(mSharedPreferences.getBoolean("use_hd", true));
-        getSwipeBackLayout().setEdgeTrackingEnabled(SwipeBackLayout.EDGE_LEFT);
 	}
 
 	@Override
@@ -126,6 +131,17 @@ public class SettingActivity extends SwipeBackAppCompatActivity implements
 				Toast.makeText(mContext, R.string.can_not_open_market,
 						Toast.LENGTH_SHORT).show();
 			}
+            break;
+        case R.id.clear_cache:
+            new Thread(){
+                @Override
+                public void run() {
+                    super.run();
+                    CacheUtils.deleteCache(mContext);
+                }
+            }.start();
+            Toast.makeText(mContext,R.string.clear_ok,Toast.LENGTH_SHORT).show();
+            break;
 		default:
 			break;
 		}

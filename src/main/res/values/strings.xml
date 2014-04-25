@@ -33,10 +33,11 @@
     <string name="delete_all_tip">全部删除?</string>
     <string name="delete_null">这里空空如也，快去收藏些自己喜爱的动画吧</string>
     <string name="only_wifi_title">网络提示</string>
-    <string name="only_wifi_body">检测到您现在使用的不是Wifi网络，可能耗费较大流量，继续么？</string>
-	<string name="get_data_error">获取数据出错</string>
+    <string name="only_wifi_body">不是Wifi网络，继续么？</string>
+	<string name="get_data_error">获取数据出错，为您转向离线</string>
+    <string name="touch_to_retry">获取失败，轻触以重试</string>
     <string name="only_wifi_ok">继续</string>
-    <string name="obly_wifi_cancel">退出</string>
+    <string name="only_wifi_cancel">退出</string>
     <string name="fav_success">收藏成功</string>
     <string name="fav_fail">收藏失败</string>
     <string name="fav_del_success">删除成功</string>
@@ -47,6 +48,14 @@
 
     <!-- Player -->
     <string name="play_error">对不起，视频暂时没法播放</string>
+    <string name="offline_file_missing">离线文件被删除，是否尝试从网络播放？</string>
+    <string name="redownload_tips">您下载过这个视频，而且文件依然存在，是要重新下载么？</string>
+    <string name="tip">爱心提示</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="play_offline">视频已离线</string>
+    <string name="play_no_net">没有网络</string>
+    <string name="no_wifi_force_play">没有Wifi，用流量播放？</string>
     <!-- Player -->
 
 
@@ -77,7 +86,7 @@
     <string name="login_success">登录成功</string>
     <string name="login_failed">登录失败</string>
     <string name="logout_success">退出登录成功</string>
-    <string name="write_someting">写下你的感想&#8230;&#8230;</string>
+    <string name="write_something">写下你的感想&#8230;&#8230;</string>
     <!-- Comment -->
 
 
@@ -91,12 +100,24 @@
 	<string name="latest">最新视频</string>
 	<string name="my_fav">我的收藏</string>
 	<string name="category">分类浏览</string>
+    <string name="my_download">我的下载</string>
 	<!-- Drawer -->
+
+    <!-- Download -->
+    <string name="no_network">没有连接网络</string>
+    <string name="no_wifi_download">没有连接Wifi，要用流量下载吗？</string>
+    <string name="stop_mission">终止下载『%1$s』？</string>
+    <string name="surely_delete">彻底删除『%1$s』？</string>
+    <string name="downloading">正在下载</string>
+    <string name="delete_all_downloaded">删除所有下载（含文件）？</string>
+    <string name="delete_finish">删除完成</string>
+    <!-- Download -->
 
 	<!-- Load -->
 	<string name="init_failed">初始化失败</string>
 	<string name="web_loading">正在加载中...</string>
 	<!-- Load -->
+
 	<!-- Video -->
 	<string name="end">到头了</string>
 	<!-- Video -->
@@ -109,4 +130,26 @@
 	<string name="intro_drawer">这里有个小抽屉喔~ :)</string>
 	<!-- What's new-->
 
+    <!-- Menu Title-->
+    <string name="ic_action_fav">喜欢</string>
+    <string name="ic_action_download">下载</string>
+    <!-- Menu Title-->
+
+    <!-- Cache -->
+    <string name="clear_ok">清理完成</string>
+    <!-- Cache -->
+
+    <!-- Notification -->
+    <string name="download_success">下载成功</string>
+    <string name="download_speed">速度:%1$s</string>
+    <string name="download_pause">暂停</string>
+    <string name="download_resume">继续</string>
+    <string name="download_cancel">停止</string>
+    <string name="download_downloading">正在下载</string>
+    <string name="download_preparing">准备下载</string>
+    <string name="download_start">开始下载</string>
+    <string name="download_error">下载失败</string>
+    <string name="start_downloading">开始下载</string>
+    <string name="download_action_tips">Tips: 长按终止下载或删除</string>
+    <!-- Notification -->
 </resources>

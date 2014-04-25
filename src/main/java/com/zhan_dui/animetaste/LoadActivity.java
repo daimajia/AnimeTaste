@@ -9,14 +9,17 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.view.KeyEvent;
 import android.widget.Toast;
-import cn.sharesdk.framework.ShareSDK;
+
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Delete;
-import com.avos.avoscloud.Parse;
-import com.avos.avoscloud.ParseAnalytics;
+import com.avos.avoscloud.AVAnalytics;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.data.AnimeTasteDB;
@@ -26,34 +29,34 @@ import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Category;
 import com.zhan_dui.modal.WatchRecord;
 import com.zhan_dui.utils.NetworkUtils;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class LoadActivity extends ActionBarActivity {
+import cn.sharesdk.framework.ShareSDK;
+
+public class LoadActivity extends ActionBarActivity{
 	private Context mContext;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContext = this;
-        Parse.initialize(this,
-                "w43xht9daji0uut74pseeiibax8c2tnzxowmx9f81nvtpims",
-                "86q8251hrodk6wnf4znistay1mva9rm1xikvp1s9mhp5n7od");
+        google_bug();
         ActiveAndroid.setLoggingEnabled(false);
 		ShareSDK.initSDK(mContext);
-		ParseAnalytics.trackAppOpened(getIntent());
-		if (getSupportActionBar() != null) {
-			getSupportActionBar().hide();
-		}
+        ShareSDK.setNetworkDevInfoEnable(true);
+		AVAnalytics.trackAppOpened(getIntent());
 
         updateFromOldVersion();
 
 		setContentView(R.layout.activity_load);
+
 		MobclickAgent.onError(this);
 		if (PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(
 				"only_wifi", true)
-				&& NetworkUtils.isWifi(mContext) == false) {
+				&& NetworkUtils.isWifiConnected(mContext) == false) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(mContext)
 					.setTitle(R.string.only_wifi_title).setMessage(
 							R.string.only_wifi_body);
@@ -67,7 +70,7 @@ public class LoadActivity extends ActionBarActivity {
 							init();
 						}
 					});
-			builder.setNegativeButton(R.string.obly_wifi_cancel,
+			builder.setNegativeButton(R.string.only_wifi_cancel,
 					new OnClickListener() {
 
 						@Override
@@ -81,7 +84,16 @@ public class LoadActivity extends ActionBarActivity {
 		}
 
 	};
-
+    private void google_bug(){//for support android 2.3
+        new PrepareTask(null);
+        try{
+            ActionBar ab = getSupportActionBar();//support library bug
+            if(ab != null){
+                ab.hide();
+            }
+        }catch (Exception e){
+        }
+    }
     private void init(){
 
         if(getIntent().getAction().equals(Intent.ACTION_VIEW)){
@@ -138,44 +150,35 @@ public class LoadActivity extends ActionBarActivity {
         }else{
             ApiConnector.instance().getInitData(20,5,2,new JsonHttpResponseHandler(){
                 @Override
-                public void onSuccess(int statusCode,JSONObject response) {
+                public void onSuccess(int statusCode,final JSONObject response) {
                     super.onSuccess(response);
                     if(statusCode == 200 && response.has("data")){
-                        new PrepareTask(response).execute();
+                        Message msg = Message.obtain();
+                        msg.obj = response;
+                        executeHandler.sendMessage(msg);
                     }else{
                         error();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable throwable, String s) {
-                    super.onFailure(throwable, s);
-                    Toast.makeText(mContext,R.string.get_data_error,Toast.LENGTH_SHORT).show();
-                    finish();
-//                    List<Animation> animations = new Select().from(Animation.class).orderBy("AnimationId desc").execute();
-//                    List<Category> categories = new Select().from(Category.class).orderBy("cid asc").execute();
-//                    List<Advertise> advertises = new Select().from(Advertise.class).orderBy("adid asc").execute();
-//                    List<Animation> recommends = new Select().from(Animation.class).orderBy("AnimationId desc").limit(5).execute();
-//                    ArrayList<Animation> Animations = new ArrayList<Animation>();
-//                    ArrayList<Category> Categories = new ArrayList<Category>();
-//                    ArrayList<Advertise> Advertises = new ArrayList<Advertise>();
-//                    ArrayList<Animation> Recommends = new ArrayList<Animation>();
-//                    Animations.addAll(animations);
-//                    Categories.addAll(categories);
-//                    Advertises.addAll(advertises);
-//                    Recommends.addAll(recommends);
-//                    Intent mIntent = new Intent(LoadActivity.this,
-//                            StartActivity.class);
-//                    mIntent.putParcelableArrayListExtra("Animations",Animations);
-//                    mIntent.putParcelableArrayListExtra("Categories",Categories);
-//                    mIntent.putParcelableArrayListExtra("Advertises",Advertises);
-//                    mIntent.putParcelableArrayListExtra("Recommends",Recommends);
-//                    mIntent.putExtra("Success",true);
-//                    startActivity(mIntent);
+                public void onFailure(Throwable error) {
+                    super.onFailure(error);
+                    error();
                 }
             });
         }
     }
+
+    private Handler executeHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            JSONObject o = (JSONObject)msg.obj;
+            PrepareTask t = new PrepareTask(o);
+            t.execute();
+        }
+    };
 
     private class PrepareTask extends AsyncTask<Void,Void,Boolean>{
         private JSONObject mSetupResponse;
@@ -258,10 +261,20 @@ public class LoadActivity extends ActionBarActivity {
         }
     }
 
+    private Handler errorHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Toast.makeText(mContext, R.string.get_data_error, Toast.LENGTH_SHORT)
+                    .show();
+            Intent intent = new Intent(LoadActivity.this,DownloadActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    };
+
     private void error(){
-        Toast.makeText(mContext, R.string.get_data_error, Toast.LENGTH_SHORT)
-                .show();
-        finish();
+        errorHandler.sendEmptyMessage(0);
     }
 
 	@Override
@@ -303,5 +316,13 @@ public class LoadActivity extends ActionBarActivity {
             db.close();
         }
         PreferenceManager.getDefaultSharedPreferences(mContext).edit().putBoolean("updated",true).commit();
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            System.exit(0);
+        }
+        return super.onKeyUp(keyCode, event);
     }
 }

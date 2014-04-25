@@ -5,22 +5,22 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
 import com.github.johnpersano.supertoasts.SuperActivityToast;
 import com.github.johnpersano.supertoasts.SuperToast;
 import com.umeng.analytics.MobclickAgent;
-import com.zhan_dui.utils.SwipeBackAppCompatActivity;
-import me.imid.swipebacklayout.lib.SwipeBackLayout;
 
 /**
  * Created by daimajia on 14-1-24.
  */
-public class InterviewActivity extends SwipeBackAppCompatActivity{
+public class InterviewActivity extends ActionBarActivity {
     private WebView mWebView;
     private InterviewClient mWebClient;
     private Context mContext;
@@ -33,7 +33,7 @@ public class InterviewActivity extends SwipeBackAppCompatActivity{
         setContentView(R.layout.activity_interview);
         getSupportActionBar().setTitle(getString(R.string.interview));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mSuperToast  = new SuperActivityToast(mContext, SuperToast.Type.PROGRESS_HORIZONTAL);
+        mSuperToast = new SuperActivityToast(this,SuperToast.Type.PROGRESS_HORIZONTAL);
         mSuperToast.setIndeterminate(true);
         mSuperToast.setText(getString(R.string.web_loading));
         mWebView =(WebView)findViewById(R.id.webview_iterview);
@@ -50,7 +50,6 @@ public class InterviewActivity extends SwipeBackAppCompatActivity{
             }
         });
         mWebView.loadUrl(AT);
-        getSwipeBackLayout().setEdgeTrackingEnabled(SwipeBackLayout.EDGE_LEFT);
     }
 
     private class InterviewClient extends WebViewClient{

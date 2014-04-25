@@ -11,20 +11,42 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.*;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
 import android.text.InputFilter;
-import android.view.*;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.OrientationEventListener;
+import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.widget.*;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import cn.sharesdk.sina.weibo.SinaWeibo;
-import cn.sharesdk.tencent.qzone.QZone;
-import com.avos.avoscloud.ParseException;
-import com.avos.avoscloud.ParseObject;
-import com.avos.avoscloud.ParseQuery;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVOSCloud;
+import com.avos.avoscloud.AVObject;
+import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.SaveCallback;
 import com.baidu.cyberplayer.core.BVideoView;
 import com.baidu.cyberplayer.core.BVideoView.OnCompletionListener;
@@ -39,14 +61,15 @@ import com.squareup.picasso.Target;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.auth.SocialPlatform;
 import com.zhan_dui.auth.User;
-import com.zhan_dui.data.AnimeTasteDB;
 import com.zhan_dui.data.ApiConnector;
+import com.zhan_dui.download.DownloadHelper;
 import com.zhan_dui.modal.Animation;
 import com.zhan_dui.modal.Comment;
+import com.zhan_dui.modal.DownloadRecord;
+import com.zhan_dui.utils.NetworkUtils;
 import com.zhan_dui.utils.OrientationHelper;
 import com.zhan_dui.utils.Screen;
-import com.zhan_dui.utils.SwipeBackAppCompatActivity;
-import me.imid.swipebacklayout.lib.SwipeBackLayout;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,9 +79,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickListener,
+import cn.sharesdk.sina.weibo.SinaWeibo;
+import cn.sharesdk.tencent.qzone.QZone;
+
+public class PlayActivity extends ActionBarActivity implements OnClickListener,
 		Target, OnPreparedListener, OnCompletionListener, OnErrorListener,
 		OnTouchListener {
 
@@ -74,7 +104,6 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 
 	private Context mContext;
 	private SharedPreferences mSharedPreferences;
-	private AnimeTasteDB mAnimeTasteDB;
 
 	private View mVideoAction;
 
@@ -82,15 +111,13 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 
 	private OrientationEventListener mOrientationEventListener;
 
-
-
 	private MenuItem mFavMenuItem;
 	private Bitmap mDetailPicture;
-	private LinearLayout mComments, mRecomendList;
+	private LinearLayout mComments, mRecomendView;
 	private LayoutInflater mLayoutInflater;
-	private RelativeLayout mHeaderWrpper;
+	private RelativeLayout mHeaderWrapper;
 	private View mLoadMoreComment;
-	private View mRecommandView;
+	private View mRecommendView;
 	private Button mLoadMoreButton;
 	private Button mZoomButton;
 
@@ -112,25 +139,32 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 	private RelativeLayout mController = null;
 	private SeekBar mProgress = null;
 	private TextView mDuration = null;
-	private TextView mCurrPostion = null;
-	private Button mPlaybtn = null;
+	private TextView mCurPosition = null;
+	private Button mPlayBtn = null;
 	private EditText mCommentEditText;
 	private String AK = "TrqQtzMhuoKhyLmNsfvwfWDo";
 	private String SK = "UuhbIKiNfr8SA3NM";
 
 	private Typeface mRobotoBold, mRobotoThin;
 
+    private DownloadHelper mDownloadHelper;
+
 	@Override
 	public void onCreate(Bundle savedInstance) {
 		super.onCreate(savedInstance);
+
+
+        AVOSCloud.initialize(this,
+                "w43xht9daji0uut74pseeiibax8c2tnzxowmx9f81nvtpims",
+                "86q8251hrodk6wnf4znistay1mva9rm1xikvp1s9mhp5n7od");
+
 		mPrettyTime = new PrettyTime();
 		mContext = this;
-		mAnimeTasteDB = new AnimeTasteDB(mContext, AnimeTasteDB.NAME, null, AnimeTasteDB.VERSION);
 
 		if (getIntent().getExtras().containsKey("Animation")) {
             mAnimation = getIntent().getParcelableExtra("Animation");
 		}
-
+        mDownloadHelper = new DownloadHelper(this);
 		if (savedInstance != null && savedInstance.containsKey("Animation")) {
 			mAnimation = savedInstance.getParcelable("Animation");
 			mLastPos = savedInstance.getInt("LastPosition");
@@ -149,23 +183,23 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 		mTitleTextView = (TextView) findViewById(R.id.title);
 		mContentTextView = (TextView) findViewById(R.id.content);
 		mDetailImageView = (ImageView) findViewById(R.id.detailPic);
-		mVideoAction = (View) findViewById(R.id.VideoAction);
+		mVideoAction =  findViewById(R.id.VideoAction);
 		mAuthorTextView = (TextView) findViewById(R.id.author);
 		mPrePlayButton = (ImageButton) findViewById(R.id.pre_play_button);
 		mLoadingGif = (GifMovieView) findViewById(R.id.loading_gif);
 		mComments = (LinearLayout) findViewById(R.id.comments);
-		mRecommandView = findViewById(R.id.recommand_view);
-		mPlaybtn = (Button) findViewById(R.id.play_btn);
+		mRecommendView = findViewById(R.id.recommand_view);
+		mPlayBtn = (Button) findViewById(R.id.play_btn);
 		mProgress = (SeekBar) findViewById(R.id.media_progress);
 		mDuration = (TextView) findViewById(R.id.time_total);
-		mCurrPostion = (TextView) findViewById(R.id.time_current);
+		mCurPosition = (TextView) findViewById(R.id.time_current);
 		mController = (RelativeLayout) findViewById(R.id.controlbar);
 		mViewHolder = (RelativeLayout) findViewById(R.id.view_holder);
 		mVV = (BVideoView) findViewById(R.id.video_view);
 		mCommentEditText = (EditText) findViewById(R.id.comment_edit_text);
-		mHeaderWrpper = (RelativeLayout) findViewById(R.id.header_wrapper);
+		mHeaderWrapper = (RelativeLayout) findViewById(R.id.header_wrapper);
 		mZoomButton = (Button) findViewById(R.id.zoom_btn);
-		mRecomendList = (LinearLayout) findViewById(R.id.recommend_list);
+		mRecomendView = (LinearLayout) findViewById(R.id.recommend_list);
 		mRobotoBold = Typeface.createFromAsset(getAssets(),
 				"fonts/Roboto-Bold.ttf");
 		mRobotoThin = Typeface.createFromAsset(getAssets(),
@@ -175,7 +209,6 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
         mAnimation.recordWatch();
 		ApiConnector.instance().getRandom(5, mRandomHandler);
 		new CommentsTask().execute();
-        getSwipeBackLayout().setEdgeTrackingEnabled(SwipeBackLayout.EDGE_LEFT);
 	}
 
 	@Override
@@ -184,6 +217,15 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 		outState.putInt("LastPosition", mLastPos);
         outState.putParcelable("Animation", mAnimation);
 	}
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null && savedInstanceState.containsKey("Animation")) {
+            mAnimation = savedInstanceState.getParcelable("Animation");
+            mLastPos = savedInstanceState.getInt("LastPosition");
+        }
+    }
 
     private class RandomRecommendTask extends AsyncTask<Void,Void,Void>{
 
@@ -208,23 +250,23 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
                 TextView recommendContent = (TextView) recommend_item
                         .findViewById(R.id.recommand_content);
                 try{
-                JSONObject animationObject = mRandomJsonArray.getJSONObject(i);
-                Animation animation = Animation
-                        .build(animationObject);
-                Picasso.with(mContext).load(animation.HomePic)
-                        .placeholder(R.drawable.placeholder_thumb)
-                        .error(R.drawable.placeholder_fail)
-                        .into(recommendThumb);
-                recommendTitle.setText(animation.Name);
-                recommendContent.setText(animation.Brief);
-                recommend_item.setTag(animation);
-                recommend_item.setOnClickListener(PlayActivity.this);
-                View line = mRecommandView
-                        .findViewById(R.id.divide_line);
-                if (i == mRandomJsonArray.length() - 1 && line != null) {
-                    recommend_item.removeView(line);
-                }
-                mRandomLayout.addView(recommend_item);
+                    JSONObject animationObject = mRandomJsonArray.getJSONObject(i);
+                    Animation animation = Animation
+                            .build(animationObject);
+                    Picasso.with(mContext).load(animation.HomePic)
+                            .placeholder(R.drawable.placeholder_thumb)
+                            .error(R.drawable.placeholder_fail)
+                            .into(recommendThumb);
+                    recommendTitle.setText(animation.Name);
+                    recommendContent.setText(animation.Brief);
+                    recommend_item.setTag(animation);
+                    recommend_item.setOnClickListener(PlayActivity.this);
+                    View line = mRecommendView
+                            .findViewById(R.id.divide_line);
+                    if (i == mRandomJsonArray.length() - 1 && line != null) {
+                        recommend_item.removeView(line);
+                    }
+                    mRandomLayout.addView(recommend_item);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -235,7 +277,7 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            mRecomendList.addView(mRandomLayout);
+            mRecomendView.addView(mRandomLayout);
         }
     }
 
@@ -393,10 +435,10 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 		@Override
 		public void run() {
 			super.run();
-			ParseObject parseComment = new ParseObject("Comments");
-			ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Users");
+			AVObject parseComment = new AVObject("Comments");
+			AVQuery<AVObject> query = new AVQuery<AVObject>("Users");
 			try {
-				ParseObject user = query.get(mSharedPreferences.getString(
+				AVObject user = query.get(mSharedPreferences.getString(
 						"objectid", "0"));
 				parseComment.put("vid", mAnimation.AnimationId);
 				parseComment.put("uid", user);
@@ -404,7 +446,7 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 				parseComment.saveInBackground(new SaveCallback() {
 
 					@Override
-					public void done(ParseException err) {
+					public void done(AVException err) {
 						if (err == null) {
 							PlayActivity.this.runOnUiThread(new Runnable() {
 
@@ -445,7 +487,7 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 						}
 					}
 				});
-			} catch (ParseException e) {
+			} catch (AVException e) {
 				e.printStackTrace();
 			}
 		}
@@ -453,54 +495,105 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 
 	@Override
 	public void onClick(View v) {
-
 		switch (v.getId()) {
-		case R.id.pre_play_button:
-			mPrePlayButton.setVisibility(View.INVISIBLE);
-			mVideoAction.setVisibility(View.INVISIBLE);
-			mPlaybtn.performClick();
-			startPlay(mLastPos);
-			updateControlBar(false);
-			if (mSharedPreferences.getBoolean("use_hd", true)) {
-				mVV.setVideoPath(mAnimation.HDVideoUrl);
-			} else {
-				mVV.setVideoPath(mAnimation.CommonVideoUrl);
-			}
-			break;
-		case R.id.play_btn:
-			if (mVV.isPlaying()) {
-				mPlaybtn.setBackgroundResource(R.drawable.play_btn_style);
-				mVV.pause();
-			} else {
-				mPlaybtn.setBackgroundResource(R.drawable.pause_btn_style);
-				mVV.resume();
-			}
-			mController.setVisibility(View.INVISIBLE);
-			break;
-		case R.id.comment_edit_text:
-			comment();
-			break;
-		case R.id.recommend_item:
-			stopPlay();
-			Animation animation = (Animation) v.getTag();
-			Intent intent = new Intent(mContext, PlayActivity.class);
-			intent.putExtra("Animation", animation);
-			mContext.startActivity(intent);
-			MobclickAgent.onEvent(mContext, "recommend");
-			finish();
-			break;
-		case R.id.zoom_btn:
-			if (mCurrentScape == OrientationHelper.LANDSCAPE) {
-				setMinSize();
-			} else {
-				setMaxSize();
-			}
-			break;
-		default:
-			break;
+            case R.id.pre_play_button:
+                startPlayAnimation(mLastPos,mAnimation);
+                break;
+            case R.id.play_btn:
+                if (mVV.isPlaying()) {
+                    mPlayBtn.setBackgroundResource(R.drawable.play_btn_style);
+                    mVV.pause();
+                } else {
+                    mPlayBtn.setBackgroundResource(R.drawable.pause_btn_style);
+                    mVV.resume();
+                }
+                mController.setVisibility(View.INVISIBLE);
+                break;
+            case R.id.comment_edit_text:
+                comment();
+                break;
+            case R.id.recommend_item:
+                stopPlay();
+                Animation animation = (Animation) v.getTag();
+                Intent intent = new Intent(mContext, PlayActivity.class);
+                intent.putExtra("Animation", animation);
+                mContext.startActivity(intent);
+                MobclickAgent.onEvent(mContext, "recommend");
+                finish();
+                break;
+            case R.id.zoom_btn:
+                if (mCurrentScape == OrientationHelper.LANDSCAPE) {
+                    setMinSize();
+                } else {
+                    setMaxSize();
+                }
+                break;
+            default:
+                break;
 		}
 
 	}
+
+    private void startPlayAnimation(final int start,Animation animation){
+        final String playUrl = mSharedPreferences.getBoolean("use_hd", true)?mAnimation.HDVideoUrl:mAnimation.CommonVideoUrl;
+        DownloadRecord record = DownloadRecord.getFromAnimation(mAnimation,true);
+        if(record!=null){
+            String path = record.SaveDir + record.SaveFileName;
+            File f = new File(path);
+            if(f.isFile() && f.exists()){
+                mPrePlayButton.setVisibility(View.INVISIBLE);
+                mVideoAction.setVisibility(View.INVISIBLE);
+                mVV.setVideoPath(path);
+                mVV.seekTo(start);
+                mPlayBtn.setBackgroundResource(R.drawable.pause_btn_style);
+                mVV.start();
+                hideControls();
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                return;
+            }else{
+                Toast.makeText(mContext,R.string.offline_file_missing,Toast.LENGTH_LONG).show();
+            }
+        }
+        startPlayAnimationFromNet(playUrl,mLastPos,animation);
+    }
+
+    private void startPlayAnimationFromNet(final String url,final int start,Animation animation){
+        if(NetworkUtils.isNetworkAvailable(mContext)){
+            if(NetworkUtils.isWifiConnected(mContext)){
+                mPrePlayButton.setVisibility(View.INVISIBLE);
+                mVideoAction.setVisibility(View.INVISIBLE);
+                mVV.setVideoPath(url);
+                mVV.seekTo(start);
+                mVV.start();
+                mPlayBtn.setBackgroundResource(R.drawable.pause_btn_style);
+                hideControls();
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            }else{
+                new AlertDialog.Builder(mContext)
+                        .setTitle(R.string.tip)
+                        .setMessage(R.string.no_wifi_force_play)
+                        .setPositiveButton(R.string.yes,new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mPrePlayButton.setVisibility(View.INVISIBLE);
+                                mVideoAction.setVisibility(View.INVISIBLE);
+                                mVV.setVideoPath(url);
+                                mVV.seekTo(start);
+                                mVV.start();
+                                mPlayBtn.setBackgroundResource(R.drawable.pause_btn_style);
+                                hideControls();
+                                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                            }
+                        })
+                        .setNegativeButton(R.string.no,null)
+                        .create()
+                        .show();
+            }
+        }else{
+            Toast.makeText(mContext,R.string.no_network,Toast.LENGTH_LONG).show();
+        }
+    }
+
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -529,6 +622,9 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
                 item.setIcon(R.drawable.ab_fav_active);
 			}
 			return true;
+        case R.id.action_download:
+            mDownloadHelper.startDownload(mAnimation);
+            break;
 		default:
 			break;
 		}
@@ -540,6 +636,9 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 		if (mShareActionProvider != null) {
 			mShareActionProvider.setShareIntent(getDefaultIntent());
 		}
+        mLoadingGif.setVisibility(View.INVISIBLE);
+        mPrePlayButton.setVisibility(View.VISIBLE);
+        mVideoAction.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -570,7 +669,7 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 		}
 	}
 
-	private class CommentsTask extends AsyncTask<Void, LinearLayout, Void> {
+	private class CommentsTask extends AsyncTask<Void, LinearLayout, Boolean> {
 
 		@Override
 		protected void onPreExecute() {
@@ -583,9 +682,11 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 			}
 		}
 
+
+
 		@Override
-		protected Void doInBackground(Void... params) {
-			ParseQuery<ParseObject> query = new ParseQuery<ParseObject>(
+		protected Boolean doInBackground(Void... params) {
+			AVQuery<AVObject> query = new AVQuery<AVObject>(
 					"Comments");
 			query.whereEqualTo("vid", mAnimation.AnimationId);
 			query.setLimit(mStep);
@@ -593,13 +694,13 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 			query.include("uid");
 			query.orderByDescending("updatedAt");
 			try {
-				List<ParseObject> commentList = query.find();
+				List<AVObject> commentList = query.find();
 				if (commentList.size() < mStep) {
 					mCommentFinished = true;
 				}
 				ArrayList<LinearLayout> commentsLayout = new ArrayList<LinearLayout>();
-				for (ParseObject comment : commentList) {
-					ParseObject user = comment.getParseObject("uid");
+				for (AVObject comment : commentList) {
+					AVObject user = comment.getAVObject("uid");
 					Comment commentInformation = new Comment(
 							user.getString("username"),
 							user.getString("avatar"),
@@ -626,10 +727,10 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 				mCommentCount += commentList.size();
 				publishProgress(commentsLayout
 						.toArray(new LinearLayout[commentList.size()]));
-			} catch (ParseException e) {
-				e.printStackTrace();
+                return true;
+			} catch (AVException e) {
+                return false;
 			}
-			return null;
 		}
 
 		@Override
@@ -644,28 +745,38 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 		}
 
 		@Override
-		protected void onPostExecute(Void result) {
+		protected void onPostExecute(Boolean result) {
 			super.onPostExecute(result);
-			if (mCommentFinished == false) {
-				mLoadMoreComment = mLayoutInflater.inflate(
-						R.layout.comment_load_more, null);
-				mLoadMoreButton = (Button) mLoadMoreComment
-						.findViewById(R.id.load_more_comment_btn);
-				mComments.addView(mLoadMoreComment);
-				mLoadMoreButton.setOnClickListener(new OnClickListener() {
 
-					@Override
-					public void onClick(View v) {
-						new CommentsTask().execute();
-						MobclickAgent.onEvent(mContext, "more_comment");
-					}
-				});
-			} else {
-				if (mCommentCount > 5) {
-					mLoadMoreButton.setText(R.string.no_more_comments);
-					mLoadMoreButton.setEnabled(false);
-				}
-			}
+            if(result){
+                if (mCommentFinished == false) {
+                    mLoadMoreComment = mLayoutInflater.inflate(
+                            R.layout.comment_load_more, null);
+                    mLoadMoreButton = (Button) mLoadMoreComment
+                            .findViewById(R.id.load_more_comment_btn);
+                    mComments.addView(mLoadMoreComment);
+                    mLoadMoreButton.setOnClickListener(new OnClickListener() {
+
+                        @Override
+                        public void onClick(View v) {
+                            new CommentsTask().execute();
+                            MobclickAgent.onEvent(mContext, "more_comment");
+                        }
+                    });
+                } else {
+                    if (mCommentCount > 5) {
+                        mLoadMoreButton.setText(R.string.no_more_comments);
+                        mLoadMoreButton.setEnabled(false);
+                    }
+                }
+            }else{
+                if(mLoadMoreComment != null){
+                    mLoadMoreComment.findViewById(R.id.load_progressbar)
+                            .setVisibility(View.INVISIBLE);
+                    mLoadMoreComment.findViewById(R.id.load_more_comment_btn)
+                            .setVisibility(View.VISIBLE);
+                }
+            }
 		}
 	}
 
@@ -694,7 +805,7 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 			case UI_EVENT_UPDATE_CURRPOSITION:
 				int currPosition = mVV.getCurrentPosition();
 				int duration = mVV.getDuration();
-				updateTextViewWithTimeFormat(mCurrPostion, currPosition);
+				updateTextViewWithTimeFormat(mCurPosition, currPosition);
 				updateTextViewWithTimeFormat(mDuration, duration);
 				mProgress.setMax(duration);
 				mProgress.setProgress(currPosition);
@@ -721,34 +832,39 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 		view.setText(strTemp);
 	}
 
-	public void updateControlBar(boolean show) {
-		if (show) {
-			if (mController.getVisibility() == View.INVISIBLE) {
-				mController.setVisibility(View.VISIBLE);
-				new Timer().schedule(new TimerTask() {
+    private Timer mt;
+    public void touchControlBar(){
+        if(mController.getVisibility() == View.INVISIBLE){
+            mController.setVisibility(View.VISIBLE);
+            mt = new Timer();
+            mt.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    PlayActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mController.setVisibility(View.INVISIBLE);
+                        }
+                    });
+                }
+            },6000);
+        }else{
+            if(mt != null){
+                mt.cancel();
+            }
+            mController.setVisibility(View.INVISIBLE);
+        }
+    }
 
-					@Override
-					public void run() {
-						PlayActivity.this.runOnUiThread(new Runnable() {
-
-							@Override
-							public void run() {
-								updateControlBar(false);
-							}
-						});
-					}
-				}, 4000);
-			}
-		} else {
-			mController.setVisibility(View.INVISIBLE);
-		}
-	}
+    public void hideControls(){
+        mController.setVisibility(View.INVISIBLE);
+    }
 
 	private void initPlayer() {
 		BVideoView.setAKSK(AK, SK);
 		mZoomButton.setOnClickListener(this);
 		mVV.setVideoScalingMode(BVideoView.VIDEO_SCALING_MODE_SCALE_TO_FIT);
-		mPlaybtn.setOnClickListener(this);
+		mPlayBtn.setOnClickListener(this);
 		mVV.setOnPreparedListener(this);
 		mVV.setOnCompletionListener(this);
 		mVV.setOnErrorListener(this);
@@ -769,14 +885,28 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 		}
 		Picasso.with(mContext).load(mAnimation.DetailPic)
 				.placeholder(R.drawable.big_bg).into(this);
+        new Thread(){
+            @Override
+            public void run() {
+                super.run();
+                DownloadRecord record = DownloadRecord.getFromAnimation(mAnimation,true);
+                if(record != null){
+                    File file = new File(record.SaveDir + record.SaveFileName);
+                    if(file.exists() && file.isFile()){
+                        toastHandler.sendEmptyMessage(0);
+                    }
+                }
+            }
+        }.start();
 	}
 
-	private void startPlay(int from) {
-		setMaxSize();
-		mVV.seekTo(from);
-		mVV.start();
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-	}
+    private Handler toastHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Toast.makeText(mContext,R.string.play_offline,Toast.LENGTH_SHORT).show();
+        }
+    };
 
 	private void stopPlay() {
 		if (mVV.isPlaying() == false)
@@ -807,7 +937,7 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
                 SuperToast superToast = new SuperToast(this);
                 superToast.setDuration(12000);
                 superToast.setText("魅族某些版本固件可能存在兼容性问题，建议您升级到最新固件");
-                superToast.setIconResource(SuperToast.Icon.Dark.INFO, SuperToast.IconPosition.LEFT);
+                superToast.setIcon(SuperToast.Icon.Dark.INFO, SuperToast.IconPosition.LEFT);
                 superToast.show();
                 mSharedPreferences.edit().putBoolean("Meizu",true).commit();
             }
@@ -816,7 +946,7 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
         RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
 				Screen.getScreenWidth(getWindowManager()),
 				Screen.getScreenHeight(getWindowManager()));
-		mHeaderWrpper.setLayoutParams(param);
+		mHeaderWrapper.setLayoutParams(param);
 		mVV.setLayoutParams(param);
 		mZoomButton.setBackgroundResource(R.drawable.screensize_zoomin_button);
 		mCurrentScape = OrientationHelper.LANDSCAPE;
@@ -830,7 +960,7 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 		RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
 				Screen.getScreenWidth(getWindowManager()), getResources()
 						.getDimensionPixelSize(R.dimen.player_height));
-		mHeaderWrpper.setLayoutParams(param);
+		mHeaderWrapper.setLayoutParams(param);
 		mVV.setLayoutParams(param);
 		mZoomButton.setBackgroundResource(R.drawable.screensize_zoomout_button);
 		mCurrentScape = OrientationHelper.PORTRAIT;
@@ -841,7 +971,7 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 		OnSeekBarChangeListener seekBarChangeListener = new OnSeekBarChangeListener() {
 			public void onProgressChanged(SeekBar seekBar, int progress,
 					boolean fromUser) {
-				updateTextViewWithTimeFormat(mCurrPostion, progress);
+				updateTextViewWithTimeFormat(mCurPosition, progress);
 			}
 
 			public void onStartTrackingTouch(SeekBar seekBar) {
@@ -849,8 +979,8 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 			}
 
 			public void onStopTrackingTouch(SeekBar seekBar) {
-				int iseekPos = seekBar.getProgress();
-				mVV.seekTo(iseekPos);
+				int seekPosition = seekBar.getProgress();
+				mVV.seekTo(seekPosition);
 				mUIHandler.sendEmptyMessage(UI_EVENT_UPDATE_CURRPOSITION);
 			}
 		};
@@ -859,10 +989,22 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 
 	@Override
 	public boolean onError(int arg0, int arg1) {
-		Toast.makeText(mContext, R.string.play_error, Toast.LENGTH_SHORT)
-				.show();
+        errorHandler.sendEmptyMessage(0);
 		return true;
 	}
+
+    private Handler errorHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            setMinSize();
+            mPrePlayButton.setVisibility(View.VISIBLE);
+            mVideoAction.setVisibility(View.VISIBLE);
+            mDetailImageView.setVisibility(View.VISIBLE);
+            Toast.makeText(mContext, R.string.play_error, Toast.LENGTH_SHORT)
+                    .show();
+        }
+    };
 
 	@SuppressLint("HandlerLeak")
 	private Handler mCompleteHandler = new Handler() {
@@ -876,8 +1018,8 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 	public void onCompletion() {
 		mCompleteHandler.sendEmptyMessage(0);
 		mLastPos = 0;
-		int playcount = mSharedPreferences.getInt("playcount", 0);
-		mSharedPreferences.edit().putInt("playcount", playcount + 1).commit();
+		int playCount = mSharedPreferences.getInt("playCount", 0);
+		mSharedPreferences.edit().putInt("playCount", playCount + 1).commit();
 		if (mCurrentScape == OrientationHelper.LANDSCAPE) {
 			PlayActivity.this.runOnUiThread(new Runnable() {
 
@@ -893,7 +1035,7 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 	protected void onResume() {
 		super.onResume();
 		if (mLastPos != 0) {
-			startPlay(mLastPos);
+            startPlayAnimation(mLastPos,mAnimation);
 		}
 		MobclickAgent.onResume(mContext);
 	}
@@ -911,6 +1053,8 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 		stopPlay();
 		if (mOrientationEventListener != null)
 			mOrientationEventListener.disable();
+
+        mDownloadHelper.unbindDownloadService();
 	}
 
 	@Override
@@ -920,7 +1064,7 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		updateControlBar(true);
+		touchControlBar();
 		return false;
 	}
 
@@ -934,4 +1078,5 @@ public class PlayActivity extends SwipeBackAppCompatActivity implements OnClickL
 		}
 		return super.onKeyDown(keyCode, event);
 	}
+
 };

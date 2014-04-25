@@ -1,15 +1,11 @@
 package com.zhan_dui.modal;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.database.Cursor;
-import android.os.*;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.Model;
@@ -17,6 +13,14 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
 import com.activeandroid.query.Update;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @Table(name="Animations")
 public class Animation extends Model implements Parcelable {
@@ -281,6 +285,10 @@ public class Animation extends Model implements Parcelable {
         }
 	}
 
+    public static Animation build(DownloadRecord record){
+        return new Animation(record.AnimationId,record.Name,record.OriginVideoUrl,record.Author,record.Year,record.Brief,record.HomePic,record.DetailPic,record.UHD,record.HD,record.SD,record.IsFav,record.IsWatched);
+    }
+
     private static String getHDVideoUrl(String url) {
         Long timestamp = (long) Math.ceil(System.currentTimeMillis() / 1000);
         return url.replace("type//", "type/hd2/ts/" + timestamp
@@ -352,7 +360,7 @@ public class Animation extends Model implements Parcelable {
 		try {
 			return object.getString(key);
 		} catch (JSONException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 		return NONE_VALUE;
 	}

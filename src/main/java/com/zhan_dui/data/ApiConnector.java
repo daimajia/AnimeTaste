@@ -1,7 +1,7 @@
 package com.zhan_dui.data;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
+
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.zhan_dui.utils.ApiUtils;
