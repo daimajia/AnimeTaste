@@ -4,7 +4,11 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v4.app.NotificationCompat;
+import android.widget.Toast;
 
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.animetaste.DownloadActivity;
@@ -33,6 +37,10 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
         this.context = context;
     }
 
+    public final int SUCCESS = 0;
+    public final int FAILED = 1;
+    private Handler ShowMessageHandler;
+
     @Override
     public void onStart(M3U8Mission mission) {
         notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -53,6 +61,23 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
                 .setOngoing(true);
         notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
         MobclickAgent.onEvent(context,"download_start");
+//        Looper.prepare();
+//        ShowMessageHandler  = new Handler(){
+//            @Override
+//            public void handleMessage(Message msg) {
+//                super.handleMessage(msg);
+//                String name = (String)msg.obj;
+//                switch (msg.what){
+//                    case SUCCESS:
+//                        Toast.makeText(context,name + " 下载成功",Toast.LENGTH_SHORT).show();
+//                        break;
+//                    case FAILED:
+//                        Toast.makeText(context,name +" 下载失败",Toast.LENGTH_SHORT).show();
+//                        break;
+//                }
+//            }
+//        };
+//        Looper.loop();
     }
 
     @Override
@@ -72,6 +97,7 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
     @Override
     public void onError(M3U8Mission mission, Exception e) {
         e.printStackTrace();
+        Animation animation = (Animation)mission.getExtraInformation(mission.getUri());
         notifyBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setContentTitle(mission.getShowName())
@@ -88,7 +114,7 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
         Intent intent = new Intent(context, PlayActivity.class);
         Animation animation = (Animation)mission.getExtraInformation(mission.getUri());
         intent.putExtra("Animation", animation);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context,0,intent,Intent.FLAG_ACTIVITY_NEW_TASK);
         notifyBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_action_emo_wink)
                 .setContentTitle(mission.getShowName())
@@ -96,7 +122,7 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
                 .setProgress(100,mission.getPercentage(),false)
                 .setContentIntent(pendingIntent)
                 .setOngoing(false);
-        notificationManager.notify(mission.getMissionID(),notifyBuilder.build());
+        notificationManager.notify(mission.getMissionID(), notifyBuilder.build());
         MobclickAgent.onEvent(context,"download_success");
     }
 
@@ -156,4 +182,6 @@ public class MissionListenerForNotification implements Mission.MissionListener<M
     public void onCancel(M3U8Mission mission) {
         notificationManager.cancel(mission.getMissionID());
     }
+
+
 }

@@ -150,5 +150,6 @@
     <string name="download_start">开始下载</string>
     <string name="download_error">下载失败</string>
     <string name="start_downloading">开始下载</string>
+    <string name="download_action_tips">Tips: 长按终止下载或删除</string>
     <!-- Notification -->
 </resources>

@@ -2,13 +2,16 @@ package com.zhan_dui.animetaste;
 
 import android.app.AlertDialog;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,6 +39,8 @@ public class DownloadActivity extends ActionBarActivity implements AdapterView.O
     private ListView mDownloadList = null;
     private DownloadService.DownloadServiceBinder mBinder;
     private DownloadAdapter mAdapter;
+    private Context mContext;
+
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -57,11 +62,13 @@ public class DownloadActivity extends ActionBarActivity implements AdapterView.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext = this;
         setContentView(R.layout.activity_download);
         setTitle(R.string.my_download);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Intent intent = new Intent(this,DownloadService.class);
         bindService(intent,connection,BIND_AUTO_CREATE);
+        showHelp();
     }
 
     @Override
@@ -179,6 +186,15 @@ public class DownloadActivity extends ActionBarActivity implements AdapterView.O
                 .setNegativeButton(R.string.no,null)
                 .create()
                 .show();
+    }
+
+    private void showHelp(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        int cnt = preferences.getInt("ShowDownloadtip",0);
+        if(cnt < 3){
+            Toast.makeText(mContext,getString(R.string.download_action_tips),Toast.LENGTH_LONG).show();
+            preferences.edit().putInt("ShowDownloadtip",cnt+1).commit();
+        }
     }
 
 }
