@@ -42,18 +42,10 @@ AnimeTaste For Android，为全球动画爱好者所开发。
 
 Step-All: 
 
-<<<<<<< HEAD
-确保安装了Android SDK所有版本（最好安装齐所有SDK版本）
-
-Step-1: 
-
-**Mac和Linux用户在根目录运行`./gradlew assemble`, Windows用户运行`gradlew.bat assemble` 稍等片刻即可。**
-=======
 **Mac和Linux用户在根目录运行`./gradlew assemble`, Windows用户运行`gradlew.bat assemble` 稍等片刻即可(会自动下载确实的SDK版本以及依赖包，可能会比较慢)。**
->>>>>>> feature-download
 
 
-----------------
+-------
 
 
 如果出现错误或者有任何问题，请放轻松[联系我](mailto:daimajia@gmail.com)。
