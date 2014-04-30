@@ -2,7 +2,7 @@
 
 [中文](./README-cn.md)
 
-=====
+------------
 
 AnimeTaste is the first app that focuses on global original animation in China.
 

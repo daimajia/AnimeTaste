@@ -1,8 +1,7 @@
 #AnimeTaste(全球动画精选)[![Build Status](https://travis-ci.org/daimajia/AnimeTaste.png?branch=master)](https://travis-ci.org/daimajia/AnimeTaste)
-
 [English](./README.md)
 
-==========
+---------------------
 
 AnimeTaste（品赏艾尼莫）是国内首个关注独立动画的网站。
 移动版聚焦更新的全球独立动画的传播，让您随时随地能观看动画，分享快乐给更多好友。品味动画，重拾幻想。
