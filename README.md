@@ -1,17 +1,14 @@
-#AnimeTaste (Focus on Globle Animation)[![Build Status](https://travis-ci.org/daimajia/AnimeTaste.png?branch=master)](https://travis-ci.org/daimajia/AnimeTaste)
+#AnimeTaste (Global Animation)[![Build Status](https://travis-ci.org/daimajia/AnimeTaste.png?branch=master)](https://travis-ci.org/daimajia/AnimeTaste)
+
+[中文](./README-cn.md)
 
 =====
 
-AnimeTaste is the first app that focuses on gloable original animation in China.
+AnimeTaste is the first app that focuses on global original animation in China.
 
 AnimeTaste for Android is developed for all the animation fans.
 
-### [Google Play](https://play.google.com/store/apps/details?id=com.zhan_dui.animetaste)
-
-###  [App Store](https://itunes.apple.com/en/app/animetaste-pin-wei-dong-hua/id444912104?mt=8)
-
-
-===
+======
 
 ![AnimeTaste](http://ww2.sinaimg.cn/mw690/610dc034jw1e885o9kjgzj208c0b40ty.jpg)  ![AnimeTaste](http://ww3.sinaimg.cn/mw690/610dc034jw1e885obnjy6j208c0b43zo.jpg)
 
@@ -36,11 +33,19 @@ AnimeTaste for Android is developed for all the animation fans.
 
 Only one step:
 
-** `./gradlew assemble` (Mac/Linux) **
+`./gradlew assemble` (Mac/Linux)
 
 or
 
-** `./gradlew.bat assemble` (Windows) **
+`./gradlew.bat assemble` (Windows)
+
+### Download
+
+
+[Google Play](https://play.google.com/store/apps/details?id=com.zhan_dui.animetaste)  
+
+[App Store](https://itunes.apple.com/en/app/animetaste-pin-wei-dong-hua/id444912104?mt=8)
+
 
 ### About me:
 
