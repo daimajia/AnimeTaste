@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -147,4 +148,5 @@ public class FavoriteActivity extends ActionBarActivity implements
 		builder.create().show();
 		return false;
 	}
+
 }

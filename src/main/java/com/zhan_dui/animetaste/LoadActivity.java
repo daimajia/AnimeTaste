@@ -19,7 +19,6 @@ import android.widget.Toast;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Delete;
-import com.avos.avoscloud.AVAnalytics;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.data.AnimeTasteDB;
@@ -47,7 +46,6 @@ public class LoadActivity extends ActionBarActivity{
         ActiveAndroid.setLoggingEnabled(false);
 		ShareSDK.initSDK(mContext);
         ShareSDK.setNetworkDevInfoEnable(true);
-		AVAnalytics.trackAppOpened(getIntent());
 
         updateFromOldVersion();
 
@@ -324,5 +322,13 @@ public class LoadActivity extends ActionBarActivity{
             System.exit(0);
         }
         return super.onKeyUp(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ( keyCode == KeyEvent.KEYCODE_MENU ) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

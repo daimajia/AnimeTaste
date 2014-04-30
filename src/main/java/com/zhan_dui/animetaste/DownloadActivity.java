@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -196,5 +197,6 @@ public class DownloadActivity extends ActionBarActivity implements AdapterView.O
             preferences.edit().putInt("ShowDownloadtip",cnt+1).commit();
         }
     }
+
 
 }

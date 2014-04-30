@@ -15,6 +15,7 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -260,10 +261,6 @@ public class StartActivity extends ActionBarActivity implements
         map.put("img",R.drawable.drawer_download);
         map.put("title",getString(R.string.my_download));
         list.add(map);
-        map = new HashMap<String, Object>();
-        map.put("img",R.drawable.drawer_chat);
-        map.put("title",getString(R.string.interview));
-        list.add(map);
         return list;
     }
 
@@ -327,9 +324,6 @@ public class StartActivity extends ActionBarActivity implements
             startActivity(intent);
         }else if(title.equals(getString(R.string.latest))){
             mType = ApiConnector.RequestType.ALL;
-        }else if(title.equals(getString(R.string.interview))){
-            Intent intent = new Intent(mContext,InterviewActivity.class);
-            startActivity(intent);
         }else if(title.equals(getString(R.string.my_download))){
             Intent intent = new Intent(mContext,DownloadActivity.class);
             startActivity(intent);
