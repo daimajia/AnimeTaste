@@ -20,12 +20,12 @@ public class BrowserPlayerActivity extends ActionBarActivity {
         String title = "AnimeTaste";
         if(getIntent().getParcelableExtra("animation") != null){
             Animation animation = getIntent().getParcelableExtra("animation");
+
             url = animation.Youku;
             title = animation.Name;
         }
         getSupportActionBar().setTitle(title);
         webView = (WebView)findViewById(R.id.browser);
-        webView.getSettings().setUserAgentString("");
         webView.getSettings().setJavaScriptEnabled(true);
         webView.setWebViewClient(new BrowserClient());
         webView.loadUrl(url);
