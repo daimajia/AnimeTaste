@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.9.+'
+        classpath 'com.android.tools.build:gradle:0.12.+'
         classpath 'com.jakewharton.sdkmanager:gradle-plugin:0.9.+'
     }
 }
@@ -24,8 +24,8 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-    compile 'com.android.support:support-v4:+'
-    compile 'com.android.support:appcompat-v7:+'
+    compile 'com.android.support:support-v4:19.+'
+    compile 'com.android.support:appcompat-v7:19.+'
     compile 'com.github.johnpersano:supertoasts:1.3.4@aar'
     compile 'im.dino:dbinspector:1.0.5@aar'
     compile project(':libraries:ViewPagerIndicator')
@@ -37,11 +37,11 @@ dependencies {
 
 
 ext.compileSdkVersion=19
-ext.buildToolsVersion="19.0.3"
+ext.buildToolsVersion="19.1.0"
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.3"
+    buildToolsVersion "19.1.0"
 
     lintOptions {  
           abortOnError false
@@ -60,5 +60,44 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('AnimeTasteKey')
+            storePassword '410831497'
+            keyAlias 'AnimeTaste'
+            keyPassword '410831497'
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            zipAlign true
+        }
+    }
+
+    productFlavors {
+        GitHub{}
+
+    }
+
+    android.applicationVariants.all{ variant -> 
+        println "${variant.productFlavors[0].name}"
+        variant.processManifest.doLast{
+            copy{
+                from("${buildDir}/manifests"){
+                    include "${variant.dirName}/AndroidManifest.xml"
+                }
+                into("${buildDir}/manifests/$variant.name")
+
+                filter{
+                    String line -> line.replaceAll("UMENG_CHANNEL_VALUE", "${variant.productFlavors[0].name}")
+                }
+
+                variant.processResources.manifestFile = file("${buildDir}/manifests/${variant.name}/${variant.dirName}/AndroidManifest.xml")
+            }    
+       }
     }
 }
