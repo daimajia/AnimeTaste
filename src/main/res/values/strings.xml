@@ -47,7 +47,7 @@
 	<string name="load_recommends_error">加载推荐失败</string>
 
     <!-- Player -->
-    <string name="play_error">对不起，视频暂时没法播放</string>
+    <string name="play_error">对不起，视频暂时没法播放，尝试网页播放</string>
     <string name="offline_file_missing">离线文件被删除，是否尝试从网络播放？</string>
     <string name="redownload_tips">您下载过这个视频，而且文件依然存在，是要重新下载么？</string>
     <string name="tip">爱心提示</string>

@@ -1003,6 +1003,9 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
             mDetailImageView.setVisibility(View.VISIBLE);
             Toast.makeText(mContext, R.string.play_error, Toast.LENGTH_SHORT)
                     .show();
+            Intent intent = new Intent(mContext, BrowserPlayerActivity.class);
+            intent.putExtra("animation", mAnimation);
+            startActivity(intent);
         }
     };
 

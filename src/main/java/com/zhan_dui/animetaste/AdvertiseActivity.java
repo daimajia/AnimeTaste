@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
@@ -13,9 +12,6 @@ import android.webkit.WebViewClient;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.modal.Advertise;
 
-/**
- * Created by daimajia on 14-1-17.
- */
 public class AdvertiseActivity extends ActionBarActivity {
     private WebView mAdvertiseWebView;
     private AdvertiseClient mAdvertiseClient;
