@@ -67,7 +67,7 @@
     <string name="publish_comment">发布评论</string>
     <string name="cancel_publish">取消</string>
     <string name="publish">发送</string>
-    <string name="comment_nothing">_(:з」∠)_ 什么都没有写&#8230;&#8230;</string>
+    <string name="comment_nothing">_(:з」∠)_ 什么都没有写&#8230;</string>
     <string name="comment_too_short">一个好的评论，应该不少于五个字哦</string>
     <!-- Login -->
 
