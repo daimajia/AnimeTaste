@@ -9,8 +9,7 @@
         android:targetSdkVersion="17" />
 
     <application
-        android:allowBackup="true"
-        android:debuggable="true">
+        android:allowBackup="true">
     </application>
 
 </manifest>

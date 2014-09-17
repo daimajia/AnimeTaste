@@ -86,7 +86,7 @@
     <string name="login_success">登录成功</string>
     <string name="login_failed">登录失败</string>
     <string name="logout_success">退出登录成功</string>
-    <string name="write_something">写下你的感想&#8230;&#8230;</string>
+    <string name="write_something">写下你的感想&#8230;</string>
     <!-- Comment -->
 
 
@@ -115,7 +115,7 @@
 
 	<!-- Load -->
 	<string name="init_failed">初始化失败</string>
-	<string name="web_loading">正在加载中...</string>
+	<string name="web_loading">正在加载中&#8230;</string>
 	<!-- Load -->
 
 	<!-- Video -->
@@ -152,4 +152,8 @@
     <string name="start_downloading">开始下载</string>
     <string name="download_action_tips">Tips: 长按终止下载或删除</string>
     <!-- Notification -->
+
+    <!-- Time -->
+    <string name="time_format">00:00</string>
+    <!-- Time -->
 </resources>
