@@ -149,6 +149,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
     private Typeface mRobotoBold, mRobotoThin;
 
     private DownloadHelper mDownloadHelper;
+    private PLAY_STATE mPlayState;
 
     @Override
     public void onCreate(Bundle savedInstance) {
@@ -493,10 +494,10 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
             case R.id.play_btn:
                 if (mVV.isPlaying()) {
                     mPlayBtn.setBackgroundResource(R.drawable.play_btn_style);
-                    mVV.pause();
+                    pausePlay();
                 } else {
                     mPlayBtn.setBackgroundResource(R.drawable.pause_btn_style);
-                    mVV.resume();
+                    restorePlay();
                 }
                 mController.setVisibility(View.INVISIBLE);
                 break;
@@ -636,14 +637,12 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
         mPrePlayButton.setVisibility(View.VISIBLE);
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         mDetailPicture.compress(CompressFormat.JPEG, 100, bytes);
-        File dir = new File(Environment.getExternalStorageDirectory()
-                + File.separator + mDir);
-        if (!dir.exists() || !dir.isDirectory())
-            dir.mkdir();
 
-        File file = new File(Environment.getExternalStorageDirectory()
-                + File.separator + mDir + File.separator + mShareName);
+        File file = new File(mContext.getCacheDir(), "toshare.jpg");
         try {
+            if (file.exists()) {
+                file.delete();
+            }
             file.createNewFile();
             FileOutputStream fo = new FileOutputStream(file);
             fo.write(bytes.toByteArray());
@@ -907,7 +906,16 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
             return;
         mLastPos = mVV.getCurrentPosition();
         mVV.pause();
+        mPlayState = PLAY_STATE.PAUSE;
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
+    public void restorePlay() {
+        if (mVV != null && !mVV.isPlaying()) {
+            mVV.resume();
+            mPlayState = PLAY_STATE.PLAYING;
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
     }
 
     @SuppressLint("InlinedApi")
@@ -1007,8 +1015,14 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
     @Override
     public void onCompletion() {
+
+        if (mPlayState == PLAY_STATE.PAUSE) {
+            return;
+        }
+
         mCompleteHandler.sendEmptyMessage(0);
         mLastPos = 0;
+        mPlayState = PLAY_STATE.NONE;
         int playCount = mSharedPreferences.getInt("playCount", 0);
         mSharedPreferences.edit().putInt("playCount", playCount + 1).commit();
         if (mCurrentScape == OrientationHelper.LANDSCAPE) {
@@ -1050,6 +1064,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
     @Override
     public void onPrepared() {
+        mPlayState = PLAY_STATE.PLAYING;
         mUIHandler.sendEmptyMessage(UI_EVENT_UPDATE_CURRPOSITION);
     }
 
@@ -1070,4 +1085,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
         return super.onKeyDown(keyCode, event);
     }
 
-};
+    static enum PLAY_STATE {
+        NONE, PAUSE, PLAYING
+    }
+}
