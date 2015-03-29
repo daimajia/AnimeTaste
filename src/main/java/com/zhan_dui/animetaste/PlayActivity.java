@@ -19,8 +19,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.text.InputFilter;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -64,9 +64,9 @@ import com.zhan_dui.auth.SocialPlatform;
 import com.zhan_dui.auth.User;
 import com.zhan_dui.data.ApiConnector;
 import com.zhan_dui.download.DownloadHelper;
-import com.zhan_dui.modal.Animation;
-import com.zhan_dui.modal.Comment;
-import com.zhan_dui.modal.DownloadRecord;
+import com.zhan_dui.model.Animation;
+import com.zhan_dui.model.Comment;
+import com.zhan_dui.model.DownloadRecord;
 import com.zhan_dui.utils.NetworkUtils;
 import com.zhan_dui.utils.OrientationHelper;
 import com.zhan_dui.utils.Screen;
@@ -88,6 +88,8 @@ import java.util.TimerTask;
 
 import cn.sharesdk.sina.weibo.SinaWeibo;
 import cn.sharesdk.tencent.qzone.QZone;
+
+import static android.support.v4.view.MenuItemCompat.getActionProvider;
 
 public class PlayActivity extends ActionBarActivity implements OnClickListener,
         Target, OnPreparedListener, OnCompletionListener, OnErrorListener,
@@ -331,12 +333,11 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.play, menu);
         MenuItem item = menu.findItem(R.id.menu_item_share);
-        mShareActionProvider = (android.support.v7.widget.ShareActionProvider) MenuItemCompat.getActionProvider(item);
-
+        mShareActionProvider = (ShareActionProvider) getActionProvider(item);
         mShareActionProvider
-                .setOnShareTargetSelectedListener(new android.support.v7.widget.ShareActionProvider.OnShareTargetSelectedListener() {
+                .setOnShareTargetSelectedListener(new ShareActionProvider.OnShareTargetSelectedListener() {
                     @Override
-                    public boolean onShareTargetSelected(android.support.v7.widget.ShareActionProvider shareActionProvider, Intent intent) {
+                    public boolean onShareTargetSelected(ShareActionProvider shareActionProvider, Intent intent) {
                         MobclickAgent.onEvent(mContext, "share");
                         pausePlay();
                         return true;
@@ -563,14 +564,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
     private void startPlayAnimationFromNet(final String url, final int start, Animation animation) {
         if (NetworkUtils.isNetworkAvailable(mContext)) {
             if (NetworkUtils.isWifiConnected(mContext)) {
-                mPrePlayButton.setVisibility(View.INVISIBLE);
-                mVideoAction.setVisibility(View.INVISIBLE);
-                mVV.setVideoPath(url);
-                mVV.seekTo(start);
-                mVV.start();
-                mPlayBtn.setBackgroundResource(R.drawable.pause_btn_style);
-                hideControls();
-                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                play(url, start);
             } else {
                 new AlertDialog.Builder(mContext)
                         .setTitle(R.string.tip)
@@ -578,14 +572,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                mPrePlayButton.setVisibility(View.INVISIBLE);
-                                mVideoAction.setVisibility(View.INVISIBLE);
-                                mVV.setVideoPath(url);
-                                mVV.seekTo(start);
-                                mVV.start();
-                                mPlayBtn.setBackgroundResource(R.drawable.pause_btn_style);
-                                hideControls();
-                                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                                play(url, start);
                             }
                         })
                         .setNegativeButton(R.string.no, null)
@@ -597,6 +584,16 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
         }
     }
 
+    public void play(String url, int start) {
+        mPrePlayButton.setVisibility(View.INVISIBLE);
+        mVideoAction.setVisibility(View.INVISIBLE);
+        mVV.setVideoPath(url);
+        mVV.seekTo(start);
+        mVV.start();
+        mPlayBtn.setBackgroundResource(R.drawable.pause_btn_style);
+        hideControls();
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -654,7 +651,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
         mDetailPicture.compress(CompressFormat.JPEG, 100, bytes);
         File dir = new File(Environment.getExternalStorageDirectory()
                 + File.separator + mDir);
-        if (dir.exists() == false || dir.isDirectory() == false)
+        if (!dir.exists() || !dir.isDirectory())
             dir.mkdir();
 
         File file = new File(Environment.getExternalStorageDirectory()
@@ -914,7 +911,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
     };
 
     private void stopPlay() {
-        if (mVV.isPlaying() == false)
+        if (!mVV.isPlaying())
             return;
         mLastPos = mVV.getCurrentPosition();
         mVV.stopPlayback();
@@ -922,7 +919,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
     }
 
     private void pausePlay() {
-        if (mVV.isPlaying() == false)
+        if (!mVV.isPlaying())
             return;
         mLastPos = mVV.getCurrentPosition();
         mVV.pause();
@@ -944,7 +941,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
                 superToast.setText("魅族某些版本固件可能存在兼容性问题，建议您升级到最新固件");
                 superToast.setIcon(SuperToast.Icon.Dark.INFO, SuperToast.IconPosition.LEFT);
                 superToast.show();
-                mSharedPreferences.edit().putBoolean("Meizu", true).commit();
+                mSharedPreferences.edit().putBoolean("Meizu", true).apply();
             }
         }
         getSupportActionBar().hide();

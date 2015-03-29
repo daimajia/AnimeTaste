@@ -11,8 +11,8 @@ import com.squareup.picasso.Picasso;
 import com.zhan_dui.animetaste.AdvertiseActivity;
 import com.zhan_dui.animetaste.PlayActivity;
 import com.zhan_dui.animetaste.R;
-import com.zhan_dui.modal.Advertise;
-import com.zhan_dui.modal.Animation;
+import com.zhan_dui.model.Advertise;
+import com.zhan_dui.model.Animation;
 
 import java.util.ArrayList;
 

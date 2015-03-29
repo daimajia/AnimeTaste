@@ -8,7 +8,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,7 +19,7 @@ import android.widget.Toast;
 import com.activeandroid.query.Select;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.adapters.AnimationListAdapter;
-import com.zhan_dui.modal.Animation;
+import com.zhan_dui.model.Animation;
 
 import java.util.ArrayList;
 import java.util.List;

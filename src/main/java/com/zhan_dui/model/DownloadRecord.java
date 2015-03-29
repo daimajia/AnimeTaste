@@ -1,4 +1,4 @@
-package com.zhan_dui.modal;
+package com.zhan_dui.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

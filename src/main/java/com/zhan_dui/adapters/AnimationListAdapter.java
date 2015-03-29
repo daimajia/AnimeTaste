@@ -14,7 +14,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.zhan_dui.animetaste.PlayActivity;
 import com.zhan_dui.animetaste.R;
-import com.zhan_dui.modal.Animation;
+import com.zhan_dui.model.Animation;
 import org.json.JSONArray;
 
 import java.util.ArrayList;

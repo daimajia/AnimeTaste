@@ -23,10 +23,10 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.data.AnimeTasteDB;
 import com.zhan_dui.data.ApiConnector;
-import com.zhan_dui.modal.Advertise;
-import com.zhan_dui.modal.Animation;
-import com.zhan_dui.modal.Category;
-import com.zhan_dui.modal.WatchRecord;
+import com.zhan_dui.model.Advertise;
+import com.zhan_dui.model.Animation;
+import com.zhan_dui.model.Category;
+import com.zhan_dui.model.WatchRecord;
 import com.zhan_dui.utils.NetworkUtils;
 
 import org.json.JSONArray;

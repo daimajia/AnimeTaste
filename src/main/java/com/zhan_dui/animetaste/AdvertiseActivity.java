@@ -10,7 +10,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.umeng.analytics.MobclickAgent;
-import com.zhan_dui.modal.Advertise;
+import com.zhan_dui.model.Advertise;
 
 public class AdvertiseActivity extends ActionBarActivity {
     private WebView mAdvertiseWebView;

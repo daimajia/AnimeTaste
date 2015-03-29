@@ -12,8 +12,8 @@ import com.zhan_dui.animetaste.R;
 import com.zhan_dui.download.alfred.defaults.MissionListenerForAdapter;
 import com.zhan_dui.download.alfred.missions.M3U8Mission;
 import com.zhan_dui.download.alfred.missions.Mission;
-import com.zhan_dui.modal.Animation;
-import com.zhan_dui.modal.DownloadRecord;
+import com.zhan_dui.model.Animation;
+import com.zhan_dui.model.DownloadRecord;
 
 
 /**

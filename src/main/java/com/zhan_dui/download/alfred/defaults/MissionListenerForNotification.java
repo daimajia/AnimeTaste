@@ -13,7 +13,7 @@ import com.zhan_dui.animetaste.PlayActivity;
 import com.zhan_dui.animetaste.R;
 import com.zhan_dui.download.alfred.missions.M3U8Mission;
 import com.zhan_dui.download.alfred.missions.Mission;
-import com.zhan_dui.modal.Animation;
+import com.zhan_dui.model.Animation;
 
 import java.util.Timer;
 import java.util.TimerTask;

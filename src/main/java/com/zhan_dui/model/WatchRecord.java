@@ -1,4 +1,4 @@
-package com.zhan_dui.modal;
+package com.zhan_dui.model;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;

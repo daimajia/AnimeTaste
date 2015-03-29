@@ -30,6 +30,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.github.johnpersano:supertoasts:1.3.4@aar'
     compile 'fr.baloomba:viewpagerindicator:2.4.2'
+    compile 'com.koushikdutta.async:androidasync:2.1.3'
     compile 'im.dino:dbinspector:1.0.5@aar'
     compile project(':libraries:gif-library')
     compile project(':libraries:MainLibs')

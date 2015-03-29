@@ -5,7 +5,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.zhan_dui.modal.Animation;
+import com.zhan_dui.model.Animation;
 
 public class BrowserPlayerActivity extends ActionBarActivity {
 
