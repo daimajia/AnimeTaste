@@ -10,18 +10,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
-import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.umeng.analytics.MobclickAgent;
 import com.zhan_dui.utils.CacheUtils;
-
-import org.jraf.android.backport.switchwidget.Switch;
 
 import java.util.HashMap;
 
@@ -40,8 +38,9 @@ public class SettingActivity extends ActionBarActivity implements
 	private View mRateForUs;
     private View mClearCache;
 
-	private Switch mSwitchOnlyWifi;
-	private Switch mSwitchUseHD;
+	private ToggleButton mSwitchOnlyWifi;
+	private ToggleButton mSwitchUseHD;
+    
 	private SharedPreferences mSharedPreferences;
 
 	private Context mContext;
@@ -66,8 +65,8 @@ public class SettingActivity extends ActionBarActivity implements
 		mRateForUs = findViewById(R.id.rate_for_us);
         mClearCache = findViewById(R.id.clear_cache);
 
-		mSwitchOnlyWifi = (Switch) findViewById(R.id.switch_wifi);
-		mSwitchUseHD = (Switch) findViewById(R.id.switch_hd);
+		mSwitchOnlyWifi = (ToggleButton) findViewById(R.id.switch_wifi);
+		mSwitchUseHD = (ToggleButton) findViewById(R.id.switch_hd);
 
 		mSharedPreferences = PreferenceManager
 				.getDefaultSharedPreferences(this);

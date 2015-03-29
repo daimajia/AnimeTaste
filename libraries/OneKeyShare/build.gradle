@@ -6,7 +6,7 @@ repositories {
 }
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-    compile "com.android.support:support-v4:19.0.+"
+    compile "com.android.support:support-v4:21.0.3"
     compile project(':libraries:MainLibs')
 }
 

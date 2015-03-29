@@ -2,10 +2,11 @@
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.+'
-        classpath 'com.jakewharton.sdkmanager:gradle-plugin:+'
+        classpath 'com.android.tools.build:gradle:1.1.0'
+        classpath 'com.jakewharton.sdkmanager:gradle-plugin:0.12.0'
     }
 }
 
@@ -14,34 +15,34 @@ task wrap(type: Wrapper) {
 }
 
 apply plugin: 'android-sdk-manager'
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 repositories {
     mavenCentral()
     mavenLocal()
+    jcenter()
 }
 
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-    compile 'com.android.support:support-v4:19.+'
-    compile 'com.android.support:appcompat-v7:19.+'
+    compile 'com.android.support:support-v4:22.0.0'
+    compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'com.github.johnpersano:supertoasts:1.3.4@aar'
+    compile 'fr.baloomba:viewpagerindicator:2.4.2'
     compile 'im.dino:dbinspector:1.0.5@aar'
-    compile project(':libraries:ViewPagerIndicator')
     compile project(':libraries:gif-library')
-    compile project(':libraries:android-switch-backport')
     compile project(':libraries:MainLibs')
     compile project(':libraries:OneKeyShare')
 }
 
 
-ext.compileSdkVersion=19
-ext.buildToolsVersion="19.1.0"
+ext.compileSdkVersion=21
+ext.buildToolsVersion="21.1.2"
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.1.0"
+    compileSdkVersion 21
+    buildToolsVersion "21.1.2"
 
     lintOptions {  
           abortOnError false

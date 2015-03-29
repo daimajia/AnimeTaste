@@ -1,5 +1,3 @@
-include(':libraries:ViewPagerIndicator')
 include(':libraries:gif-library')
-include(':libraries:android-switch-backport')
 include(':libraries:MainLibs')
 include(':libraries:OneKeyShare')

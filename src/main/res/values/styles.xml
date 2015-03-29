@@ -2,7 +2,6 @@
 
     <!-- general styles for the action bar -->
 	<declare-styleable name="AppTheme">
-		<attr name="switchStyle" format="reference" />
 	</declare-styleable>
 
     <!--
@@ -26,8 +25,8 @@
     </style>
 
     <style name="AppTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
-        <item name="switchStyle">@style/Widget.Holo.Light.CompoundButton.Switch</item>
         <item name="actionBarStyle">@style/ActionBar</item>
+
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
