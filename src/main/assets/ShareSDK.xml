@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DevInfor>
+    <!--
+    	说明：
+    	
+    	1、表格中的第一项
+    		<ShareSDK 
+        		AppKey="api20" />
+    	是必须的，其中的AppKey是您在ShareSDK上注册的开发者帐号的AppKey
+    	
+    	2、所有集成到您项目的平台都应该为其在表格中填写相对应的开发者信息，以新浪微博为例：
+    	    <SinaWeibo
+                Id="1"
+                SortId="1"
+                AppKey="568898243"
+                AppSecret="38a4f8204cc784f81f9f0daaf31e02e3"
+                RedirectUrl="http://www.mob.com"
+                Enable="true" />
+    	其中的SortId是此平台在分享列表中的位置，由开发者自行定义，可以是任何整型数字，数值越大
+    	越靠后AppKey、AppSecret和RedirectUrl是您在新浪微博上注册开发者信息和应用后得到的信息
+    	Id是一个保留的识别符，整型，ShareSDK不使用此字段，供您在自己的项目中当作平台的识别符。
+    	Enable字段表示此平台是否有效，布尔值，默认为true，如果Enable为false，即便平台的jar包
+    	已经添加到应用中，平台实例依然不可获取。
+    	
+    	各个平台注册应用信息的地址如下：
+			新浪微博        http://open.weibo.com
+			腾讯微博        http://dev.t.qq.com
+			QQ空间          http://connect.qq.com/intro/login/
+			微信好友        http://open.weixin.qq.com
+			Facebook       https://developers.facebook.com
+			Twitter        https://dev.twitter.com
+			人人网          http://dev.renren.com
+			开心网          http://open.kaixin001.com
+			搜狐微博        http://open.t.sohu.com
+			网易微博        http://open.t.163.com
+			豆瓣           http://developers.douban.com
+			
+			有道云笔记      http://note.youdao.com/open/developguide.html#app
+			印象笔记        https://dev.evernote.com/
+			Linkedin       https://developer.linkedin.com
+			FourSquare     https://developer.foursquare.com/
+			搜狐随身看      https://open.sohu.com/
+			Flickr         http://www.flickr.com/services/
+			Pinterest      http://developers.pinterest.com/
+			Tumblr         http://www.tumblr.com/developers
+			Dropbox        https://www.dropbox.com/developers
+			Instagram      http://instagram.com/developer#
+			VKontakte      http://vk.com/dev
+			易信好友        http://open.yixin.im/
+			明道	           http://open.mingdao.com/
+			Line           http://media.line.me/zh-hant/
+			Pocket         http://getpocket.com/developer/apps/new
+    -->
+
+    <ShareSDK
+        AppKey="84d3a60b7a8"/>
+    <!-- 修改成你在sharesdk后台注册的应用的appkey"-->
+
+    <!-- ShareByAppClient标识是否使用微博客户端分享，默认是false -->
+    <SinaWeibo
+        AppKey="2309936708"
+        AppSecret="3ad3ba14648dd8068edad383a877bf35"
+        Enable="true"
+        Id="1"
+        RedirectUrl="https://i.animetaste.com/android.php"
+        ShareByAppClient="false"
+        SortId="1"/>
+
+    <!-- ShareByAppClient标识是否使用微博客户端分享，默认是false -->
+    <QZone
+        AppId="100544387"
+        AppKey="3c85109e19ca5564e91a246eafbc33a2"
+        Enable="true"
+        Id="3"
+        ShareByAppClient="true"
+        SortId="3"/>
+    <Wechat
+        AppId="wx1f8b559380dce41a"
+        AppSecret="d3fe616412702db519e57cd165fe9e0f"
+        BypassApproval="false"
+        Enable="true"
+        Id="4"
+        SortId="4"/>
+
+    <WechatMoments
+        AppId="wx1f8b559380dce41a"
+        AppSecret="d3fe616412702db519e57cd165fe9e0f"
+        BypassApproval="false"
+        Enable="true"
+        Id="5"
+        SortId="5"/>
+
+    <WechatFavorite
+        AppId="wx1f8b559380dce41a"
+        AppSecret="d3fe616412702db519e57cd165fe9e0f"
+        Enable="true"
+        Id="6"
+        SortId="6"/>
+
+    <!-- ShareByAppClient标识是否使用微博客户端分享，默认是false -->
+    <QQ
+        AppId="100544387"
+        AppKey="3c85109e19ca5564e91a246eafbc33a2"
+        Enable="true"
+        Id="7"
+        ShareByAppClient="true"
+        SortId="7"/>
+</DevInfor>

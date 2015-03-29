@@ -152,10 +152,10 @@ public class SettingActivity extends ActionBarActivity implements
 		switch (buttonView.getId()) {
 		case R.id.switch_wifi:
 			mSharedPreferences.edit().putBoolean("only_wifi", isChecked)
-					.commit();
+					.apply();
 			break;
 		case R.id.switch_hd:
-			mSharedPreferences.edit().putBoolean("use_hd", isChecked).commit();
+			mSharedPreferences.edit().putBoolean("use_hd", isChecked).apply();
 			break;
 		default:
 			break;

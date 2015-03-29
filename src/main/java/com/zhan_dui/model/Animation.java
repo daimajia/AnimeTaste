@@ -376,4 +376,8 @@ public class Animation extends Model implements Parcelable {
     public interface UpdateFinishCallback {
         public void onUpdateFinished(Method method, Message msg);
     }
+
+    public String getShareUrl() {
+        return "http://i.animetaste.net/view/" + AnimationId;
+    }
 }

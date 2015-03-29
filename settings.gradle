@@ -1,3 +1,1 @@
 include(':libraries:gif-library')
-include(':libraries:MainLibs')
-include(':libraries:OneKeyShare')

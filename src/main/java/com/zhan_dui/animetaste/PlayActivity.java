@@ -20,7 +20,6 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.ShareActionProvider;
 import android.text.InputFilter;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -67,6 +66,7 @@ import com.zhan_dui.download.DownloadHelper;
 import com.zhan_dui.model.Animation;
 import com.zhan_dui.model.Comment;
 import com.zhan_dui.model.DownloadRecord;
+import com.zhan_dui.sns.ShareHelper;
 import com.zhan_dui.utils.NetworkUtils;
 import com.zhan_dui.utils.OrientationHelper;
 import com.zhan_dui.utils.Screen;
@@ -89,8 +89,6 @@ import java.util.TimerTask;
 import cn.sharesdk.sina.weibo.SinaWeibo;
 import cn.sharesdk.tencent.qzone.QZone;
 
-import static android.support.v4.view.MenuItemCompat.getActionProvider;
-
 public class PlayActivity extends ActionBarActivity implements OnClickListener,
         Target, OnPreparedListener, OnCompletionListener, OnErrorListener,
         OnTouchListener {
@@ -98,7 +96,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
     private TextView mTitleTextView;
     private TextView mContentTextView;
     private TextView mAuthorTextView;
-    private android.support.v7.widget.ShareActionProvider mShareActionProvider;
+    //    private android.support.v7.widget.ShareActionProvider mShareActionProvider;
     private ImageView mDetailImageView;
     private ImageButton mPrePlayButton;
     private GifMovieView mLoadingGif;
@@ -333,18 +331,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.play, menu);
         MenuItem item = menu.findItem(R.id.menu_item_share);
-        mShareActionProvider = (ShareActionProvider) getActionProvider(item);
-        mShareActionProvider
-                .setOnShareTargetSelectedListener(new ShareActionProvider.OnShareTargetSelectedListener() {
-                    @Override
-                    public boolean onShareTargetSelected(ShareActionProvider shareActionProvider, Intent intent) {
-                        MobclickAgent.onEvent(mContext, "share");
-                        pausePlay();
-                        return true;
-                    }
-                });
         mFavMenuItem = menu.findItem(R.id.action_fav);
-        mShareActionProvider.setShareIntent(getDefaultIntent());
         mAnimation.checkIsFavorite(new Animation.UpdateFinishCallback() {
             @Override
             public void onUpdateFinished(Animation.Method method, Message msg) {
@@ -625,6 +612,9 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
             case R.id.action_download:
                 mDownloadHelper.startDownload(mAnimation);
                 break;
+            case R.id.menu_item_share:
+                ShareHelper.showUp(mContext, mAnimation);
+                break;
             default:
                 break;
         }
@@ -633,9 +623,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
     @Override
     public void onBitmapFailed() {
-        if (mShareActionProvider != null) {
-            mShareActionProvider.setShareIntent(getDefaultIntent());
-        }
         mLoadingGif.setVisibility(View.INVISIBLE);
         mPrePlayButton.setVisibility(View.VISIBLE);
         mVideoAction.setVisibility(View.VISIBLE);
@@ -661,9 +648,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
             FileOutputStream fo = new FileOutputStream(file);
             fo.write(bytes.toByteArray());
             fo.close();
-            if (mShareActionProvider != null) {
-                mShareActionProvider.setShareIntent(getDefaultIntent());
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }

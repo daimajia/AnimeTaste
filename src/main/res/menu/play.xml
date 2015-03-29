@@ -12,11 +12,11 @@
         android:id="@+id/action_download"
         android:title="@string/ic_action_download"
         android:icon="@drawable/ic_action_download"
-        menu:showAsAction="always"></item>
+        menu:showAsAction="always"/>
     <item
         android:id="@+id/menu_item_share"
         android:title="Share"
-        menu:actionProviderClass="android.support.v7.widget.ShareActionProvider"
+        android:icon="@drawable/icon_dark_share"
         menu:showAsAction="ifRoom"/>
 
 </menu>

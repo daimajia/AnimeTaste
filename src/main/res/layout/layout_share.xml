@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="@android:color/white"
+              android:orientation="vertical"
+              android:paddingBottom="10dp"
+              android:paddingLeft="20dp"
+              android:paddingRight="20dp"
+              android:paddingTop="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:height="50dp"
+        android:gravity="center|top"
+        android:text="分享到"
+        android:textColor="@android:color/black"
+        android:textSize="25sp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:weightSum="3">
+
+        <com.zhan_dui.utils.ShareButton
+            android:id="@+id/action_share_weibo"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:description="新浪微博"
+            app:icons="@drawable/ic_share_sina_weibo"/>
+
+        <com.zhan_dui.utils.ShareButton
+            android:id="@+id/action_share_wechat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:description="微信"
+            app:icons="@drawable/ic_share_wechat"/>
+
+        <com.zhan_dui.utils.ShareButton
+            android:id="@+id/action_share_wechat_timeline"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:description="朋友圈"
+            app:icons="@drawable/ic_share_wechat_timeline"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:weightSum="3">
+
+        <com.zhan_dui.utils.ShareButton
+            android:id="@+id/action_share_qq"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:description="QQ好友"
+            app:icons="@drawable/ic_share_tencent_qq"/>
+
+        <com.zhan_dui.utils.ShareButton
+            android:id="@+id/action_share_qzone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:description="QQ空间"
+            app:icons="@drawable/ic_share_qzone"/>
+
+        <com.zhan_dui.utils.ShareButton
+            android:id="@+id/action_share_link"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:description="复制链接"
+            app:icons="@drawable/ic_share_link"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="15dp"
+        android:background="@android:color/darker_gray"/>
+
+    <TextView
+        android:id="@+id/cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:background="@android:color/white"
+        android:gravity="center"
+        android:text="取消"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="26sp"/>
+</LinearLayout>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ShareButton">
+        <attr name="description" format="reference|string" />
+        <attr name="icons" format="reference" />
+    </declare-styleable>
+
+</resources>
