@@ -29,10 +29,6 @@ import com.zhan_dui.services.DownloadService;
 
 import java.io.File;
 
-
-/**
- * Created by daimajia on 14-2-11.
- */
 public class DownloadActivity extends ActionBarActivity implements AdapterView.OnItemLongClickListener,AdapterView.OnItemClickListener{
 
     private boolean isConnected = false;
@@ -63,12 +59,14 @@ public class DownloadActivity extends ActionBarActivity implements AdapterView.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = this;
+        getSupportActionBar().setDisplayUseLogoEnabled(false);
         setContentView(R.layout.activity_download);
-        setTitle(R.string.my_download);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Intent intent = new Intent(this,DownloadService.class);
         bindService(intent,connection,BIND_AUTO_CREATE);
         showHelp();
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getSupportActionBar().setTitle("我的下载");
     }
 
     @Override

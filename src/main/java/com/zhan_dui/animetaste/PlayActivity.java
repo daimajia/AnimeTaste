@@ -211,6 +211,17 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
         mAnimation.recordWatch();
         ApiConnector.instance().getRandom(5, mRandomHandler);
         new CommentsTask().execute();
+        getSupportActionBar().setDisplayUseLogoEnabled(false);
+        showWhatsNew();
+    }
+
+    public void showWhatsNew() {
+        int shown = mSharedPreferences.getInt("new_share_tips", 0);
+        if (shown < 2) {
+            Toast.makeText(this, "分享功能全面更新啦！", Toast.LENGTH_LONG).show();
+            ShareHelper.showUp(this, mAnimation);
+            mSharedPreferences.edit().putInt("new_share_tips", shown + 1).apply();
+        }
     }
 
     @Override
@@ -340,7 +351,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            mFavMenuItem.setIcon(R.drawable.ab_fav_active);
+                            mFavMenuItem.setIcon(R.drawable.ic_action_action_favorite);
                         }
                     });
                 }
@@ -598,7 +609,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
                                     Toast.LENGTH_SHORT).show();
                         }
                     });
-                    item.setIcon(R.drawable.ab_fav_normal);
+                    item.setIcon(R.drawable.ic_action_action_favorite_outline);
                 } else {
                     mAnimation.addToFavorite(new Animation.UpdateFinishCallback() {
                         @Override
@@ -607,7 +618,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
                                     Toast.LENGTH_SHORT).show();
                         }
                     });
-                    item.setIcon(R.drawable.ab_fav_active);
+                    item.setIcon(R.drawable.ic_action_action_favorite);
                 }
                 return true;
             case R.id.action_download:
@@ -1009,8 +1020,6 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
             mPrePlayButton.setVisibility(View.VISIBLE);
             mVideoAction.setVisibility(View.VISIBLE);
         }
-
-        ;
     };
 
     @Override

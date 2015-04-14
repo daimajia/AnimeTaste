@@ -14,14 +14,16 @@
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
         -->
+        <!--<item name="actionBarStyle">@style/ActionBar</item>-->
     </style>
     <style name="LoadActivityTheme" parent="@style/Theme.AppCompat.Light">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@color/loadBackground</item>
     </style>
     <!-- Application theme. -->
-    <style name="ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-
+    <style name="ActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid">
+        <item name="logo">@drawable/rsz_ab_icon</item>
+        <item name="displayOptions">useLogo|showHome</item>
     </style>
 
     <style name="AppTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">

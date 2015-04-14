@@ -37,8 +37,10 @@ public class FavoriteActivity extends ActionBarActivity implements
 		mContext = this;
 		setContentView(R.layout.activity_fav);
 		mFavListView = (ListView) findViewById(R.id.videoList);
+		getSupportActionBar().setDisplayUseLogoEnabled(false);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setDisplayShowTitleEnabled(false);
+		getSupportActionBar().setDisplayShowTitleEnabled(true);
+		getSupportActionBar().setTitle("我的收藏");
 		mFavListView.setOnItemLongClickListener(this);
 		new LoadAsyncTask().execute();
 	}

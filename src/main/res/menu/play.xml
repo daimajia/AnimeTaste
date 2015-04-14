@@ -5,7 +5,7 @@
     <item
         android:id="@+id/action_fav"
         android:title="@string/ic_action_fav"
-        android:icon="@drawable/ab_fav_normal"
+        android:icon="@drawable/ic_action_action_favorite_outline"
         menu:showAsAction="always">
     </item>
     <item
@@ -16,7 +16,7 @@
     <item
         android:id="@+id/menu_item_share"
         android:title="Share"
-        android:icon="@drawable/icon_dark_share"
+        android:icon="@drawable/ic_action_social_share"
         menu:showAsAction="ifRoom"/>
 
 </menu>

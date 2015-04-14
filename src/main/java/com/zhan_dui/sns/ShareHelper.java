@@ -1,9 +1,9 @@
 package com.zhan_dui.sns;
 
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -26,6 +26,11 @@ import cn.sharesdk.wechat.friends.Wechat;
 import cn.sharesdk.wechat.moments.WechatMoments;
 
 public class ShareHelper {
+
+    private static void shareAction(Context context, MaterialDialog dialog) {
+        dialog.dismiss();
+        Toast.makeText(context, "感谢分享哟！", Toast.LENGTH_SHORT).show();
+    }
 
     public static void showUp(final Context context, final Animation animation) {
         View v = LayoutInflater.from(context).inflate(R.layout.layout_share, null, false);
@@ -56,12 +61,13 @@ public class ShareHelper {
             @Override
             public void onComplete(Platform platform, int i, HashMap<String, Object> stringObjectHashMap) {
                 Message msg = Message.obtain(showMsg);
-                msg.obj = "(๑•̀ㅂ•́)و✧ Ye";
+                msg.obj = "(๑•̀ㅂ•́)و分享成功！Ye";
                 msg.sendToTarget();
             }
 
             @Override
             public void onError(Platform platform, int i, Throwable throwable) {
+                Log.e("Error", throwable.getMessage());
                 Message msg = Message.obtain(showMsg);
                 msg.obj = "(⊙﹏⊙) 好像出了错误";
                 msg.sendToTarget();
@@ -81,11 +87,14 @@ public class ShareHelper {
             public void onClick(View v) {
                 SinaWeibo.ShareParams sp = new SinaWeibo.ShareParams();
                 Platform pf = ShareSDK.getPlatform(context, SinaWeibo.NAME);
-                sp.text = "「" + animation.Name + "」" + animation.Brief;
-                sp.imageUrl = animation.DetailPic;
-                sp.setSiteUrl(animation.OriginVideoUrl);
+                String toSend = "「" + animation.Name + "」 " + animation.OriginVideoUrl + " " + animation.Brief;
+                toSend = toSend.substring(0, 140);
+                sp.setText(toSend);
+                sp.setUrl(animation.OriginVideoUrl);
+                sp.setImageUrl(animation.DetailPic);
                 pf.setPlatformActionListener(platformActionListener);
                 pf.share(sp);
+                shareAction(context, dialog);
             }
         });
 
@@ -94,13 +103,14 @@ public class ShareHelper {
             public void onClick(View v) {
                 Platform plat = ShareSDK.getPlatform(context, Wechat.NAME);
                 Wechat.ShareParams sp = new Wechat.ShareParams();
-                sp.title = animation.Name;
-                sp.text = animation.Brief;
-                sp.imageUrl = animation.HomePic;
-                sp.url = animation.getShareUrl();
-                sp.shareType = Platform.SHARE_WEBPAGE;
+                sp.setTitle(animation.Name);
+                sp.setText(animation.Brief);
+                sp.setImageUrl(animation.HomePic);
+                sp.setUrl(animation.getShareUrl());
+                sp.setShareType(Platform.SHARE_WEBPAGE);
                 plat.setPlatformActionListener(platformActionListener);
                 plat.share(sp);
+                shareAction(context, dialog);
             }
         });
 
@@ -116,6 +126,7 @@ public class ShareHelper {
                 sp.shareType = Platform.SHARE_WEBPAGE;
                 plat.setPlatformActionListener(platformActionListener);
                 plat.share(sp);
+                shareAction(context, dialog);
             }
         });
 
@@ -131,6 +142,7 @@ public class ShareHelper {
                 sp.setShareType(QQ.SHARE_WEBPAGE);
                 plat.setPlatformActionListener(platformActionListener);
                 plat.share(sp);
+                shareAction(context, dialog);
             }
         });
 
@@ -146,14 +158,13 @@ public class ShareHelper {
                 sp.setShareType(QZone.SHARE_WEBPAGE);
                 plat.setPlatformActionListener(platformActionListener);
                 plat.share(sp);
+                shareAction(context, dialog);
             }
         });
 
         link.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                clipboardManager.setText(animation.getShareUrl());
                 int sdk = android.os.Build.VERSION.SDK_INT;
                 if (sdk < android.os.Build.VERSION_CODES.HONEYCOMB) {
                     android.text.ClipboardManager clipboard = (android.text.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
