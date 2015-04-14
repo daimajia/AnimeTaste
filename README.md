@@ -1,5 +1,5 @@
 #AnimeTaste(全球动画精选)[![Build Status](https://travis-ci.org/daimajia/AnimeTaste.png?branch=master)](https://travis-ci.org/daimajia/AnimeTaste)
-[English](./README.md)
+[English](./README-en.md)
 
 ---------------------
 
