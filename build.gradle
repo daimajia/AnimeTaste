@@ -18,10 +18,10 @@ apply plugin: 'android-sdk-manager'
 apply plugin: 'com.android.application'
 
 repositories {
+    maven { url 'https://dl.bintray.com/drummer-aidan/maven' }
     mavenCentral()
     mavenLocal()
     jcenter()
-    maven { url 'https://dl.bintray.com/drummer-aidan/maven' }
 }
 
 
