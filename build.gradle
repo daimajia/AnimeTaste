@@ -21,6 +21,7 @@ repositories {
     mavenCentral()
     mavenLocal()
     jcenter()
+    maven { url 'https://dl.bintray.com/drummer-aidan/maven' }
 }
 
 
