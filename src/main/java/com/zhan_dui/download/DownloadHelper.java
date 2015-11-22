@@ -135,7 +135,7 @@ public class DownloadHelper {
                 final File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
                 file.mkdirs();
                 YoukuRequest spider=new YoukuRequest();
-                spider.getVideoUrl(animation.OriginVideoUrl, new MediaLinkGetListener() {
+                spider.getVideoUrl(animation.OriginVideoUrl, true,new MediaLinkGetListener() {
                     @Override
                     public void onSuccess(List<MediaLink> links) {
 

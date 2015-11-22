@@ -25,20 +25,32 @@ public class MediaLink {
      * "flv", "flv", "标清"
      * "3gphd", "3gp", "高清"
      */
-    public static MediaLink getRecommendUrl(List<MediaLink> links) {
+    public static MediaLink getHdUrl(List<MediaLink> links) {
+        switch (links.size()) {
+            case 1:
+                return links.get(0);
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+                return links.get(links.size()-1);
+            default:
+                return links.get(0);
+        }
+    }
+    public static MediaLink getCommonUrl(List<MediaLink> links) {
         switch (links.size()) {
             case 1:
                 return links.get(0);
             case 2:
                 return links.get(1);
             case 3:
-                return links.get(2);
             case 4:
+            case 5:
                 return links.get(2);
             default:
                 return links.get(0);
         }
-
     }
 
     @Override

@@ -129,7 +129,7 @@ public class YoukuRequest {
         return null;
     }
 
-    public void getVideoUrl(final String htmlUrl, final MediaLinkGetListener linkGetListener) {
+    public void getVideoUrl(final String htmlUrl, final boolean userHd, final MediaLinkGetListener linkGetListener) {
         if (linkGetListener != null) {
             RequestProcessor.execute(new WorkHandler() {
                 List<MediaLink> mLinks;
@@ -156,9 +156,13 @@ public class YoukuRequest {
                         if (mLinks != null && mLinks.size() != 0) {
                             linkGetListener.onSuccess(mLinks);
                             l(TAG, "onSuccess");
-                            MediaLink recommend = MediaLink.getRecommendUrl(mLinks);
-                            l(TAG, "recommend" + recommend);
-                            linkGetListener.onRecommend(recommend.m3u8);
+                            if (userHd) {
+                                MediaLink recommend = MediaLink.getHdUrl(mLinks);
+                                linkGetListener.onRecommend(recommend.m3u8);
+                            }else {
+                                MediaLink recommend = MediaLink.getCommonUrl(mLinks);
+                                linkGetListener.onRecommend(recommend.m3u8);
+                            }
                         } else {
                             l(TAG, "onFailure");
                             linkGetListener.onFailure();
@@ -247,14 +251,13 @@ public class YoukuRequest {
         return urlsList;
     }
 
-    void l(String msg)
-    {
+    void l(String msg) {
         if (BuildConfig.DEBUG) {
             Log.v(TAG, msg);
         }
     }
-    void l(String tag,String msg)
-    {
+
+    void l(String tag, String msg) {
         if (BuildConfig.DEBUG) {
             Log.v(tag, msg);
         }

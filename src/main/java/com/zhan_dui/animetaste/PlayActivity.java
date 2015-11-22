@@ -561,7 +561,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
             }
         }
         YoukuRequest spider = new YoukuRequest();
-        spider.getVideoUrl(mAnimation.OriginVideoUrl, new MediaLinkGetListener() {
+        spider.getVideoUrl(mAnimation.OriginVideoUrl,mSharedPreferences.getBoolean("use_hd", true), new MediaLinkGetListener() {
             @Override
             public void onSuccess(List<MediaLink> links) {
 
