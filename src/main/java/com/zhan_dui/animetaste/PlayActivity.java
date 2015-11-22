@@ -53,6 +53,9 @@ import com.baidu.cyberplayer.core.BVideoView.OnCompletionListener;
 import com.baidu.cyberplayer.core.BVideoView.OnErrorListener;
 import com.baidu.cyberplayer.core.BVideoView.OnPreparedListener;
 import com.basv.gifmoviewview.widget.GifMovieView;
+import com.diandi.klob.player.spider.MediaLink;
+import com.diandi.klob.player.spider.MediaLinkGetListener;
+import com.diandi.klob.player.spider.YoukuRequest;
 import com.github.johnpersano.supertoasts.SuperToast;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.squareup.picasso.Picasso;
@@ -537,7 +540,7 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
 
     }
 
-    private void startPlayAnimation(final int start, Animation animation) {
+    private void startPlayAnimation(final int start, final Animation animation) {
         final String playUrl = mSharedPreferences.getBoolean("use_hd", true) ? mAnimation.HDVideoUrl : mAnimation.CommonVideoUrl;
         DownloadRecord record = DownloadRecord.getFromAnimation(mAnimation, true);
         if (record != null) {
@@ -557,7 +560,24 @@ public class PlayActivity extends ActionBarActivity implements OnClickListener,
                 Toast.makeText(mContext, R.string.offline_file_missing, Toast.LENGTH_LONG).show();
             }
         }
-        startPlayAnimationFromNet(playUrl, mLastPos, animation);
+        YoukuRequest spider = new YoukuRequest();
+        spider.getVideoUrl(mAnimation.OriginVideoUrl, new MediaLinkGetListener() {
+            @Override
+            public void onSuccess(List<MediaLink> links) {
+
+            }
+
+            @Override
+            public void onFailure() {
+                errorHandler.sendEmptyMessage(0);
+
+            }
+
+            @Override
+            public void onRecommend(String url) {
+                startPlayAnimationFromNet(url, mLastPos, animation);
+            }
+        });
     }
 
     private void startPlayAnimationFromNet(final String url, final int start, Animation animation) {

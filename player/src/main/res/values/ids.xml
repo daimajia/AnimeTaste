@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="header_wrapper" type="id"/>
+    <item name="view_holder" type="id"/>
+    <item name="video_view" type="id"/>
+
+    <item name="loading_gif" type="id"/>
+    <item name="detailPic" type="id"/>
+    <item name="VideoAction" type="id"/>
+
+    <item name="pre_play_button" type="id"/>
+    <item name="play_btn" type="id"/>
+
+    <item name="controlbar" type="id"/>
+    <item name="media_progress" type="id"/>
+    <item name="time_total" type="id"/>
+    <item name="time_current" type="id"/>
+
+    <item name="volume" type="id"/>
+
+
+</resources>

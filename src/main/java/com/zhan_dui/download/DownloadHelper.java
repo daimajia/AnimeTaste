@@ -12,6 +12,9 @@ import android.os.IBinder;
 import android.widget.Toast;
 
 import com.activeandroid.query.Select;
+import com.diandi.klob.player.spider.MediaLink;
+import com.diandi.klob.player.spider.MediaLinkGetListener;
+import com.diandi.klob.player.spider.YoukuRequest;
 import com.zhan_dui.animetaste.R;
 import com.zhan_dui.download.alfred.missions.M3U8Mission;
 import com.zhan_dui.model.Animation;
@@ -21,6 +24,7 @@ import com.zhan_dui.services.DownloadService.DownloadServiceBinder;
 import com.zhan_dui.utils.NetworkUtils;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Created by daimajia on 14-4-3.
@@ -128,11 +132,27 @@ public class DownloadHelper {
                         }
                     }
                 }
-                File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+                final File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
                 file.mkdirs();
-                M3U8Mission mission = new M3U8Mission(animation.SD,file.getAbsolutePath() + "/AnimeTaste/" ,animation.Name + ".ts");
-                mission.addExtraInformation(mission.getUri(),animation);
-                mDownloadServiceBinder.startDownload(mission);
+                YoukuRequest spider=new YoukuRequest();
+                spider.getVideoUrl(animation.OriginVideoUrl, new MediaLinkGetListener() {
+                    @Override
+                    public void onSuccess(List<MediaLink> links) {
+
+                    }
+
+                    @Override
+                    public void onFailure() {
+
+                    }
+
+                    @Override
+                    public void onRecommend(String url) {
+                        M3U8Mission mission = new M3U8Mission(url, file.getAbsolutePath() + "/AnimeTaste/", animation.Name + ".ts");
+                        mission.addExtraInformation(mission.getUri(), animation);
+                        mDownloadServiceBinder.startDownload(mission);
+                    }
+                });
             }
         }.start();
     }

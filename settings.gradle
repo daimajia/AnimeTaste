@@ -1,1 +1,2 @@
 include(':libraries:gif-library')
+include(':player')
