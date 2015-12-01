@@ -35,7 +35,7 @@ public class MediaLink {
             case 5:
                 return links.get(links.size()-1);
             default:
-                return links.get(0);
+                return  links.get(links.size()-1);
         }
     }
     public static MediaLink getCommonUrl(List<MediaLink> links) {

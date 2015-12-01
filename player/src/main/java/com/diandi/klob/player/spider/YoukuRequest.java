@@ -1,5 +1,6 @@
 package com.diandi.klob.player.spider;
 
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
@@ -140,8 +141,11 @@ public class YoukuRequest {
                     try {
                         //  String fileUrl = getFileUrl(htmlUrl);
                         // return getRealUrl(fileUrl);
-                        mLinks = getFileUrl(htmlUrl);
-                        isSuccess = true;
+                        if(userHd) {
+                            mLinks = getFileUrl(htmlUrl, 2);
+                        }else {
+                            mLinks = getFileUrl(htmlUrl, 1);
+                        }isSuccess = true;
                     } catch (Exception e) {
                         e.printStackTrace();
                         isSuccess = false;
@@ -176,8 +180,35 @@ public class YoukuRequest {
         }
     }
 
-    private List<MediaLink> getFileUrl(String htmlUrl) throws JSONException {
-        htmlUrl = htmlUrl.replace("==", "");
+    private List<MediaLink> getFileUrl(String htmlUrl, int seg) {
+        List<MediaLink> m3u8s = new ArrayList<>();
+        MediaLink link = new MediaLink();
+
+        htmlUrl = URLEncoder.encode(htmlUrl);
+        if (seg == 0) {
+            link.type = "flv";
+        } else if (seg == 1) {
+            link.type = "mp4";
+            htmlUrl += "&format=high";
+        } else if (seg == 2) {
+            link.type = "flvhd";
+            htmlUrl += "format=super";
+        }
+        String text;
+        try {
+            text = Requester.request(htmlUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
+            text = "";
+        }
+        if (!TextUtils.isEmpty(text)) {
+            link.m3u8 = text;
+            m3u8s.add(link);
+            return m3u8s;
+        }
+        return null;
+
+       /* htmlUrl = htmlUrl.replace("==", "");
         String id = "";
         String ru = ".*id_(\\w+)\\.html";
         Pattern p = Pattern.compile(ru);
@@ -205,7 +236,7 @@ public class YoukuRequest {
         String sid = null;
         String token = null;
 
-        List<String> types = M3U8Utils.getStreamtypes(obj1);
+        List<String> types = TrueLink.getStreamtypes(obj1);
         String vid = obj1.getString("videoid");
 
         String[] values = getValues(vid, ep);
@@ -215,7 +246,7 @@ public class YoukuRequest {
 
         List<MediaLink> m3u8s = new ArrayList<>();
         for (String type1 : types) {
-            m3u8s.add(M3U8Utils.builderLink(ep, oip, sid, token, type1, vid));
+            m3u8s.add(TrueLink.builderLink(ep, oip, sid, token, type1, vid));
         }
         System.out.println("m3u8s地址：" + m3u8s);
         String type = "hd2";
@@ -223,7 +254,7 @@ public class YoukuRequest {
                 "&ev=1&keyframe=1&oip=" + oip + "&sid=" + sid + "&token=" +
                 token + "&type=" + type + "&vid=" + vid;
 
-        return m3u8s;
+        return m3u8s;*/
     }
 
     private List<String> getRealUrl(String strUrl) throws IOException {
