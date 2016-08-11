@@ -11,17 +11,18 @@ buildscript {
 }
 
 task wrap(type: Wrapper) {
-  gradleVersion = '1.9'
+    gradleVersion = '1.9'
 }
 
 apply plugin: 'android-sdk-manager'
 apply plugin: 'com.android.application'
 
 repositories {
+    jcenter()
     maven { url 'https://dl.bintray.com/drummer-aidan/maven' }
     mavenCentral()
     mavenLocal()
-    jcenter()
+    maven { url "https://jitpack.io" }
 }
 
 
@@ -38,18 +39,18 @@ dependencies {
 }
 
 
-ext.compileSdkVersion=21
-ext.buildToolsVersion="21.1.2"
+ext.compileSdkVersion = 21
+ext.buildToolsVersion = "21.1.2"
 
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
 
-    lintOptions {  
-          abortOnError false
+    lintOptions {
+        abortOnError false
     }
     sourceSets {
-        main{
+        main {
             assets {
                 srcDir 'assets'
             }
