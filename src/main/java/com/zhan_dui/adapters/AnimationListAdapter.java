@@ -125,9 +125,13 @@ public class AnimationListAdapter extends BaseAdapter {
 			thumbImageView = holder.thumbImageView;
 		}
 		Animation animation = (Animation) getItem(position);
-		Picasso.with(mContext).load(animation.HomePic)
-				.placeholder(R.drawable.placeholder_thumb)
-				.error(R.drawable.placeholder_fail).into(thumbImageView);
+		
+		if (animation.HomePic != null && animation.HomePic.length() != 0) {
+        	   Picasso.with(mContext).load(animation.HomePic)
+                    .placeholder(R.drawable.placeholder_thumb)
+                    .error(R.drawable.placeholder_fail).into(thumbImageView);
+		   }
+		   
 		titleTextView.setText(animation.Name);
 		contentTextView.setText(animation.Brief);
 		convertView.setOnClickListener(new AnimationItemOnClickListener(animation));
