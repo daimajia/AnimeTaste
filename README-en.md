@@ -1,4 +1,4 @@
-#AnimeTaste (Global Animation)[![Build Status](https://travis-ci.org/daimajia/AnimeTaste.png?branch=master)](https://travis-ci.org/daimajia/AnimeTaste)
+# AnimeTaste (Global Animation)[![Build Status](https://travis-ci.org/daimajia/AnimeTaste.png?branch=master)](https://travis-ci.org/daimajia/AnimeTaste)
 
 [中文](./README-cn.md)
 
