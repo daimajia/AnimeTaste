@@ -1,4 +1,4 @@
-#AnimeTaste(全球动画精选)[![Build Status](https://travis-ci.org/daimajia/AnimeTaste.png?branch=master)](https://travis-ci.org/daimajia/AnimeTaste)
+# AnimeTaste(全球动画精选)[![Build Status](https://travis-ci.org/daimajia/AnimeTaste.png?branch=master)](https://travis-ci.org/daimajia/AnimeTaste)
 [English](./README-en.md)
 
 ---------------------
@@ -53,7 +53,7 @@ Step-All:
 如果出现错误或者有任何问题，请放轻松[联系我](mailto:daimajia@gmail.com)。
 
 
-###关于我：
+### 关于我：
 我是个学生，酷爱开发，擅长Android、php、python、nodejs、web，如果您手头有适合我的实习或者工作机会，欢迎邮件联系我:  [daimajia#gmail.com](mailto:daimajia@gmail.com)
 
 *	[西北大学](http://zh.wikipedia.org/wiki/%E8%A5%BF%E5%8C%97%E5%A4%A7%E5%AD%A6_\(%E4%B8%AD%E5%9B%BD\))
